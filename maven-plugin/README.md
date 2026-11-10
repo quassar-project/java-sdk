@@ -1,8 +1,40 @@
 # Quassar Maven Plugin
 
-Generate Java decorators from an M2 metamodel and compile `.itr` templates during the Maven build. Requires Java 17 and Maven 3.9.9 or newer.
+Turn your DSL's metamodel into typed Java classes and compile `.itr` templates during the Maven build. Use Java 17 and Maven 3.9.9 or later.
 
-## Configure Maven
+## 1. Define the language and save a model
+
+M2 describes the language. M1 contains the objects written in that language.
+
+Save the metamodel as `m2/library.tara`.
+
+```tara
+dsl metta
+
+Concept Book
+	def string title
+	has Chapter
+
+Concept Chapter as component
+	def string title
+```
+
+Name the metamodel in `m2/manifest.json`. The name `Library` gives the generated model class its name, `LibraryModel`.
+
+```json
+{"name":"Library"}
+```
+
+Save one book and its chapter as `m1/library.tara`.
+
+```tara
+Book(title = "The Metamorphosis") TheMetamorphosis
+	Chapter Opening > title = "The transformation"
+```
+
+## 2. Configure Maven
+
+In your project's POM, set `maven.compiler.release` to `17` or later and add this build configuration.
 
 ```xml
 <build>
@@ -19,60 +51,74 @@ Generate Java decorators from an M2 metamodel and compile `.itr` templates durin
 			</executions>
 			<configuration>
 				<package>example</package>
-				<metamodel>https://quassar.io/models/[id]</metamodel>
+				<metamodel>${project.baseUri}m2/</metamodel>
+				<scaffold>none</scaffold>
 			</configuration>
 		</plugin>
 	</plugins>
 </build>
 ```
 
-Replace `[id]` with your metamodel ID. The URL serves the metamodel ZIP. The plugin generates the decorators and the model class in the configured package plus `.model`. Omit `metamodel` to generate only template classes.
+The path points to your local M2 directory. For a remote metamodel, use `https://quassar.io/models/[id]` and replace `[id]` with its ID. The plugin also accepts a ZIP. With `extensions` enabled, Maven adds the reader and template engine as project dependencies.
 
-To read a local M2 folder, use `<metamodel>${project.baseUri}m2/</metamodel>`. The reader includes `.tara` files in subfolders.
+The tutorial sets `scaffold` to `none` because you supply the model and template files in the following steps.
 
-Place `manifest.json` at the root of the M2 folder or ZIP. Its `name` sets the generated model class name. For example, `Library` generates `LibraryModel`. If the manifest has no name or is absent, the class is named `DecoratedModel`.
+## 3. Generate and use the Java classes
 
-See [Generate decorators from M2](docs/metamodel.md) for the metamodel format and Java API.
+Run `mvn compile`. The plugin writes generated Java under `src/main/gen`. With the package in this example, model classes are under `example.model`.
 
-With `<extensions>true</extensions>`, Maven includes `quassar.io:model-reader` and `quassar.io:template-engine` as compile dependencies, including in projects that only compile templates. The plugin adds them to the Maven project and the published POM. Their default versions match the plugin version, and explicit declarations and versions from `dependencyManagement` are preserved.
+```java
+import example.model.LibraryModel;
+import java.nio.file.Path;
 
-| Parameter | Default |
-| --- | --- |
-| `package` | `generated` |
-| `metamodel` | Optional URL of the M2 ZIP or a local M2 folder |
-| `scaffold` | `application`. Also accepts `maven-plugin` or `none` |
-| `templatesDirectory` | `${project.basedir}/src/main/resources` |
-| `outputDirectory` | `${project.basedir}/src/main/gen` |
+var library = LibraryModel.load(Path.of("m1"));
+var book = library.books().get(0);
 
-With `<scaffold>application</scaffold>`, the plugin creates an editable `Main.java` in the configured package when the main source directory contains no Java files. With a metamodel configured, it loads M1 from the first command-line argument or from `m1` by default. If the project has no `.itr` files yet, the plugin also creates an editable `model-json.itr` in the templates directory and compiles it in the same build. It groups root mograms by type, renders their properties and nested children, and writes references as identifiers. Missing scalar fields are omitted. If there is exactly one template, `Main` prints its output for the loaded model. A template-only project gets an empty entry point.
+System.out.println(book.title());
+System.out.println(book.chapters().get(0).title());
+```
 
-Use `<scaffold>none</scaffold>` to generate decorators and compile existing templates without creating starter files.
+The model exposes the root books. Chapters are components, so you access them through a book.
 
-## Scaffold a Maven generator
+## 4. Render with a template
 
-Set `<packaging>maven-plugin</packaging>` on the project and add `<scaffold>maven-plugin</scaffold>` to the Quassar plugin configuration. Set `maven.compiler.release` to 17 or later. The Quassar extension supplies the Maven plugin API and annotations as `provided` dependencies.
-
-In an empty Java source directory, Quassar creates an editable Mojo with a `generate` goal. A metamodel named `Library` in `manifest.json` generates `LibraryMojo.java`. If the manifest has no name or is absent, Quassar generates `GenerateMojo.java`. Existing sources and templates take precedence. If a metamodel and exactly one template are available, the goal reads `m1` from the consuming project and writes the rendered result to `target/generated-resources/model.json`. Set `-Dquassar.source` and `-Dquassar.output` to change those paths. With other configurations, the generated goal has an empty body to customize.
-
-Run `mvn install` to install your generator and invoke its `generate` goal from the consuming project.
-
-## Render from Java
-
-Save the template as `src/main/resources/book-summary.itr`.
+Save this as `src/main/resources/book-summary.itr` and run `mvn compile` again.
 
 ```itr
 rule type(Book)
 	Book: $title
 ```
 
-Run `mvn compile`. Each `.itr` file generates one Java class in the configured package plus `.templates`.
-
 ```java
-import example.model.LibraryModel;
 import example.templates.BookSummaryTemplate;
 
-var library = LibraryModel.load(java.nio.file.Path.of("library.zip"));
-String summary = BookSummaryTemplate.render(library.books().get(0));
+String summary = BookSummaryTemplate.render(book);
 ```
 
-The generated class renders with Java rules compiled during the build, so `render` works without the `.itr` file at runtime.
+The result is `Book: The Metamorphosis`. Maven compiles each template into its own Java class, so the generated renderer can run without the original `.itr` file.
+
+## Choose what to scaffold
+
+Set `scaffold` in the plugin's `configuration`. Starter files are created when the main Java source directory is empty. Existing sources and templates take precedence.
+
+| Value | What it creates |
+| --- | --- |
+| `application` (default) | An editable `Main.java`. It loads `m1` by default and prints the result when one template is available. |
+| `maven-plugin` | An editable Mojo with a `generate` goal. Set the project's packaging to `maven-plugin`. A metamodel named `Library` produces `LibraryMojo.java`. |
+| `none` | Only generated Java from the configured metamodel and existing templates. |
+
+If M2 is configured and the templates directory has no `.itr` files, an application or Maven plugin scaffold also creates `model-json.itr`. To generate Java from templates alone, omit `metamodel`.
+
+The generated Maven goal reads `m1` and writes `target/generated-resources/model.json` when a metamodel and one template are available. Set `-Dquassar.source` and `-Dquassar.output` to use other paths.
+
+## Configuration reference
+
+| Parameter | Default |
+| --- | --- |
+| `package` | `generated` |
+| `metamodel` | Optional M2 folder or ZIP URL |
+| `scaffold` | `application` |
+| `templatesDirectory` | `${project.basedir}/src/main/resources` |
+| `outputDirectory` | `${project.basedir}/src/main/gen` |
+
+For property types, cardinality, and the generated Java API, see the [M2 guide](docs/metamodel.md).

@@ -1,6 +1,8 @@
 # Template reference
 
-[Quick start](../README.md) · [Examples](examples.md) · [All projects](../../../README.md)
+[Quick start](../README.md) · [Examples](examples.md)
+
+Read a rule from top to bottom. Its condition selects the object and its indented body describes the output.
 
 ## Rules
 
@@ -15,7 +17,9 @@ Indent the rule body with a tab. Additional indentation becomes part of the rend
 
 ## Data and slots
 
-Java objects and records become frames. [Annotated methods](../README.md#annotated-objects) and [generated decorators](../README.md#generated-decorators) can expose slots and explicit type names. Their class names supply frame types; their fields supply named slots. An object-valued slot can invoke another rule. Lists supply multiple values under the same slot name.
+The engine represents input objects as frames. For a plain Java record, the class name is the frame type and each field supplies a named value called a slot. An object-valued slot can invoke another rule, and a list supplies multiple values under the same name.
+
+[Annotated methods](../README.md#annotated-objects) and [generated decorators](../README.md#generated-decorators) can supply their own types and slots.
 
 ```itr
 rule type(Book)

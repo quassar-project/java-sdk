@@ -2,7 +2,7 @@
 
 [Quassar Maven Plugin](../README.md)
 
-Java library for reading metamodels and generating immutable Java decorators.
+Use this guide to see how an M2 declaration becomes part of the generated Java API. Start with the Maven Plugin tutorial if you want a complete M2 and M1 example.
 
 ## Generate from Java
 
@@ -56,7 +56,7 @@ boolean available = book.available();
 
 `LibraryModel.load(...)` accepts `Path`, `URL` and `URI`, and declares `IOException`. It loads model instances using `model-reader`. The M2 metamodel supplies the declarations used to generate the Java API.
 
-Model collection methods include nested mograms. Child collection methods return direct children of the declared type. Every decorator retains both the underlying `Mogram` and its `Model` for reference resolution.
+Model collection methods return root mograms of the declared type. Child collection methods return direct children of the declared type. References resolve against the loaded model.
 
 For a book with the `Printed` facet, `book.isPrinted()` checks whether it is active and `book.asPrinted()` returns its typed view. Facet property getters belong to that view, so read the ISBN with `book.asPrinted().isbn()`. When the facet is absent, the view returns `true` from `isNull()`.
 
@@ -98,7 +98,7 @@ Properties retain their declared type, sequence element type, reference target s
 From the repository root:
 
 ```sh
-mvn -f quassar-java-sdk/pom.xml -pl maven-plugin -am test
+mvn -pl maven-plugin -am test
 ```
 
 Tests use JUnit 5 and AssertJ with M2 metamodel resources and Java fixtures. They compile and execute generated decorators against model instances, covering facets, references, sequences, positional properties, null objects, model loading and Java name collisions.

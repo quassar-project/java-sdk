@@ -1,8 +1,8 @@
-# itrules examples
+# Template examples
 
-[Start here](../README.md) · [Template reference](templates.md) · [All projects](../../../README.md)
+[Start here](../README.md) · [Template reference](templates.md)
 
-Examples use the `Book`, `Author` and `Library` records from the [catalogue example](../README.md#example-a-library-catalogue). Load each template through `TemplateEngine.with(input)` and render the corresponding object.
+Reuse the `Book`, `Author` and `Library` records from the [catalogue example](../README.md#render-a-library-catalogue). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(input)`, and pass the object named in the rule to `render`.
 
 ## Choose a rule from the data
 

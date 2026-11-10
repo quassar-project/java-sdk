@@ -2,6 +2,8 @@
 
 [Usage guide](../README.md) · [Examples](examples.md) · [Template reference](templates.md)
 
+Follow a render request through the engine. A template reader turns `.itr` text into rules, a frame factory adapts the input object, and the renderer applies the rules to those frames.
+
 ```text
 io.quassar.templating
 ├── TemplateEngine, TemplateVerifier, Frames

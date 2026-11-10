@@ -1,37 +1,8 @@
 # Model Reader
 
-[All projects and documentation](../README.md)
+Load models written in your Tara DSL and query them from Java. The reader needs Java 17 or later.
 
-Java 17+ library for loading Tara models and querying their mograms.
-
-## Example Tara model
-
-```tara
-dsl library
-
-Author(name = "Miguel de Cervantes") Cervantes
-Author(name = "Franz Kafka") Kafka
-
-Book(year = 1605, available = true, author = Cervantes) DonQuixote is Printed(isbn = "9788420412146") Classic
-	title = "Don Quijote de la Mancha"
-	tags = "novel" "classic"
-
-	Chapter(number = 1) FirstChapter
-		title = "Que trata de la condición y ejercicio del famoso hidalgo"
-
-	Chapter(number = 2) SecondChapter > title = "De la primera salida"
-
-Book(year = 1925, author = Kafka) TheTrial is Digital(format = "EPUB")
-	title = "El proceso"
-
-	Chapter(number = 1) Arrest > title = "La detención"
-```
-
-`Book` is the type and `DonQuixote` is the identifier. `Printed` and `Classic` are facets. All properties belong to the mogram, including `isbn`, declared alongside a facet.
-
-Chapters are children of books. `author = Cervantes` references the author.
-
-## Maven dependency
+## 1. Add the dependency
 
 ```xml
 <dependency>
@@ -41,217 +12,93 @@ Chapters are children of books. `author = Cervantes` references the author.
 </dependency>
 ```
 
-## Load a model
+## 2. Save a small model
+
+Put this in `m1/library.tara`.
+
+```tara
+Author(name = "Franz Kafka") Kafka
+
+Book(year = 1915, author = Kafka) TheMetamorphosis
+	title = "The Metamorphosis"
+	tags = "fiction" "novella"
+	Chapter(number = 1) Opening > title = "The transformation"
+```
+
+Each object is a *mogram*. `Book` is its type and `TheMetamorphosis` is its identifier. Indentation makes `Opening` a child of the book. The value `Kafka` refers to the author by identifier.
+
+## 3. Load the model and follow a reference
 
 ```java
 import io.quassar.reader.Models;
-import io.quassar.reader.model.Model;
-
 import java.nio.file.Path;
 
-Model model = Models.load(Path.of("library.zip"));
+public class LibraryExample {
+	public static void main(String[] args) throws Exception {
+		var model = Models.load(Path.of("m1"));
+		var book = model.get("TheMetamorphosis");
+		var author = model.get(book.property("author"), book);
+
+		System.out.println(book.property("title").asString());
+		System.out.println(author.property("name").asString());
+	}
+}
 ```
 
-You can also load a folder with subfolders, a ZIP URL, or a `.tara` URL.
+This prints `The Metamorphosis` and `Franz Kafka`. Passing `book` as context lets the reader resolve references relative to the book before looking from the root. Use `model.get(value)` when the reference is already rooted.
+
+## 4. Find and navigate mograms
+
+Use an identifier path when you know the exact object. Use a query when you want to filter or navigate.
 
 ```java
-Model folder = Models.load(Path.of("library"));
-Model remote = Models.load(URI.create("https://example.org/library.zip"));
-Model bundled = Models.load(Main.class.getResource("/library.tara"));
+var chapter = model.get("TheMetamorphosis.Opening");
+var parent = model.parentOf(chapter);
+
+var books = model.roots().type("Book").list();
+var chapters = model.select(book).children().type("Chapter").list();
+var allChapters = model.select(book).descendants().type("Chapter").list();
 ```
 
-`Models.load(...)` accepts `Path`, `URL` and `URI`, and declares `IOException`. All `.tara` files become part of a single model and can reference each other.
+`model.roots()` starts at the top level, `model.select()` starts with every mogram, and `model.select(book)` starts with one mogram. Add filters such as `type("Book")`, `facet("Printed")`, or `withProperty("title")`. Finish with `list()`, `stream()`, `first()`, `count()`, or `isEmpty()`. Queries return new selections and their result lists are immutable.
 
-## Get a mogram
+## Read values and handle missing data
 
-`get(path)` returns the mogram identified by a path from the root.
-
-```java
-import io.quassar.reader.model.Mogram;
-
-Mogram book = model.get("DonQuixote");
-Mogram chapter = model.get("DonQuixote.FirstChapter");
-```
-
-To search by type, use `select().type(...)`:
+Use a typed accessor for the property you expect.
 
 ```java
-List<Mogram> books = model.select().type("Book").list();
-```
+import io.quassar.reader.model.Value;
 
-## Access mogram data
-
-```java
-String type = book.type();
-String identifier = book.identifier();
-List<String> facets = book.facets();
-List<Mogram> children = book.children();
-Value title = book.property("title");
-Value isbn = book.property("isbn");
-Mogram parent = model.parentOf(chapter);
-```
-
-`identifier()` returns `""` when absent. `property(name)` returns `Value.Empty` when the property is absent. For a root mogram, `parentOf(...)` returns `Mogram.NULL`.
-
-Value types are `Value.Text`, `Value.Number`, `Value.Bool`, `Value.Reference`, `Value.Sequence` and `Value.Empty`:
-
-```java
-if (title.isString()) System.out.println(title.asString());
-BigDecimal year = book.property("year").asNumber();
-boolean available = book.property("available").asBoolean();
-```
-
-Each name identifies a single property. Multiple values are grouped in `Value.Sequence`:
-
-```java
-List<String> tags = book.property("tags").asSequence().stream()
+var year = book.property("year").asNumber();
+var tags = book.property("tags").asSequence().stream()
 	.map(Value::asString)
 	.toList();
+
+if (book.property("isbn").isEmpty()) {
+	System.out.println("ISBN unavailable");
+}
 ```
 
-Type checks and accessors:
-
-| Check | Accessor | Return type |
+| Value | Check | Read |
 | --- | --- | --- |
-| `isString()` | `asString()` | `String` |
-| `isNumber()` | `asNumber()` | `BigDecimal` |
-| `isBoolean()` | `asBoolean()` | `boolean` |
-| `isReference()` | `asReference()` | Reference path as `String` |
-| `isSequence()` | `asSequence()` | Immutable `List<Value>` |
-| `isEmpty()` | — | Checks for `Value.Empty` |
+| Text | `isString()` | `asString()` |
+| Number | `isNumber()` | `asNumber()` returns a `BigDecimal` |
+| Boolean | `isBoolean()` | `asBoolean()` |
+| Reference | `isReference()` | `asReference()` returns the path |
+| Sequence | `isSequence()` | `asSequence()` returns an immutable list |
 
-Accessors do not convert between types. For a different type, including `Value.Empty`, they return `""`, zero, `false` or an empty list. `asReference()` returns the path; use `model.get(value)` to obtain its target mogram. Import `java.math.BigDecimal` when declaring numeric variables.
+A missing property returns `Value.Empty`. Typed accessors return an empty string, zero, `false`, or an empty list when the value has a different type. Use the checks when you need to distinguish a missing value from a real zero or empty string.
 
-## Filter and navigate
+A missing mogram, an unresolved reference, the parent of a root mogram, and `first()` on an empty query return `Mogram.NULL`. Check the result with `isNull()`.
 
-Printed books:
-
-```java
-List<Mogram> printedBooks = model.select()
-		.type("Book")
-		.facet("Printed")
-		.list();
-```
-
-Chapters of a book:
+## Load from another source
 
 ```java
-List<Mogram> chapters = model.select(book)
-		.children()
-		.type("Chapter")
-		.list();
+import java.net.URI;
+
+var archive = Models.load(Path.of("library.zip"));
+var remote = Models.load(URI.create("https://example.org/library.zip"));
+var bundled = Models.load(LibraryExample.class.getResource("/library.tara"));
 ```
 
-Chapters at any nesting level:
-
-```java
-List<Mogram> chapters = model.select(book)
-		.descendants()
-		.type("Chapter")
-		.list();
-```
-
-Books by Cervantes:
-
-```java
-List<Mogram> books = model.select()
-		.type("Book")
-		.withProperty("author", new Value.Reference("Cervantes"))
-		.list();
-```
-
-Other queries:
-
-```java
-List<Mogram> titled = model.select().withProperty("title").list();
-List<Mogram> named = model.select().where(mogram -> !mogram.identifier().isEmpty()).list();
-List<Mogram> parents = model.select(book).children().parents().list();
-```
-
-Starting points:
-
-| Method | Selection |
-| --- | --- |
-| `model.select()` | All mograms |
-| `model.roots()` | Root mograms only |
-| `model.select(mogram)` | A specific mogram |
-
-Chain `type`, `identifier`, `facet`, `withProperty`, `where`, `children`, `descendants` and `parents`. Finish with `list()`, `stream()`, `first()`, `count()` or `isEmpty()`:
-
-```java
-int total = model.select().type("Book").count();
-Mogram first = model.select().type("Book").first();
-boolean empty = model.select(book).children().isEmpty();
-```
-
-Each operation returns a new selection without changing the previous one. Returned lists are immutable.
-
-Use `stream()` to continue with Java stream operations:
-
-```java
-List<String> identifiers = model.select()
-	.type("Book")
-	.stream()
-	.map(Mogram::identifier)
-	.toList();
-```
-
-Each call to `stream()` returns a new stream without consuming or modifying the query.
-
-
-To access the collections directly:
-
-```java
-List<Mogram> roots = model.mograms();
-List<Mogram> all = model.allMograms();
-```
-
-## Get the target of a reference
-
-`get(...)` also accepts a reference:
-
-```java
-Mogram author = model.get(book.property("author"));
-```
-
-Provide a context to look up a relative path:
-
-```java
-Mogram chapter = model.get(new Value.Reference("FirstChapter"), book);
-```
-
-Without a context, the path is looked up from the root. With a context, the lookup checks its enclosing scopes first, then the root. Each call returns a single mogram. If the value is not a reference or no target exists, it returns `Mogram.NULL`.
-
-## Run tests
-
-From this folder:
-
-```sh
-mvn test
-```
-
-Tests use JUnit 5, AssertJ and the book models in `src/test/resources/tara`. Java assertion flags are not required.
-
-To include the optional original-inventory test:
-
-```sh
-TARA_MODEL_ZIP="/path/to/inventory.zip" mvn test
-```
-
-
-## Null mograms
-
-`get(...)` accepts a property value directly and checks whether it is a reference. Non-reference values, missing targets and missing parents return the immutable null object `Mogram.NULL`:
-
-```java
-Mogram author = model.get(book.property("author"));
-Mogram parent = model.parentOf(book);
-boolean absent = author.isNull();
-```
-
-The null mogram has empty type, identifier, properties, facets and children. Its properties return `Value.Empty`, so lookups can be chained safely. Null mograms do not appear in query results. Query `first()` also returns `Mogram.NULL` when the selection is empty.
-
-
-## Generate domain decorators
-
-The [Quassar Maven Plugin](../maven-plugin/README.md) generates records during the Maven build, such as `Book(Mogram mogram, Model model)` with typed property getters, decorated references, facet checks and decorated child lists.
+A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `book.title()`, see the [Maven Plugin guide](../maven-plugin/README.md).
