@@ -1,0 +1,35 @@
+name: Java SDK
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+      - name: Set up Maven
+        env:
+          MAVEN_VERSION: '3.9.9'
+        run: |
+          base_url="https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.tar.gz"
+          archive="$RUNNER_TEMP/maven.tar.gz"
+          curl --fail --silent --show-error --location "$base_url" --output "$archive"
+          curl --fail --silent --show-error --location "$base_url.sha512" --output "$archive.sha512"
+          printf '%s  %s\n' "$(cat "$archive.sha512")" "$archive" | sha512sum --check
+          tar -xzf "$archive" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/apache-maven-$MAVEN_VERSION/bin" >> "$GITHUB_PATH"
+      - name: Test and install the SDK
+        run: mvn -B -ntp clean install
+      - name: Test Maven consumers
+        run: python3 maven-plugin/src/test/maven/verify.py
