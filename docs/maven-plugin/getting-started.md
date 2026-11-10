@@ -2,6 +2,8 @@
 
 Turn your DSL's metamodel into typed Java classes and compile `.itr` templates during the Maven build. Use Java 17 and Maven 3.9.9 or later.
 
+This quickstart uses a web service DSL to show how the plugin turns M2 into Java accessors and how a template reads endpoint data from M1. The [client generation example](web-service-client.md) takes the same model through to a Java client that sends HTTP requests.
+
 ## 1. Prepare M2 and M1 in Quassar
 
 M2 describes the language. M1 contains the objects written in that language. Copy the download URL for each model from Quassar. Use the M2 URL in Maven and the M1 URL when you load the model in Java.

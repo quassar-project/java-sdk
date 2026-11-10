@@ -2,13 +2,15 @@
 
 Create your own domain-specific language (DSL) in [Quassar](https://quassar.io). Use the Java SDK to turn the models people write in that language into applications, reports, or generated source code.
 
-## Define a web service and use it from Java
+## Use case: generate a Java client for a web service
 
 | Where | What you do | What you get |
 | --- | --- | --- |
 | **Forge** | Define a DSL with endpoints, HTTP methods, paths, and parameters. | A metamodel (M2) that describes what a service can declare. |
 | **Studio** | Describe a service using that DSL. | A model (M1) with concrete routes, such as `GET /users/{userId}`. |
-| **Your Java project** | Configure Maven with the M2 download URL and load M1 using its own URL. | Typed Java accessors for the routes and parameters in the model. |
+| **Build the generator** | Configure Maven with the M2 download URL and add a client template. | Typed accessors such as `path()` and `parameters()`, plus a Java renderer for the template. |
+| **Generate the client** | Load M1 and render each endpoint through the template. | Java source such as `GetUserClient.java`. |
+| **Call the service** | Compile the generated source and pass the service's base URL and parameter values. | An HTTP response from the running service. |
 
 For example, an endpoint can declare a required path parameter and an optional query parameter:
 
@@ -18,18 +20,15 @@ Endpoint(method = "GET", path = "/users/{userId}") GetUser
 	Parameter(location = "query", valueType = "boolean", required = false) includeDetails
 ```
 
-For a metamodel named `WebServices`, Maven generates `WebServicesModel`, `Endpoint`, and `Parameter`. Read the model through accessors such as `path()` and `required()`:
+The generator uses the route, HTTP method, and parameter declarations to write the client. Application code can then make the request with the generated class:
 
 ```java
-var services = WebServicesModel.load(URI.create("https://quassar.io/models/[id]"));
-var endpoint = services.endpoints().get(0);
-
-System.out.println(endpoint.method() + " " + endpoint.path());
-for (var parameter : endpoint.parameters())
-	System.out.println(parameter.identifier() + " required=" + parameter.required());
+var client = new GetUserClient(URI.create("https://api.example.com"), HttpClient.newHttpClient());
+var response = client.send(Map.of("userId", "42"), Map.of("includeDetails", "true"));
+System.out.println(response.body());
 ```
 
-Replace the example URL with your M1 download URL. The [Maven Plugin quickstart](docs/maven-plugin/getting-started.md) defines the metamodel and shows how to render the endpoint with an `.itr` template. You can also write templates to generate client code or server stubs from the same model.
+Follow the [web service client example](docs/maven-plugin/web-service-client.md) to run the full pipeline. The SDK also supports generators for other kinds of DSLs through the same metamodel and template workflow.
 
 ## Find the right guide
 
