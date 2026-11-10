@@ -180,13 +180,14 @@ String second = engine.render(secondLibrary);
 
 ## Generated decorators
 
-Generated decorators provide an internal `FrameView` with the backing identity, structural parent, frame types and slot values from the model. Their public methods expose the domain model. A template uses the model name for each slot, so `$chapter` renders children of type `Chapter` even though the Java getter is `chapters()`. Each conversion has its own identity graph for shared and cyclic references.
+Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$chapter` renders children of type `Chapter` even when the Java getter is `chapters()`.
 
-The Maven plugin generates the contract alongside the getters. Place a template with rules for `Model` and `Book` in the application's resources.
-
-Replace the example URL with the M1 download URL from Quassar.
+Follow the [Maven Plugin quickstart](../maven-plugin/README.md) to generate `LibraryModel`. Put a template with rules for `Model` and `Book` in `src/main/resources/library-model.itr` and replace the example URL with the M1 download URL from Quassar.
 
 ```java
+import example.model.LibraryModel;
+import io.quassar.templating.TemplateEngine;
+import java.io.InputStream;
 import java.net.URI;
 
 LibraryModel library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));

@@ -80,17 +80,36 @@ The model exposes the root books. Chapters are components, so you access them th
 
 ## 4. Render with a template
 
-Save this as `src/main/resources/book-summary.itr` and run `mvn compile` again.
+Save this as `src/main/resources/book-summary.itr`. During compilation Maven generates `BookSummaryTemplate` from the file name.
 
 ```itr
 rule type(Book)
 	Book: $title
 ```
 
-```java
-import example.templates.BookSummaryTemplate;
+Create `src/main/java/example/Main.java` and replace the URL with the M1 download URL.
 
-String summary = BookSummaryTemplate.render(book);
+```java
+package example;
+
+import example.model.LibraryModel;
+import example.templates.BookSummaryTemplate;
+import java.io.IOException;
+import java.net.URI;
+
+public final class Main {
+	public static void main(String[] args) throws IOException {
+		var library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
+		var book = library.books().get(0);
+		System.out.println(BookSummaryTemplate.render(book));
+	}
+}
+```
+
+Compile and run the application.
+
+```sh
+mvn compile org.codehaus.mojo:exec-maven-plugin:3.5.0:java -Dexec.mainClass=example.Main
 ```
 
 The result is `Book: The Metamorphosis`. Maven compiles each template into its own Java class, so the generated renderer can run without the original `.itr` file.
