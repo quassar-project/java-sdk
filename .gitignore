@@ -1,0 +1,16 @@
+# Maven
+target/
+**/src/main/gen/
+*.class
+/dist/
+
+# Local IDE files
+.idea/
+*.iml
+out/
+
+# Python and macOS
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
