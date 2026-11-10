@@ -1,0 +1,4 @@
+<library name="City Library" librarian="Ada">
+	<book title="Don Quixote">
+	</book>
+</library>

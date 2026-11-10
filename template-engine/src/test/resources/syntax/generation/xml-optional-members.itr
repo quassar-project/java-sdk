@@ -1,0 +1,12 @@
+rule type(Class)
+	<class name="$Name" type="$Type">
+		$superclass+Superclass
+		$interface+Interface...[$NL]
+
+	</class>
+
+rule trigger(String+Superclass)
+	<superclass name="$value" />
+
+rule trigger(String+Interface)
+	<interface name="$value" />

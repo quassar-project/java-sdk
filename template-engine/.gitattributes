@@ -1,0 +1,1 @@
+src/test/resources/syntax/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab

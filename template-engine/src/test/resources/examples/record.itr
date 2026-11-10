@@ -1,0 +1,5 @@
+rule type(Entity)
+	public record $name($properties...[, ]) {}
+
+rule type(Property)
+	$type $name

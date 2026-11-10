@@ -1,0 +1,5 @@
+rule type(Class)
+	public class <<$static~A >>
+
+rule type(class2)
+	public class <<$static >>

@@ -1,0 +1,5 @@
+rule attribute(genre, Novel)
+	Novel: $title
+
+rule attribute(genre, Essay)
+	Essay: $title

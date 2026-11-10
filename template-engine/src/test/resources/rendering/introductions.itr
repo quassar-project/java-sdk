@@ -1,0 +1,5 @@
+rule type(Book)
+	$title has <<these introductions:$NL$TAB$chapters...[$NL]?no introductions>>
+
+rule type(Chapter) and attribute(kind, Introduction)
+	$title

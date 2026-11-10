@@ -1,0 +1,7 @@
+rule type(Chapter) and attribute(children)
+	<chapter title="$title">
+		$children...[$NL]
+	</chapter>
+
+rule type(Chapter)
+	<chapter title="$title"/>

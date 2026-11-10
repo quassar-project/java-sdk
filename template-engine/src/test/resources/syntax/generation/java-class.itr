@@ -1,0 +1,11 @@
+rule type(Class)
+	public class <<$static >><<$final >>$name <<extends $SuperClass >><<implements $Interface...[, ]>>{
+		$attribute+Const...[$NL]
+		$attribute+Field...[$NL]
+	
+		$attribute+Getter...[$NL]
+	
+		public $Name($attribute+Injection...[,]) {
+			$attribute+Initialize...[$NL]
+		}
+	}

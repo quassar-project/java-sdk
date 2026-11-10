@@ -1,0 +1,2 @@
+rule type(Attribute) and trigger(attribute+Const) and type(Const)
+	public static final $name+UPPERCASE;

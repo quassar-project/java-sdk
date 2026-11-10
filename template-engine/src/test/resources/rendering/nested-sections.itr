@@ -1,0 +1,9 @@
+rule type(Book)
+	$title
+		<<Chapters
+			$chapters...[$NL]>>
+		<<Editions
+			$editions...[$NL]>>
+
+rule type(Chapter) or type(Edition)
+	$title

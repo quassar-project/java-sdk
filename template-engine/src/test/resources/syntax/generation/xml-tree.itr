@@ -1,0 +1,9 @@
+rule type(Theasurus)
+	<thesaurus>
+		$terms...[$NL]
+	</thesaurus>
+
+rule type(Term)
+	<term code="$code" value="$value">
+		$terms...[$NL]
+	</term>

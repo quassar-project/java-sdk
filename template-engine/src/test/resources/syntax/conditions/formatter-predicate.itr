@@ -1,0 +1,2 @@
+rule type(attribute) and attribute(type, date) and trigger(checkFormat)
+	java.text.DateFormat.getInstance().parse($name());

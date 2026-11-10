@@ -1,0 +1,6 @@
+rule type(Book)
+	Title: $title+UpperCase
+	Published: $published+Year
+
+	Pages: $pages ($pages+Words)
+	Copies: $copies+Separators

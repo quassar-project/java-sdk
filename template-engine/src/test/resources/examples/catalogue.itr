@@ -1,0 +1,11 @@
+rule type(Library)
+	$name
+	$books...[$NL$NL]
+
+rule type(Book)
+	$title+UpperCase ($year)
+	By $author
+	<<ISBN: $isbn>>
+
+rule type(Author)
+	$name

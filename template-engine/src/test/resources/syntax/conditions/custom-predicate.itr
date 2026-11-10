@@ -1,0 +1,5 @@
+rule type(Class) and eval(Class == 'sasa')
+public class <<$static >>
+
+rule type(class2)
+	public class <<$static >>

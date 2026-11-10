@@ -1,0 +1,5 @@
+rule type(Book)
+	$title was published by $publisher on $published+ShortDate
+
+rule trigger(title)
+	$this+UpperCase

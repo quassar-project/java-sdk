@@ -1,0 +1,2 @@
+rule type(Attribute) and trigger(attribute+Field) and type(Const) and type(readonly)
+<coach name="$Name" <<<NotExist $NotExist>?$None !!!?/>~>>

@@ -1,0 +1,14 @@
+package io.quassar.templating.model.outputs;
+
+public class Literal implements Output {
+	private final String value;
+
+	public Literal(String value) {
+		this.value = value;
+	}
+
+	@Override
+	public String toString() {
+		return value;
+	}
+}

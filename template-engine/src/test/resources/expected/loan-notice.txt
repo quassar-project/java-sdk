@@ -1,0 +1,5 @@
+From: loans@library.example
+To: ada@example.org, lin@example.org
+"Book reservation"
+	Don Quixote is ready.
+	Collect it before Friday.

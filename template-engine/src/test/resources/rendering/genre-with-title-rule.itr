@@ -1,0 +1,5 @@
+rule type(Book)
+	$title is $genre
+
+rule trigger(title)
+	*$this*

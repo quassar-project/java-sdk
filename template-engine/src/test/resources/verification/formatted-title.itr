@@ -1,0 +1,5 @@
+rule type(Book)
+	$title+Bold
+
+rule trigger(Bold)
+	*$this*

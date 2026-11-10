@@ -1,0 +1,7 @@
+rule type(Book)
+	$title has $chaptersCount chapters
+		$chapters...[$NL$NL]
+
+rule type(Chapter)
+	$title
+		$kind

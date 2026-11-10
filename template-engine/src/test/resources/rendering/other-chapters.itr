@@ -1,0 +1,5 @@
+rule type(Book)
+	$title contains <<$chapters...[, ]>>
+
+rule type(Chapter) and not attribute(kind, Introduction)
+	$title

@@ -1,0 +1,3 @@
+rule type(Chapter)
+	$title
+		<<$children...[$NL]>>

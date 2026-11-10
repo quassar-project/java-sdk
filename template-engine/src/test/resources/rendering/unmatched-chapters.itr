@@ -1,0 +1,6 @@
+rule type(Book)
+	$title has $chaptersCount chapters
+		<<$chapters...[$NL$NL]>>
+
+rule type(Chapter) and trigger(unused)
+	$title

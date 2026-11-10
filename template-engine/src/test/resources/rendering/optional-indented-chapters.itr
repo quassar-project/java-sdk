@@ -1,0 +1,10 @@
+rule type(Book)
+	$title has $chaptersCount chapters
+		<<$chapters...[$NL$NL]>>
+
+rule type(Chapter)
+	$title
+		$kind
+
+rule trigger(chaptersCount) and attribute(this, 0)
+	no

@@ -1,0 +1,5 @@
+rule type(Notice)
+	From: $from
+	To: <<$to...[, ]>>
+	<<"$subject"?(No subject)>>
+		$lines...[$NL]

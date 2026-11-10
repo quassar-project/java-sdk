@@ -1,0 +1,5 @@
+rule trigger(title)
+	$title
+
+rule not type(Chapter) and trigger(title)
+	$title

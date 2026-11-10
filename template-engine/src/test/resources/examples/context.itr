@@ -1,0 +1,5 @@
+rule type(Library)
+	$books...[$NL]
+
+rule type(Book)
+	$title ($<container>name)

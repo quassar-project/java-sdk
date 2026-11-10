@@ -1,0 +1,15 @@
+rule type(Library)
+	<library name="$name"<< librarian="$librarian">>>
+		$books...[$NL]
+	</library>
+
+rule type(Book)
+	<book title="$title">
+		<<$chapters...[$NL]>>
+	</book>
+
+rule type(Chapter)
+	<chapter title="$title"/>
+
+rule type(Author)
+	$name

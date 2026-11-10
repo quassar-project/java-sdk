@@ -1,0 +1,2 @@
+rule one() trigger(Age)
+    one year old

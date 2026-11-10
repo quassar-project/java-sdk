@@ -1,0 +1,9 @@
+<library name="City Library" librarian="Ada">
+	<book title="Don Quixote">
+		<chapter title="Preface"/>
+		<chapter title="The Journey"/>
+		<chapter title="Notes"/>
+	</book>
+	<book title="The Trial">
+	</book>
+</library>

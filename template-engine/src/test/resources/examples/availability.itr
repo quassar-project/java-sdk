@@ -1,0 +1,5 @@
+rule type(Book) and attribute(available, true)
+	$title: available
+
+rule type(Book)
+	$title: on loan

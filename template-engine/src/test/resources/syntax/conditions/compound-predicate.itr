@@ -1,0 +1,2 @@
+rule (attribute(in,path) or attribute(in, query)) and type(required) and trigger(parameter)
+	ctx.$in~ParamAsClass("$name", $type.class).getOrThrow(e -> new io.javalin.http.BadRequestResponse("$name parameter not found"))
