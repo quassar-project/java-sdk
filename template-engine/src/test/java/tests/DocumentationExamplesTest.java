@@ -2,7 +2,7 @@ package tests;
 
 import io.quassar.templating.TemplateEngine;
 
-import io.quassar.templating.adapters.reflection.ReflectiveFrameBuilder;
+import io.quassar.templating.Frames;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -63,8 +63,8 @@ public class DocumentationExamplesTest {
 
 	@Test
 	public void rendersAFrameAndItsContainer() throws Exception {
-		ReflectiveFrameBuilder book = new ReflectiveFrameBuilder("Book").add("title", "Don Quixote");
-		ReflectiveFrameBuilder library = new ReflectiveFrameBuilder("Library").add("name", "City Library").add("books", book);
+		var book = Frames.builder("Book").add("title", "Don Quixote").toFrame();
+		var library = Frames.builder("Library").add("name", "City Library").add("books", book).toFrame();
 		assertThat(render("context", library)).isEqualTo("Don Quixote (City Library)");
 	}
 

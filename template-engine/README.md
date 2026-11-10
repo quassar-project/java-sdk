@@ -4,6 +4,8 @@ Use an `.itr` template to turn Java objects or models from your DSL into text, J
 
 Follow the catalogue example to see how rules select objects and how placeholders read their data.
 
+Browse the [template examples](docs/examples.md) for recipes with expected output, or use the [syntax reference](docs/templates.md) to look up a construct.
+
 ## Add the dependency
 
 ```xml
@@ -85,6 +87,78 @@ By Franz Kafka
 - `$books...[$NL$NL]` repeats the book rule with a blank line between books.
 - `+UpperCase` formats the title. `<<ISBN: $isbn>>` prints the whole line only when the ISBN exists.
 
+## Write your own templates
+
+Save each example as a separate `.itr` file and reuse the Java records from the catalogue. Load the file with `TemplateEngine.with(input)` and pass the object indicated in each example to `render`.
+
+### Choose a rule based on a property
+
+Render a `Book` with a different label depending on its availability. Put the more specific rule first so the general rule can handle the remaining books.
+
+```itr
+rule type(Book) and attribute(available, true)
+	$title: available
+
+rule type(Book)
+	$title: on loan
+```
+
+Rendering the two books separately produces these lines.
+
+```text
+Don Quixote: available
+The Trial: on loan
+```
+
+### Provide fallback text
+
+Use `?` inside `<<...>>` to supply an alternative when a value is missing. Render the two books separately to see both cases.
+
+```itr
+rule type(Book)
+	$title — <<ISBN: $isbn?ISBN unavailable>>
+```
+
+```text
+Don Quixote — ISBN: 9788420412146
+The Trial — ISBN unavailable
+```
+
+### Render a list with a separator
+
+Render a `Library`. Each item in `books` uses the `Book` rule. The text in brackets goes between items.
+
+```itr
+rule type(Library)
+	$books...[, ]
+
+rule type(Book)
+	$title
+```
+
+```text
+Don Quixote, The Trial
+```
+
+### Write JSON with optional fields
+
+Render a `Book` as JSON. `JsonString` quotes and escapes strings. Put the comma inside the optional expression so it disappears with the ISBN.
+
+```itr
+rule type(Book)
+	{"title": $title+JsonString, "year": $year<<, "isbn": $isbn+JsonString>>}
+```
+
+Each book produces its own JSON object.
+
+```json
+{"title": "Don Quixote", "year": 1605, "isbn": "9788420412146"}
+```
+
+```json
+{"title": "The Trial", "year": 1925}
+```
+
 ## Load a template from resources
 
 Put `catalogue.itr` in `src/main/resources/templates`:
@@ -104,40 +178,18 @@ String first = engine.render(firstLibrary);
 String second = engine.render(secondLibrary);
 ```
 
-## Annotated objects
-
-Without annotations, the engine reads object fields as before. Annotated types expose only annotated methods, keeping backing fields internal.
-
-```java
-import io.quassar.templating.annotations.FrameSlot;
-import io.quassar.templating.annotations.FrameType;
-
-@FrameType("Book")
-public record Book(@FrameSlot String isbn) {
-}
-```
-
-The `isbn()` accessor supplies the `$isbn` slot. `@FrameSlot("chapter")` can give a method a different slot name. Lists and arrays supply multiple values.
-
-| Annotation | Meaning |
-| --- | --- |
-| `@FrameType("Book")` on a class | Frame type, independent of its Java class name |
-| `@FrameType` on a method | Additional types from a string or iterable of names |
-| `@FrameSlot` on a method | A named slot; defaults to the method name |
-| `@FrameSlots` on a method | Dynamic slots from a `Map<String, ?>` |
-| `@FrameIdentity` on a method | Backing object identity shared by fresh decorators; null represents an absent object |
-| `@FrameParent` on a method | Structural parent, preserved when another slot references this object |
-
-Annotated methods take no arguments. Default methods on interfaces can provide shared annotations and behavior. Each conversion uses its own identity graph, supporting shared and cyclic references without expanding the graph recursively during construction. Explicit object mappers take precedence over annotations.
-
 ## Generated decorators
 
 Generated decorators provide an internal `FrameView` with the backing identity, structural parent, frame types and slot values from the model. Their public methods expose the domain model. A template uses the model name for each slot, so `$chapter` renders children of type `Chapter` even though the Java getter is `chapters()`. Each conversion has its own identity graph for shared and cyclic references.
 
 The Maven plugin generates the contract alongside the getters. Place a template with rules for `Model` and `Book` in the application's resources.
 
+Replace the example URL with the M1 download URL from Quassar.
+
 ```java
-LibraryModel library = LibraryModel.load(Path.of("library.zip"));
+import java.net.URI;
+
+LibraryModel library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
 try (InputStream input = LibraryModel.class.getResourceAsStream("/library-model.itr")) {
 	TemplateEngine engine = TemplateEngine.with(input);
 	String text = engine.render(library);
@@ -157,12 +209,10 @@ String catalogue = engine.render(frame);
 
 `Frames.from(...)` adapts records and regular Java objects. It includes inherited fields and converts nested object, list, map and array fields. Static and transient fields are excluded. Each conversion creates its own frame tree and parent links. Passing an existing `Frame` returns that frame.
 
-For explicit slots, use `ReflectiveFrameBuilder`:
+Use `Frames.builder(...)` when you want to name the type and add slots yourself. Scalar values such as strings and numbers are added directly.
 
 ```java
-import io.quassar.templating.adapters.reflection.ReflectiveFrameBuilder;
-
-Frame book = new ReflectiveFrameBuilder("Book")
+Frame book = Frames.builder("Book")
 	.add("title", "Don Quixote")
 	.add("year", 1605)
 	.toFrame();

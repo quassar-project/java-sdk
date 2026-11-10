@@ -4,6 +4,8 @@
 
 Read a rule from top to bottom. Its condition selects the object and its indented body describes the output.
 
+For complete input and output examples, see [conditions](examples.md#combine-conditions), [lists](examples.md#render-a-list-and-format-each-value), [JSON](examples.md#produce-json-with-optional-fields), and [escaping](examples.md#escape-template-characters).
+
 ## Rules
 
 ```itr
@@ -19,7 +21,7 @@ Indent the rule body with a tab. Additional indentation becomes part of the rend
 
 The engine represents input objects as frames. For a plain Java record, the class name is the frame type and each field supplies a named value called a slot. An object-valued slot can invoke another rule, and a list supplies multiple values under the same name.
 
-[Annotated methods](../README.md#annotated-objects) and [generated decorators](../README.md#generated-decorators) can supply their own types and slots.
+[Generated decorators](../README.md#generated-decorators) supply types and slots from the model through an internal frame view.
 
 ```itr
 rule type(Book)
@@ -29,7 +31,7 @@ rule type(Author)
 	$name
 ```
 
-You can supply frames explicitly with `io.quassar.templating.adapters.reflection.ReflectiveFrameBuilder` or register a custom adapter with `.add(Class, ObjectMapper)`.
+Use `Frames.builder(...)` to supply slots explicitly or register a custom adapter with `.add(Class, ObjectMapper)`.
 
 ## Conditions
 

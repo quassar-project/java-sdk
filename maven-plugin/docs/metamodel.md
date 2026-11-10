@@ -45,8 +45,12 @@ A root or child with a maximum cardinality of one has a singular getter that ret
 
 The model facade exposes only root mograms. Concepts declared as components and concepts declared inside another concept are reached through their parent decorators.
 
+Replace the example URL with the M1 download URL from Quassar.
+
 ```java
-LibraryModel library = LibraryModel.load(Path.of("library.zip"));
+import java.net.URI;
+
+LibraryModel library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
 Book book = library.books().get(0);
 String title = book.title();
 BigDecimal year = book.year();

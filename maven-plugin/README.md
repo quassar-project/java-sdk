@@ -2,11 +2,11 @@
 
 Turn your DSL's metamodel into typed Java classes and compile `.itr` templates during the Maven build. Use Java 17 and Maven 3.9.9 or later.
 
-## 1. Define the language and save a model
+## 1. Prepare M2 and M1 in Quassar
 
-M2 describes the language. M1 contains the objects written in that language.
+M2 describes the language. M1 contains the objects written in that language. Copy the download URL for each model from Quassar. Use the M2 URL in Maven and the M1 URL when you load the model in Java.
 
-Save the metamodel as `m2/library.tara`.
+For this tutorial, use a metamodel named `Library` with these concepts.
 
 ```tara
 dsl metta
@@ -19,13 +19,9 @@ Concept Chapter as component
 	def string title
 ```
 
-Name the metamodel in `m2/manifest.json`. The name `Library` gives the generated model class its name, `LibraryModel`.
+The metamodel name in its manifest determines the generated class name, `LibraryModel`.
 
-```json
-{"name":"Library"}
-```
-
-Save one book and its chapter as `m1/library.tara`.
+Create an M1 model with one book and its chapter.
 
 ```tara
 Book(title = "The Metamorphosis") TheMetamorphosis
@@ -51,7 +47,7 @@ In your project's POM, set `maven.compiler.release` to `17` or later and add thi
 			</executions>
 			<configuration>
 				<package>example</package>
-				<metamodel>${project.baseUri}m2/</metamodel>
+				<metamodel>https://quassar.io/models/[id]</metamodel>
 				<scaffold>none</scaffold>
 			</configuration>
 		</plugin>
@@ -59,19 +55,21 @@ In your project's POM, set `maven.compiler.release` to `17` or later and add thi
 </build>
 ```
 
-The path points to your local M2 directory. For a remote metamodel, use `https://quassar.io/models/[id]` and replace `[id]` with its ID. The plugin also accepts a ZIP. With `extensions` enabled, Maven adds the reader and template engine as project dependencies.
+Replace the example URL with the M2 download URL from Quassar. With `extensions` enabled, Maven adds the reader and template engine as project dependencies.
 
-The tutorial sets `scaffold` to `none` because you supply the model and template files in the following steps.
+The tutorial sets `scaffold` to `none` so you can add the Java and template code yourself.
 
 ## 3. Generate and use the Java classes
 
 Run `mvn compile`. The plugin writes generated Java under `src/main/gen`. With the package in this example, model classes are under `example.model`.
 
+Replace the URL below with the M1 download URL from Quassar. It identifies the model with the book and chapter.
+
 ```java
 import example.model.LibraryModel;
-import java.nio.file.Path;
+import java.net.URI;
 
-var library = LibraryModel.load(Path.of("m1"));
+var library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
 var book = library.books().get(0);
 
 System.out.println(book.title());

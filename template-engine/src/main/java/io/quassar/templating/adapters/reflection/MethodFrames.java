@@ -1,6 +1,5 @@
 package io.quassar.templating.adapters.reflection;
 
-import io.quassar.templating.annotations.FrameSlot;
 import io.quassar.templating.model.Frame;
 import io.quassar.templating.model.frames.CompositeFrame;
 import io.quassar.templating.ports.FrameView;
@@ -8,7 +7,6 @@ import io.quassar.templating.ports.FrameView.Getter;
 import io.quassar.templating.ports.FrameView.ValueSlot;
 import io.quassar.templating.ports.ObjectMapper;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -25,22 +23,22 @@ final class MethodFrames {
 		this.mappers = mappers;
 	}
 
-	Frame read(Object source) {
-		Frame frame = frame(source);
+	Frame read(Object source, FrameView view) {
+		Frame frame = frame(source, view);
 		return frame == null ? new CompositeFrame(List.of(), Map.of()) : frame;
 	}
 
 	private Frame frame(Object source) {
 		if (source == null) return null;
 		if (source instanceof Frame frame) return frame;
-		if (ObjectFrameFactory.isMapped(source, mappers)) return new ObjectFrameFactory().create(source, mappers);
-		FrameView view = FrameView.from(source);
-		FrameDefinition definition = FrameDefinition.of(source.getClass());
-		if (view == null && !definition.annotated())
-			return new ObjectFrameFactory().create(source, mappers);
-		Object identity = view == null ? definition.identity(source) : view.frameIdentity();
+		FrameView view = ObjectFrameFactory.isMapped(source, mappers) ? null : FrameView.from(source);
+		return view == null ? new ObjectFrameFactory().create(source, mappers) : frame(source, view);
+	}
+
+	private Frame frame(Object source, FrameView view) {
+		Object identity = view.frameIdentity();
 		if (identity == null) return null;
-		return frames.computeIfAbsent(identity, key -> new MethodFrame(source, definition, view));
+		return frames.computeIfAbsent(identity, key -> new MethodFrame(source, view));
 	}
 
 	private List<Frame> values(Object value, Frame owner) {
@@ -63,29 +61,17 @@ final class MethodFrames {
 
 	private final class MethodFrame implements Frame {
 		private final Object source;
-		private final FrameDefinition definition;
 		private final FrameView view;
 		private Map<String, List<Frame>> slots;
-		private Frame container;
 
-		private MethodFrame(Object source, FrameDefinition definition, FrameView view) {
+		private MethodFrame(Object source, FrameView view) {
 			this.source = source;
-			this.definition = definition;
 			this.view = view;
 		}
 
 		@Override
 		public boolean is(String type) {
-			if (view != null)
-				return view.frameTypes().stream().anyMatch(type::equalsIgnoreCase);
-			if (definition.type().equalsIgnoreCase(type)) return true;
-			for (Method method : definition.types()) {
-				Object value = FrameDefinition.invoke(method, source);
-				if (value instanceof Iterable<?> types) {
-					for (Object item : types) if (item.toString().equalsIgnoreCase(type)) return true;
-				} else if (value != null && value.toString().equalsIgnoreCase(type)) return true;
-			}
-			return false;
+			return view.frameTypes().stream().anyMatch(type::equalsIgnoreCase);
 		}
 
 		@Override
@@ -100,13 +86,11 @@ final class MethodFrames {
 
 		@Override
 		public Frame container() {
-			if (view != null) return frame(view.frameParent());
-			return definition.parent() == null ? container : frame(FrameDefinition.invoke(definition.parent(), source));
+			return frame(view.frameParent());
 		}
 
 		@Override
 		public void container(Frame container) {
-			this.container = container;
 		}
 
 		@Override
@@ -122,33 +106,14 @@ final class MethodFrames {
 		private Map<String, List<Frame>> slots() {
 			if (slots != null) return slots;
 			slots = new LinkedHashMap<>();
-			if (view != null) {
-				for (FrameView.Slot slot : view.frameSlots())
-					slots.computeIfAbsent(normalize(slot.name()), key -> new ArrayList<>()).addAll(values(read(slot), this));
-				return slots;
-			}
-			for (Method method : definition.slots()) {
-				String name = method.getAnnotation(FrameSlot.class).value();
-				put(name.isEmpty() ? method.getName() : name, FrameDefinition.invoke(method, source));
-			}
-			for (Method method : definition.maps()) {
-				Map<?, ?> values = (Map<?, ?>) FrameDefinition.invoke(method, source);
-				for (var entry : values.entrySet()) put(entry.getKey().toString(), entry.getValue());
-			}
+			for (FrameView.Slot slot : view.frameSlots())
+				slots.computeIfAbsent(normalize(slot.name()), key -> new ArrayList<>()).addAll(values(read(slot), this));
 			return slots;
 		}
 
 		private Object read(FrameView.Slot slot) {
-			if (slot instanceof Getter getter) {
-				Object value = FrameDefinition.invoke(definition.getter(getter.method()), source);
-				return getter.projection().apply(value);
-			}
+			if (slot instanceof Getter getter) return getter.projection().apply(FrameGetters.read(source, getter.method()));
 			return ((ValueSlot) slot).value();
-		}
-
-		private void put(String name, Object value) {
-			List<Frame> frames = values(value, this);
-			slots.put(normalize(name), frames);
 		}
 	}
 }

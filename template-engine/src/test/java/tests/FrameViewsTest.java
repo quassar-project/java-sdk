@@ -3,7 +3,7 @@ package tests;
 import io.quassar.templating.Frames;
 import io.quassar.templating.model.Frame;
 import org.junit.jupiter.api.Test;
-import tests.fixtures.AnnotatedBook;
+import tests.fixtures.BookView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +11,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static tests.fixtures.LibraryFixtures.book;
 
-public class AnnotatedFramesTest {
+public class FrameViewsTest {
 	@Test
-	public void rendersOnlyAnnotatedMethods() {
-		AnnotatedBook book = new AnnotatedBook(book());
-		assertThat(TestTemplates.engine("rendering/annotated-book").render(book))
+	public void rendersOnlySlotsFromTheView() {
+		BookView book = new BookView(book());
+		assertThat(TestTemplates.engine("rendering/book-view").render(book))
 			.isEqualTo("DonQuixote: Don Quixote — Acme (novel, classic)");
 		Frame frame = Frames.from(book);
 		assertThat(frame.is("book")).isTrue();
@@ -28,15 +28,15 @@ public class AnnotatedFramesTest {
 	}
 
 	@Test
-	public void allowsExplicitMappersToOverrideAnnotationMapping() {
+	public void allowsExplicitMappersToOverrideFrameViews() {
 		var engine = TestTemplates.engine("rendering/book-label")
-			.add(AnnotatedBook.class, (book, frame) -> frame.add("Book").add("title", "Custom projection"));
-		assertThat(engine.render(new AnnotatedBook(book()))).isEqualTo("Book: Custom projection");
+			.add(BookView.class, (book, frame) -> frame.add("Book").add("title", "Custom projection"));
+		assertThat(engine.render(new BookView(book()))).isEqualTo("Book: Custom projection");
 	}
 
 	@Test
 	public void preservesIdentityAcrossFreshWrappersAndIndependentConversions() {
-		AnnotatedBook book = new AnnotatedBook(book());
+		BookView book = new BookView(book());
 		Frame frame = Frames.from(book);
 		assertThat(frame.frames("related").next()).isSameAs(frame);
 		assertThat(Frames.from(book)).isNotSameAs(frame);
