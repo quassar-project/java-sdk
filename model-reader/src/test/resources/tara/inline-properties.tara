@@ -1,0 +1,3 @@
+dsl library
+Book("Label", active = true) PocketEdition > code = 7
+	title = "Title"

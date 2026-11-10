@@ -1,0 +1,40 @@
+dsl library
+
+Book(year = 2024, available = true, rating = 4.75) Atlas is Printed(isbn = "9780000000001") Illustrated
+	title = "An atlas of imaginary harbors and the stories of their travelers"
+	authors = Lucia Mateo
+	publisher = NorthPress
+	related = Nocturne
+	tags = "travel" "fiction" "illustrated"
+
+	Edition(year = 2025) Anniversary is Translated(language = "en", translator = Mateo) Limited(copies = 500)
+		prices = 19.95 24.50 49.00
+		source = Atlas
+		Note("Includes a fold-out map")
+
+	Part(number = 1) Journey
+		title = "The outward journey"
+		Chapter(number = 1) Arrival > title = "The first harbor"
+			Section(number = 1) Harbor
+				Paragraph Opening > text = "A lighthouse rose above the water, // brighter than the stars > and the city = a promise."
+				Citation(note = "Companion reading") Companion > book = Nocturne
+		Chapter(number = 2) Departure
+			previous = Atlas.Journey.Arrival
+			next = Atlas.Return.Homecoming
+
+	Part(number = 2) Return
+		Chapter(number = 3) Homecoming
+			previous = Atlas.Journey.Departure
+
+Book(year = 2022, author = Mateo) Nocturne is Digital(format = "EPUB")
+	title = "Nocturne for an absent city"
+	related = Atlas
+	Chapter Prelude > title = "Before the lights"
+
+Author(name = "Lucia Vega") Lucia
+Author(name = "Mateo Sol") Mateo
+Publisher(name = "North Press") NorthPress
+
+Collection ReadingList
+	books = Atlas Nocturne
+	featured = Atlas.Anniversary

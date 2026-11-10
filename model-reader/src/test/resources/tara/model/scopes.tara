@@ -1,0 +1,14 @@
+dsl library
+Author Editor
+Book Anthology
+	Author Editor
+	Part VolumeOne
+		Author Editor
+		Chapter Preface is EditedBy(author = Editor)
+Book CollectedWorks
+	Part
+		Chapter Appendix
+Book FirstEdition
+	relatedEdition = SecondEdition
+Book SecondEdition
+	relatedEdition = FirstEdition

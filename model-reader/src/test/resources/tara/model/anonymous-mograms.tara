@@ -1,0 +1,5 @@
+dsl library
+Book DonQuixote
+	Note("Editor note")
+Book TheTrial
+	Note("Editor note")

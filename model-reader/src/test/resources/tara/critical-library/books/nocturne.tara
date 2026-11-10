@@ -1,0 +1,6 @@
+dsl library
+
+Book(year = 2022, author = Mateo) Nocturne is Digital(format = "EPUB")
+	title = "Nocturne for an absent city"
+	related = Atlas
+	Chapter Prelude > title = "Before the lights"

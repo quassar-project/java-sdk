@@ -1,0 +1,15 @@
+dsl library
+
+Book(years = 1605 1615, available = true) DonQuixote is Printed(formats = "paperback" "hardcover") > flags = true false true
+	title = "Don Quijote de la Mancha"
+	labels = "novel" "true" "12" "Cervantes" "a > b, // c = d" "quoted \"word\""
+	numbers = -2 0 3.50 1e3
+	authors = Cervantes Kafka
+	mixed = "true" false 42 Cervantes
+	chapters = Intro Ending
+
+	Chapter(number = 1) Intro
+	Chapter(number = 2) Ending
+
+Author(name = "Miguel de Cervantes") Cervantes
+Author(name = "Franz Kafka") Kafka

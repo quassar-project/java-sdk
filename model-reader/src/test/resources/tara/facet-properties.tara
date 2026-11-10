@@ -1,0 +1,2 @@
+dsl library
+Book(label = "Example") PocketEdition is Printed(code = 1) Tagged(active = true) > title = "Title"

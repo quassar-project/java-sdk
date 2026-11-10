@@ -1,0 +1,14 @@
+dsl library
+
+Book("Atlas", 2024) Positional is Printed("9780000000001", true) Edited(Lucia)
+
+Book(title = "Atlas", year = 2024) Named is Printed(isbn = "9780000000001", available = true) Edited(editor = Lucia)
+
+Book Body is Printed Edited
+	title = "Atlas"
+	year = 2024
+	isbn = "9780000000001"
+	available = true
+	editor = Lucia
+
+Author(name = "Lucia Vega") Lucia

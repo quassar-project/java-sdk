@@ -1,0 +1,16 @@
+dsl library
+Book DonQuixote
+	summary = "a > b, // c = d"
+	Chapter FrontMatter is LinkedEdition(book = DonQuixote, chapter = DonQuixote.PartOne) Annotated
+	Part PartOne is Illustrated > summary = "Illustrated"
+		Chapter Windmills is Prose
+	// ignored comment
+	Chapter Glossary is Indexed(Subjects)
+Index("Subjects") Subjects
+	Entry("Fiction")
+ReadingPlan("Classics") Classics
+	ReadingPlan("Introduction") Introduction
+Collection Recommendations
+	selections = Classics.Introduction Classics
+	EditionDraft(isbn = )
+	Illustration("x") > Transform("TO_SVG")
