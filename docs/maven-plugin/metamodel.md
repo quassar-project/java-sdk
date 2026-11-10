@@ -1,6 +1,6 @@
 # Generate decorators from M2
 
-[Quassar Maven Plugin](../README.md)
+[Quassar Maven Plugin](getting-started.md)
 
 Use this guide to see how an M2 declaration becomes part of the generated Java API. Start with the Maven Plugin tutorial if you want a complete M2 and M1 example.
 

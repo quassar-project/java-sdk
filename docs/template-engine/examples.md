@@ -1,8 +1,8 @@
 # Template examples
 
-[Start here](../README.md) · [Template reference](templates.md)
+[Start here](getting-started.md) · [Template reference](templates.md)
 
-Reuse the `Book`, `Author` and `Library` records from the [catalogue example](../README.md#render-a-library-catalogue). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(Path.of("example.itr"))`, and pass the object named in the rule to `render`.
+Reuse the `Book`, `Author` and `Library` records from the [catalogue example](getting-started.md#render-a-library-catalogue). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(Path.of("example.itr"))`, and pass the object named in the rule to `render`.
 
 - **Rules** · [property conditions](#choose-a-rule-from-the-data) · [boolean conditions](#combine-conditions) · [the calling slot](#choose-output-based-on-the-calling-slot)
 - **Output** · [optional values](#optional-values-and-fallback-text) · [lists and separators](#render-a-list-and-format-each-value) · [JSON](#produce-json-with-optional-fields) · [literal text](#escape-template-characters) · [Java source](#generate-a-java-record)
@@ -349,7 +349,7 @@ System.out.println(report.isOk());
 
 ## Executable versions
 
-The [example resources](../src/test/resources/examples) and [DocumentationExamplesTest](../src/test/java/tests/DocumentationExamplesTest.java) exercise the public API with catalogues, recursive chapters, custom formatters, and Java generation.
+The [example resources](../../template-engine/src/test/resources/examples) and [DocumentationExamplesTest](../../template-engine/src/test/java/tests/DocumentationExamplesTest.java) exercise the public API with catalogues, recursive chapters, custom formatters, and Java generation.
 
 Run these examples from the repository root:
 

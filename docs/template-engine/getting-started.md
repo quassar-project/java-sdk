@@ -87,7 +87,7 @@ By Franz Kafka
 
 ## Write your own templates
 
-Browse the [template examples](docs/examples.md) for recipes with expected output, or use the [syntax reference](docs/templates.md) to look up a construct.
+Browse the [template examples](examples.md) for recipes with expected output, or use the [syntax reference](templates.md) to look up a construct.
 
 Save each example as a separate `.itr` file and reuse the Java records from the catalogue. Load the file with `TemplateEngine.with(Path.of("example.itr"))` and pass the object indicated in each example to `render`.
 
@@ -179,7 +179,7 @@ String second = engine.render(secondLibrary);
 
 Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$chapter` renders children of type `Chapter` even when the Java getter is `chapters()`.
 
-Follow the [Maven Plugin quickstart](../maven-plugin/README.md) to generate `LibraryModel`. Put a template with rules for `Model` and `Book` in `src/main/resources/library-model.itr` and replace the example URL with the M1 download URL from Quassar.
+Follow the [Maven Plugin quickstart](../maven-plugin/getting-started.md) to generate `LibraryModel`. Put a template with rules for `Model` and `Book` in `src/main/resources/library-model.itr` and replace the example URL with the M1 download URL from Quassar.
 
 ```java
 import example.model.LibraryModel;
@@ -226,7 +226,7 @@ TemplateEngine engine = TemplateEngine.with(Path.of("label.itr"))
 		.add("title", source.label()));
 ```
 
-See [examples](docs/examples.md) for matching templates, conditions, recursive chapters, explicit frames and Java generation.
+See [examples](examples.md) for matching templates, conditions, recursive chapters, explicit frames and Java generation.
 
 ## Factories
 
@@ -243,6 +243,6 @@ Unreadable or malformed templates raise `io.quassar.templating.ports.TemplateRea
 
 ## Executable examples
 
-See the [example tests](src/test/java/tests/DocumentationExamplesTest.java) and their [template resources](src/test/resources/examples).
+See the [example tests](../../template-engine/src/test/java/tests/DocumentationExamplesTest.java) and their [template resources](../../template-engine/src/test/resources/examples).
 
-Distributed under the [MIT license](LICENSE).
+Distributed under the [MIT license](../../LICENSE).

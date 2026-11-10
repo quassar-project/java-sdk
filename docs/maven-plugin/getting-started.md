@@ -138,4 +138,4 @@ The generated Maven goal reads `m1` and writes `target/generated-resources/model
 | `templatesDirectory` | `${project.basedir}/src/main/resources` |
 | `outputDirectory` | `${project.basedir}/src/main/gen` |
 
-For property types, cardinality, and the generated Java API, see the [M2 guide](docs/metamodel.md).
+For property types, cardinality, and the generated Java API, see the [M2 guide](metamodel.md).

@@ -17,15 +17,15 @@ var library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
 System.out.println(BookSummaryTemplate.render(library.books().get(0)));
 ```
 
-Replace the example URL with your M1 download URL. The [Maven Plugin quickstart](maven-plugin/README.md) shows the M2 configuration, the template, and a complete Java application.
+Replace the example URL with your M1 download URL. The [Maven Plugin quickstart](docs/maven-plugin/getting-started.md) shows the M2 configuration, the template, and a complete Java application.
 
 ## Find the right guide
 
 | I want to… | Start here |
 | --- | --- |
-| Generate typed classes from a metamodel or scaffold a Maven generator. | [Maven Plugin](maven-plugin/README.md) |
-| Write templates for text, JSON, or code. | [Template Engine](template-engine/README.md) · [Template examples](template-engine/docs/examples.md) |
-| Load and query a Tara model through a generic Java API. | [Model Reader](model-reader/README.md) |
+| Generate typed classes from a metamodel or scaffold a Maven generator. | [Maven Plugin](docs/maven-plugin/getting-started.md) |
+| Write templates for text, JSON, or code. | [Template Engine](docs/template-engine/getting-started.md) · [Template examples](docs/template-engine/examples.md) |
+| Load and query a Tara model through a generic Java API. | [Model Reader](docs/model-reader/getting-started.md) |
 
 ## Build the SDK from source
 

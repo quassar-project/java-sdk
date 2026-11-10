@@ -101,4 +101,4 @@ var remote = Models.load(URI.create("https://example.org/library.zip"));
 var bundled = Models.load(LibraryExample.class.getResource("/library.tara"));
 ```
 
-A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `book.title()`, see the [Maven Plugin guide](../maven-plugin/README.md).
+A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `book.title()`, see the [Maven Plugin guide](../maven-plugin/getting-started.md).
