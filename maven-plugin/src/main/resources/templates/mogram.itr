@@ -1,0 +1,6 @@
+rule type(mogram)
+	public final class $name~ extends MogramDecorator {
+		$name~($mogramType~ mogram, $modelType~ model) {
+			super(mogram, model);
+		}
+	$methods~}$NL

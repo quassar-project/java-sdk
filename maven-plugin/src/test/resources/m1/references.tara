@@ -1,0 +1,19 @@
+dsl library
+
+Book(author = Lucia, publisher = NorthPress, related = SecondBook) FirstBook
+	contributors = Lucia Mateo
+	subjects = Lucia SecondBook
+	link = Lucia
+	unresolved = UnknownBook
+	Author(name = "Local editor") LocalWriter
+	Chapter Intro
+		editor = LocalWriter
+	Chapter Ending
+		previous = Intro
+
+Book(related = FirstBook) SecondBook
+	link = FirstBook
+
+Author(name = "Lucia Vega") Lucia
+Author(name = "Mateo Sol") Mateo
+Publisher(name = "North Press") NorthPress

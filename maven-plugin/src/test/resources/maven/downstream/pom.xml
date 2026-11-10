@@ -1,0 +1,14 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.quassar.integration</groupId>
+	<artifactId>downstream</artifactId>
+	<version>1.0.0</version>
+	<properties><maven.compiler.release>17</maven.compiler.release></properties>
+	<dependencies>
+		<dependency><groupId>io.quassar.integration</groupId><artifactId>translated-library</artifactId><version>@VERSION@</version></dependency>
+	</dependencies>
+	<build><plugins>
+		<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version></plugin>
+		<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-resources-plugin</artifactId><version>3.3.1</version></plugin>
+	</plugins></build>
+</project>

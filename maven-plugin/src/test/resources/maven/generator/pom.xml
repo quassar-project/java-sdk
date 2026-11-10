@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.quassar.integration</groupId>
+	<artifactId>library-generator-maven-plugin</artifactId>
+	<version>1.0.0</version>
+	<packaging>maven-plugin</packaging>
+	<properties><maven.compiler.release>17</maven.compiler.release></properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>quassar.io</groupId>
+				<artifactId>maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<extensions>true</extensions>
+				<executions><execution><goals><goal>generate</goal></goals></execution></executions>
+				<configuration>
+					<package>example</package>
+					<metamodel>${project.baseUri}metamodel/</metamodel>
+					<scaffold>maven-plugin</scaffold>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

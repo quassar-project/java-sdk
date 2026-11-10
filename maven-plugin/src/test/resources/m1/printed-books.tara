@@ -1,0 +1,3 @@
+Book(title = "Printed book") Paper is Printed(isbn = "9780000000001")
+	Chapter Opening > title = "The beginning"
+Book(title = "Digital book") Digital

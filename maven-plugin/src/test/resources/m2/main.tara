@@ -1,0 +1,37 @@
+dsl metta
+
+Concept:{1..1} Library
+	def string title
+	has:{1..*} Book
+	Concept:Single:Required Catalogue
+		def string endpoint = "https://library.example/catalogue?a=b"
+
+Concept Book
+	def string title
+	def Author[] authors
+	def boolean available = true
+	def integer year = empty
+	def word[]:{Fiction History Science} subjects
+	facet Edition
+		sub Printed
+			def string isbn
+			def integer:{pages} length = 120 pages
+		sub Digital
+			def resource file
+			def double size = 1.5
+	Concept:{1..*} Chapter
+		def string title
+		Concept:Single Index > def integer min; def integer max
+		facet Indexed > def Subject[] subjects = empty
+	sub Novel
+		def string synopsis = "A story > another; // not a comment"
+
+Concept Author as component > def string name
+Concept Subject as generalization
+	def string label
+
+Concept Publication as component generalization
+	def string publisher
+Concept Magazine extends Publication as generalization
+    sub Monthly > def integer issue
+  	sub Quarterly > def string season

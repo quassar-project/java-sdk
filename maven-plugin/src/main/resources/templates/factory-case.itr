@@ -1,0 +1,2 @@
+rule type(factorycase)
+				case $type~ -> new $name~(mogram, model);$NL

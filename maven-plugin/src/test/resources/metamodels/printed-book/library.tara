@@ -1,0 +1,10 @@
+dsl metta
+
+Concept Book
+	def string title
+	has Chapter
+	facet Printed
+		def string isbn
+
+Concept Chapter as component
+	def string title

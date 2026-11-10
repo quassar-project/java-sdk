@@ -1,0 +1,13 @@
+dsl Metta
+
+Concept Book
+	facet Translated
+		def Author translator
+		def word:{English Spanish French} language = English
+
+Concept Journal
+	Concept Chapter
+		def boolean reviewed = false
+	has:Single:Optional Book
+	!! A description of the following property
+	def Book.Chapter opening = empty // A reference

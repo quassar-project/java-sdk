@@ -1,0 +1,101 @@
+rule type(decorator)
+	public abstract class MogramDecorator extends io.quassar.templating.ports.FrameSource {
+		final $mogramType~ mogram;
+		final $modelType~ model;
+
+		MogramDecorator($mogramType~ mogram, $modelType~ model) {
+			this.mogram = mogram;
+			this.model = model;
+		}
+
+		public final java.lang.String identifier() {
+			return mogram.identifier();
+		}
+
+		public final boolean isNull() {
+			return mogram.isNull();
+		}
+
+		@Override
+		public final boolean equals(java.lang.Object other) {
+			if (!(other instanceof MogramDecorator decorator) || getClass() != decorator.getClass()) return false;
+			return mogram.equals(decorator.mogram) && model.equals(decorator.model);
+		}
+
+		@Override
+		public final int hashCode() {
+			return java.util.Objects.hash(mogram, model);
+		}
+
+		@Override
+		protected final io.quassar.templating.ports.FrameView frameView() {
+			return new MogramFrame(mogram, model);
+		}
+
+		static java.util.List<io.quassar.templating.ports.FrameView.Slot> groupSlots(java.util.List<$mogramType~> members, $modelType~ model) {
+			var groups = new java.util.LinkedHashMap<java.lang.String, java.util.List<MogramDecorator>>();
+			for (var member : members) {
+				var name = member.type().substring(member.type().lastIndexOf('.') + 1).toLowerCase(java.util.Locale.ROOT);
+				groups.computeIfAbsent(name, key -> new java.util.ArrayList<>())
+					.add(of(member, model));
+			}
+			java.util.List<io.quassar.templating.ports.FrameView.Slot> slots = new java.util.ArrayList<>();
+			groups.forEach((name, group) -> slots.add(new io.quassar.templating.ports.FrameView.ValueSlot(name, java.util.List.copyOf(group))));
+			return java.util.List.copyOf(slots);
+		}
+
+		static java.util.List<$valueType~> values($valueType~ value) {
+			if (value.isSequence()) return value.asSequence();
+			return value.isEmpty() ? java.util.List.of() : java.util.List.of(value);
+		}
+
+		static MogramDecorator of($mogramType~ mogram, $modelType~ model) {
+			return switch (MogramTypes.resolve(mogram, model)) {
+	$cases~			default -> new NullObject(model);
+			};
+		}
+
+		private static final class NullObject extends MogramDecorator {
+			private NullObject($modelType~ model) {
+				super($mogramType~.NULL, model);
+			}
+		}
+
+		private record MogramFrame($mogramType~ mogram, $modelType~ model) implements io.quassar.templating.ports.FrameView {
+			public java.lang.Object frameIdentity() {
+				return mogram.isNull() ? null : mogram;
+			}
+
+			public MogramDecorator frameParent() {
+				return of(model.parentOf(mogram), model);
+			}
+
+			public java.util.List<java.lang.String> frameTypes() {
+				return java.util.stream.Stream.concat(
+					java.util.stream.Stream.of(mogram.type(), MogramTypes.resolve(mogram, model)), mogram.facets().stream()).distinct().toList();
+			}
+
+			public java.util.List<Slot> frameSlots() {
+				var properties = new java.util.LinkedHashMap<java.lang.String, Slot>();
+				properties.put("identifier", new ValueSlot("identifier", mogram.identifier()));
+				int position = 0;
+				for (var property : mogram.properties()) {
+					java.lang.String name = property.name() == null ? "value" + ++position : property.name();
+					name = name.toLowerCase(java.util.Locale.ROOT);
+					properties.put(name, new ValueSlot(name, frameValues(property.value())));
+				}
+				java.util.List<Slot> slots = new java.util.ArrayList<>(properties.values());
+				slots.addAll(groupSlots(mogram.children(), model));
+				return java.util.List.copyOf(slots);
+			}
+
+			private java.util.List<java.lang.Object> frameValues($valueType~ value) {
+				if (value.isSequence()) return value.asSequence().stream().flatMap(item -> frameValues(item).stream()).toList();
+				if (value.isString()) return java.util.List.of(value.asString());
+				if (value.isNumber()) return java.util.List.of(value.asNumber());
+				if (value.isBoolean()) return java.util.List.of(value.asBoolean());
+				if (value.isReference()) return java.util.List.of(of(model.get(value, mogram), model));
+				return java.util.List.of();
+			}
+		}
+	}$NL

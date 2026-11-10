@@ -1,0 +1,10 @@
+dsl library
+
+Book(class = "edition", wait = "ready", mogram = "source", chapters = "index", identifier = "label", getClass = "kind") Named is Printed
+	Chapter Child
+
+book(title = "Lowercase type") Lowercase
+String(value = "A string-like domain type") TextBox
+Mogram(value = "io.quassar.reader.model.Mogram") Raw
+EmptyField Unknown
+	value =

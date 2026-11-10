@@ -1,0 +1,30 @@
+rule trigger(Reference) and attribute(identifier)
+	$identifier
+
+rule type(Model)
+	$book...[$NL]
+	$author...[$NL]
+
+rule type(Book)
+	Book $identifier
+	<<title: $title>>
+	<<isbn: $isbn>>
+	<<authors: $authors+Reference...[, ]>>
+	<<related: $related+Reference>>
+	<<tags: $tags...[, ]>>
+	<<mixed: $mixed+Reference...[, ]>>
+	<<$chapter...[$NL]>>
+
+rule type(Chapter)
+	Chapter $identifier
+	<<previous: $previous+Reference>>
+
+rule type(Author)
+	Author $identifier
+	name: $name
+
+rule type(Note)
+	Note
+	value1: $value1
+	value2: $value2
+	value3: $value3

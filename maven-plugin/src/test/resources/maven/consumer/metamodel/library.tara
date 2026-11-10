@@ -1,0 +1,5 @@
+dsl metta
+
+Concept Book
+	def string title
+	def string isbn

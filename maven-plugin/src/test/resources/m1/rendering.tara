@@ -1,0 +1,15 @@
+Book(year = 1605, available = true) DonQuixote is Printed(isbn = "9780000000001")
+	title = "Don Quixote"
+	authors = Cervantes Kafka
+	related = Nocturne
+	tags = "novel" "adventure"
+	mixed = "classic" true 42 Cervantes
+	Chapter(number = 1) Opening > title = "The beginning"
+		previous = DonQuixote.Ending
+	Chapter(number = 2) Ending > title = "The return"
+		previous = DonQuixote.Opening
+	Edition Anniversary
+		Note("Appendix", 3, true)
+Book Nocturne > related = DonQuixote
+Author(name = "Miguel de Cervantes") Cervantes
+Author(name = "Franz Kafka") Kafka

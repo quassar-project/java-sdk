@@ -1,0 +1,6 @@
+Book(year = 2024, available = false) Atlas is Printed(isbn = "123")
+	title = "Atlas \"illustrated\""
+	related = Nocturne
+	companions = Nocturne
+	Chapter Opening > heading = "The beginning"
+Book(title = "Nocturne", related = Atlas) Nocturne

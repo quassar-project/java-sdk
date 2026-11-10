@@ -1,0 +1,19 @@
+rule type(Model)
+	$library
+	$journal...[$NL]
+
+rule type(Library)
+	$catalogue
+
+rule type(Catalogue)
+	Catalogue $identifier
+
+rule type(Journal)
+	<<Opening: $opening>>
+	$chapter...[$NL]
+
+rule type(Chapter) and trigger(opening)
+	$title
+
+rule type(Chapter)
+	$identifier: $reviewed

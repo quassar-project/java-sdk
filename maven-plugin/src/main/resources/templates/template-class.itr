@@ -1,0 +1,20 @@
+rule type(templateclass)
+	package $package~;
+
+	import io.quassar.templating.TemplateEngine;
+	import io.quassar.templating.model.Rule;
+	import io.quassar.templating.model.Template;
+
+	import static io.quassar.templating.model.outputs.Outputs.*;
+	import static io.quassar.templating.model.predicates.Predicates.*;
+
+	public final class $name~ {
+		private static final Template TEMPLATE = new Template()$rules~;
+
+		private $name~() {
+		}
+
+		public static String render(Object object) {
+			return TemplateEngine.with(TEMPLATE).render(object);
+		}
+	$methods~}

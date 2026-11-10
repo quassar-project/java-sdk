@@ -1,0 +1,9 @@
+<component-set>
+	<components>
+		<component>
+			<role>org.apache.maven.AbstractMavenLifecycleParticipant</role>
+			<role-hint>metta-translator</role-hint>
+			<implementation>io.quassar.plugin.TranslatorLifecycle</implementation>
+		</component>
+	</components>
+</component-set>

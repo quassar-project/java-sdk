@@ -1,0 +1,15 @@
+rule type(types)
+	final class MogramTypes {
+		private MogramTypes() {
+		}
+
+		static java.lang.String resolve($mogramType~ mogram, $modelType~ model) {
+			java.lang.String type = mogram.type();
+			if (mogram.isNull() || type.indexOf('.') >= 0) return type;
+			$mogramType~ parent = model.parentOf(mogram);
+			if (parent.isNull()) return type;
+			return switch (resolve(parent, model) + "." + type) {
+	$aliases~			default -> type;
+			};
+		}
+	}$NL

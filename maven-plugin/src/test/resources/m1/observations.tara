@@ -1,0 +1,17 @@
+dsl library
+
+Book(title = "First book", year = 2020, available = true, author = Lucia) FirstBook is Printed(isbn = "9780000000001")
+	tags = "novel" "travel"
+	prices = 19.95 24.50
+	contributors = Lucia Mateo
+	mixed = "proof" true 42 Lucia
+	note = "A textual note"
+	Chapter(number = 1) Opening
+
+Book(title = "Second book", year = 2024, available = false) SecondBook is Digital(format = "EPUB")
+	isbn =
+	note = 7
+	authors = Lucia
+
+Author(name = "Lucia Vega") Lucia
+Author(name = "Mateo Sol") Mateo

@@ -1,0 +1,12 @@
+Library Central
+	Catalogue Main > endpoint = "https://library.example/catalogue"
+	Book First
+		Chapter Opening > title = "First chapter"
+	Book Second
+
+Journal Review
+	opening = Central.First.Opening
+	Chapter Notes > reviewed = true
+	Book Featured
+
+Journal Empty

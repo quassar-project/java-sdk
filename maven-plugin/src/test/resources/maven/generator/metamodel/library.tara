@@ -1,0 +1,12 @@
+dsl metta
+
+Concept Book
+	def string title
+	def integer year
+	def boolean available
+	def Book related
+	def Book[] companions
+	Concept:Single:Optional Chapter
+		def string heading
+	facet Printed
+		def string isbn

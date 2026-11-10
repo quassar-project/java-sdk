@@ -1,0 +1,8 @@
+dsl library
+
+Book Single
+	authors = Lucia
+	tags = "novel"
+	flags = true
+
+Author(name = "Lucia Vega") Lucia

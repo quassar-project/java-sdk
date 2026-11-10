@@ -1,0 +1,41 @@
+rule type(model)
+	public final class $name~ extends io.quassar.templating.ports.FrameSource {
+		private final $modelType~ model;
+
+		public $name~($modelType~ model) {
+			this.model = model;
+		}
+
+		@Override
+		public boolean equals(java.lang.Object other) {
+			return other instanceof $name~ facade && model.equals(facade.model);
+		}
+
+		@Override
+		public int hashCode() {
+			return model.hashCode();
+		}
+
+		@Override
+		protected io.quassar.templating.ports.FrameView frameView() {
+			return new ModelFrame(model);
+		}
+
+		private record ModelFrame($modelType~ model) implements io.quassar.templating.ports.FrameView {
+			public java.lang.Object frameIdentity() {
+				return model;
+			}
+
+			public java.lang.Object frameParent() {
+				return null;
+			}
+
+			public java.util.List<java.lang.String> frameTypes() {
+				return java.util.List.of("Model");
+			}
+
+			public java.util.List<Slot> frameSlots() {
+				return MogramDecorator.groupSlots(model.mograms(), model);
+			}
+		}
+	$methods~}$NL

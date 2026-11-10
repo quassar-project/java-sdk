@@ -1,0 +1,5 @@
+rule type(method)
+
+		public $type~ $name~() {
+			return $expression~;
+		}$NL
