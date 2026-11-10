@@ -179,18 +179,17 @@ String second = engine.render(secondLibrary);
 
 Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$chapter` renders children of type `Chapter` even when the Java getter is `chapters()`.
 
-Follow the [Maven Plugin quickstart](../maven-plugin/getting-started.md) to generate `LibraryModel`. Put a template with rules for `Model` and `Book` in `src/main/resources/library-model.itr` and replace the example URL with the M1 download URL from Quassar.
+Follow the [Maven Plugin quickstart](../maven-plugin/getting-started.md) to generate `WebServicesModel` and save `endpoint-summary.itr`. Replace the example URL with the M1 download URL from Quassar.
 
 ```java
-import example.model.LibraryModel;
+import example.model.WebServicesModel;
 import io.quassar.templating.TemplateEngine;
 import java.net.URI;
 import java.nio.file.Path;
 
-LibraryModel library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
-var engine = TemplateEngine.with(Path.of("src/main/resources/library-model.itr"));
-String text = engine.render(library);
-String book = engine.render(library.books().get(0));
+var services = WebServicesModel.load(URI.create("https://quassar.io/models/[id]"));
+var engine = TemplateEngine.with(Path.of("src/main/resources/endpoint-summary.itr"));
+String route = engine.render(services.endpoints().get(0));
 ```
 
 ## Create a frame from an object
