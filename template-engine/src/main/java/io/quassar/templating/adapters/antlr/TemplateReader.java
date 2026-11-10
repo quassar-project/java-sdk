@@ -13,6 +13,8 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.antlr.v4.runtime.CharStreams.fromString;
 
@@ -23,6 +25,14 @@ public final class TemplateReader implements TemplateLoader {
 
 	public TemplateReader(InputStream input) {
 		this.input = input;
+	}
+
+	public static Template read(Path path) throws TemplateReadException {
+		try (InputStream input = Files.newInputStream(path)) {
+			return new TemplateReader(input).read();
+		} catch (IOException exception) {
+			throw new TemplateReadException("Could not read template " + path, exception);
+		}
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import io.quassar.templating.ports.FrameFactory;
 import io.quassar.templating.ports.TemplateLoader;
 
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Map;
 
 public final class TemplateEngine {
@@ -37,6 +38,10 @@ public final class TemplateEngine {
 
 	public static TemplateEngine with(InputStream input) throws TemplateReadException {
 		return with(new TemplateReader(input));
+	}
+
+	public static TemplateEngine with(Path path) throws TemplateReadException {
+		return with(TemplateReader.read(path));
 	}
 
 	public static TemplateEngine with(TemplateLoader loader) throws TemplateReadException {

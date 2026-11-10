@@ -2,7 +2,7 @@
 
 [Start here](../README.md) · [Template reference](templates.md)
 
-Reuse the `Book`, `Author` and `Library` records from the [catalogue example](../README.md#render-a-library-catalogue). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(input)`, and pass the object named in the rule to `render`.
+Reuse the `Book`, `Author` and `Library` records from the [catalogue example](../README.md#render-a-library-catalogue). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(Path.of("example.itr"))`, and pass the object named in the rule to `render`.
 
 - **Rules** · [property conditions](#choose-a-rule-from-the-data) · [boolean conditions](#combine-conditions) · [the calling slot](#choose-output-based-on-the-calling-slot)
 - **Output** · [optional values](#optional-values-and-fallback-text) · [lists and separators](#render-a-list-and-format-each-value) · [JSON](#produce-json-with-optional-fields) · [literal text](#escape-template-characters) · [Java source](#generate-a-java-record)
@@ -189,13 +189,15 @@ Every child invokes the same rule. The template's extra tab indents the rendered
 
 ## Use a custom formatter
 
+Save this as `label.itr`.
+
 ```itr
 rule type(Book)
 	$title+Label
 ```
 
 ```java
-TemplateEngine engine = TemplateEngine.with(input)
+TemplateEngine engine = TemplateEngine.with(Path.of("label.itr"))
 	.add("Label", value -> "[" + value + "]");
 
 String result = engine.render(book);
@@ -215,7 +217,7 @@ Use the same `label.itr` template with data that has different field names:
 public record ExternalBook(String label) {
 }
 
-TemplateEngine engine = TemplateEngine.with(input)
+TemplateEngine engine = TemplateEngine.with(Path.of("label.itr"))
 	.add("Label", value -> "[" + value + "]")
 	.add(ExternalBook.class, (source, frame) -> frame
 		.add("Book")
@@ -338,12 +340,11 @@ Use a representative input model to check that a template has matching rules, va
 import io.quassar.templating.Frames;
 import io.quassar.templating.TemplateVerifier;
 import io.quassar.templating.adapters.antlr.TemplateReader;
+import java.nio.file.Path;
 
-try (var input = Files.newInputStream(Path.of("catalogue.itr"))) {
-	var template = new TemplateReader(input).read();
-	var report = TemplateVerifier.of(template).verify(Frames.from(library));
-	System.out.println(report.isOk());
-}
+var template = TemplateReader.read(Path.of("catalogue.itr"));
+var report = TemplateVerifier.of(template).verify(Frames.from(library));
+System.out.println(report.isOk());
 ```
 
 ## Executable versions

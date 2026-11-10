@@ -1,12 +1,16 @@
 # Template Engine
 
-Use an `.itr` template to turn Java objects or models from your DSL into text, JSON, or source code. The engine needs Java 17 or later.
+Template Engine turns Java objects and Quassar models into text, JSON, or source code. An `.itr` file defines what to output for each type of object and which values to insert.
 
-Follow the catalogue example to see how rules select objects and how placeholders read their data.
+From Java, load the template with `TemplateEngine.with(Path)` and pass the data to `render`. For example, to turn a library into a catalogue:
 
-Browse the [template examples](docs/examples.md) for recipes with expected output, or use the [syntax reference](docs/templates.md) to look up a construct.
+```java
+String catalogue = TemplateEngine.with(Path.of("catalogue.itr")).render(library());
+```
 
 ## Add the dependency
+
+Use Java 17 or later.
 
 ```xml
 <dependency>
@@ -39,27 +43,21 @@ Save the Java example as `CatalogueExample.java`. The catalogue contains two boo
 ```java
 import io.quassar.templating.TemplateEngine;
 
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 public class CatalogueExample {
 	public static void main(String[] args) throws Exception {
-		Library library = new Library("City Library", List.of(
+		System.out.println(TemplateEngine.with(Path.of("catalogue.itr")).render(library()));
+	}
+
+	private static Library library() {
+		return new Library("City Library", List.of(
 			new Book("Don Quixote", 1605, new Author("Miguel de Cervantes"), "9788420412146", true),
 			new Book("The Trial", 1925, new Author("Franz Kafka"), null, false)));
-
-		try (InputStream input = Files.newInputStream(Path.of("catalogue.itr"))) {
-			String catalogue = TemplateEngine.with(input).render(library);
-			System.out.println(catalogue);
-		}
 	}
 
 	public record Library(String name, List<Book> books) {
-		public Library {
-			books = List.copyOf(books);
-		}
 	}
 
 	public record Book(String title, int year, Author author, String isbn, boolean available) {
@@ -89,7 +87,9 @@ By Franz Kafka
 
 ## Write your own templates
 
-Save each example as a separate `.itr` file and reuse the Java records from the catalogue. Load the file with `TemplateEngine.with(input)` and pass the object indicated in each example to `render`.
+Browse the [template examples](docs/examples.md) for recipes with expected output, or use the [syntax reference](docs/templates.md) to look up a construct.
+
+Save each example as a separate `.itr` file and reuse the Java records from the catalogue. Load the file with `TemplateEngine.with(Path.of("example.itr"))` and pass the object indicated in each example to `render`.
 
 ### Choose a rule based on a property
 
@@ -159,19 +159,16 @@ Each book produces its own JSON object.
 {"title": "The Trial", "year": 1925}
 ```
 
-## Load a template from resources
+## Load a template from the project directory
 
-Put `catalogue.itr` in `src/main/resources/templates`:
+Put `catalogue.itr` in `src/main/resources/templates` and run the example from the project root.
 
 ```java
-TemplateEngine engine;
-try (InputStream input = CatalogueExample.class.getResourceAsStream("/templates/catalogue.itr")) {
-	engine = TemplateEngine.with(input);
-}
+var engine = TemplateEngine.with(Path.of("src/main/resources/templates/catalogue.itr"));
 String catalogue = engine.render(library);
 ```
 
-Templates are read and executed directly. The caller closes the stream. A created engine can render several objects:
+The engine reads and closes the file when you create it. Reuse the engine to render several objects.
 
 ```java
 String first = engine.render(firstLibrary);
@@ -187,15 +184,13 @@ Follow the [Maven Plugin quickstart](../maven-plugin/README.md) to generate `Lib
 ```java
 import example.model.LibraryModel;
 import io.quassar.templating.TemplateEngine;
-import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Path;
 
 LibraryModel library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
-try (InputStream input = LibraryModel.class.getResourceAsStream("/library-model.itr")) {
-	TemplateEngine engine = TemplateEngine.with(input);
-	String text = engine.render(library);
-	String book = engine.render(library.books().get(0));
-}
+var engine = TemplateEngine.with(Path.of("src/main/resources/library-model.itr"));
+String text = engine.render(library);
+String book = engine.render(library.books().get(0));
 ```
 
 ## Create a frame from an object
@@ -224,7 +219,7 @@ Frame book = Frames.builder("Book")
 Register formatters and object adapters fluently:
 
 ```java
-TemplateEngine engine = TemplateEngine.with(input)
+TemplateEngine engine = TemplateEngine.with(Path.of("label.itr"))
 	.add("Label", value -> "[" + value + "]")
 	.add(ExternalBook.class, (source, frame) -> frame
 		.add("Book")
@@ -237,6 +232,7 @@ See [examples](docs/examples.md) for matching templates, conditions, recursive c
 
 | Factory | Input |
 | --- | --- |
+| `TemplateEngine.with(path)` | A local `.itr` file that the engine opens and closes |
 | `TemplateEngine.with(input)` | An `.itr` input stream, read as UTF-8 |
 | `TemplateEngine.with(template)` | An existing template |
 | `TemplateEngine.with(rules)` | An iterable of rendering rules |
@@ -245,10 +241,8 @@ See [examples](docs/examples.md) for matching templates, conditions, recursive c
 
 Unreadable or malformed templates raise `io.quassar.templating.ports.TemplateReadException`.
 
-## More documentation
+## Executable examples
 
-- [Examples: conditions, formatters, adapters, recursion and Java generation](docs/examples.md).
-- [Template reference: rules, slots, expressions, lists and context](docs/templates.md).
-- [Executable examples](src/test/java/tests/DocumentationExamplesTest.java) and their [template resources](src/test/resources/examples).
+See the [example tests](src/test/java/tests/DocumentationExamplesTest.java) and their [template resources](src/test/resources/examples).
 
 Distributed under the [MIT license](LICENSE).

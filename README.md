@@ -1,39 +1,40 @@
 # Quassar Java SDK
 
-Build your own domain-specific language (DSL) in [Quassar](https://quassar.io) and use this SDK to turn models written in that language into Java applications, code generators, and documents.
+Create your own domain-specific language (DSL) in [Quassar](https://quassar.io). Use the Java SDK to turn the models people write in that language into applications, reports, or generated source code.
 
-## From a DSL to Java
+## From Quassar to a running application
 
-1. **Define your language in Forge.** Choose **New DSL** and describe its concepts in a metamodel (M2). A library DSL might define a `Book` with a title and a collection of chapters.
-2. **Create a model in Studio.** Choose **New model** and select your DSL. Add a book and its chapters. This is your M1 model, the data that your Java application will load.
-3. **Connect your Java project.** Copy the two download URLs from Quassar. The Maven plugin uses M2 at build time to generate classes such as `LibraryModel` and `Book`. Your Java code uses M1 at runtime to read the actual books.
+| Where | What you do | What you get |
+| --- | --- | --- |
+| **Forge** | Create a DSL and define its concepts, properties, and relationships. | A metamodel (M2), such as a library DSL with books and chapters. |
+| **Studio** | Create a model using that DSL. | A model (M1), such as a catalogue with actual books. |
+| **Your Java project** | Give the Maven plugin the M2 download URL and load M1 using its own URL. | Typed Java classes for your DSL and access to the model's data. |
+
+With a metamodel named `Library` and a `book-summary.itr` template, the plugin generates `LibraryModel` and `BookSummaryTemplate`. The application can then load a model and render its first book.
 
 ```java
 var library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
-var book = library.books().get(0);
-System.out.println(book.title());
+System.out.println(BookSummaryTemplate.render(library.books().get(0)));
 ```
 
-Replace the example URL with your M1 download URL. Follow the [Maven Plugin quickstart](maven-plugin/README.md) to generate `LibraryModel` and render the book with an `.itr` template.
+Replace the example URL with your M1 download URL. The [Maven Plugin quickstart](maven-plugin/README.md) shows the M2 configuration, the template, and a complete Java application.
 
-## Choose a guide
+## Find the right guide
 
-### [Maven Plugin](maven-plugin/README.md)
+| I want to… | Start here |
+| --- | --- |
+| Generate typed classes from a metamodel or scaffold a Maven generator. | [Maven Plugin](maven-plugin/README.md) |
+| Write templates for text, JSON, or code. | [Template Engine](template-engine/README.md) · [Template examples](template-engine/docs/examples.md) |
+| Load and query a Tara model through a generic Java API. | [Model Reader](model-reader/README.md) |
 
-Turn your DSL's metamodel into a typed Java API, compile `.itr` templates, and scaffold an application or a Maven code generator.
+## Build the SDK from source
 
-### [Template Engine](template-engine/README.md)
+Use Java 17 or later and Maven 3.9.9 or later. From the repository root, run:
 
-Write `.itr` templates for source code, JSON, and other text formats. The [template examples](template-engine/docs/examples.md) cover conditions, lists, and optional fields.
+```sh
+mvn clean install
+```
 
-### [Model Reader](model-reader/README.md)
+This runs the tests and installs the SDK modules into your local Maven repository.
 
-Load and query models written in your DSL directly from Java, with access to mograms, children, and references.
-
-## Build the SDK locally
-
-With Java 17 or later and Maven 3.9.9 or later, run `mvn clean install` from this repository. This runs the tests and installs the SDK modules in your local Maven repository.
-
----
-
-Java 17+ · [MIT License](LICENSE)
+[MIT License](LICENSE)

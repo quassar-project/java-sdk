@@ -151,6 +151,8 @@ Configuration controls locale-sensitive built-in formatting and output line endi
 
 ## Input ownership and errors
 
+`TemplateEngine.with(Path.of("catalogue.itr"))` opens and closes a local template file for you.
+
 `TemplateEngine.with(input)` reads UTF-8 and leaves the stream open. Close it in the calling code, typically with try-with-resources. The engine retains the resulting template, so it can render after the stream has been closed.
 
 Unreadable or malformed input raises `io.quassar.templating.ports.TemplateReadException`. Rendering does not require generating or compiling a Java template class.

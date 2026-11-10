@@ -9,15 +9,40 @@ import io.quassar.templating.ports.TemplateReadException;
 import io.quassar.templating.ports.TemplateLoader;
 import io.quassar.templating.model.Template;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TemplateEngineFactoryTest {
+	@Test
+	public void readsAndRendersATemplateFile(@TempDir Path directory) throws Exception {
+		Path template = directory.resolve("catalogue.itr");
+		try (InputStream input = bookLabel()) {
+			Files.copy(input, template);
+		}
+
+		TemplateEngine engine = TemplateEngine.with(template);
+
+		Files.delete(template);
+		assertThat(engine.render(new ReflectiveFrameBuilder("Book").add("title", "Don Quixote")))
+			.isEqualTo("Book: Don Quixote");
+	}
+
+	@Test
+	public void reportsAMissingTemplateFile(@TempDir Path directory) {
+		assertThatThrownBy(() -> TemplateEngine.with(directory.resolve("missing.itr")))
+			.isInstanceOf(TemplateReadException.class)
+			.hasMessageContaining("missing.itr")
+			.hasCauseInstanceOf(IOException.class);
+	}
+
 	@Test
 	public void readsAndRendersAnInputStreamWithoutClosingIt() throws Exception {
 		try (TrackingInput input = new TrackingInput(bookLabel())) {
