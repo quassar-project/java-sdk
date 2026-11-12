@@ -56,6 +56,7 @@ public final class Model {
 	static final class Index {
 		private final List<Mogram> mograms;
 		private final Map<String, List<Mogram>> byPath;
+		private final List<Mogram> roots;
 		private final Map<Mogram, Position> positions;
 
 		private Index(Builder builder) {
@@ -64,6 +65,7 @@ public final class Model {
 			builder.byPath.forEach((path, matches) -> paths.put(path, List.copyOf(matches)));
 			byPath = Map.copyOf(paths);
 			positions = Collections.unmodifiableMap(new IdentityHashMap<>(builder.positions));
+			roots = mograms.stream().filter(mogram -> positions.get(mogram).parent() == null).toList();
 		}
 
 		static Index of(List<Mogram> roots) {
@@ -90,14 +92,25 @@ public final class Model {
 				List<Mogram> matches = findInScope(reference, scope);
 				if (!matches.isEmpty()) return matches;
 			}
-			return find(reference);
+			return findPath(roots, reference);
 		}
 
-		private List<Mogram> findInScope(String reference, Mogram scope) {
-			Position position = positions.get(scope);
-			if (position == null || position.path().isEmpty()) return List.of();
-			return find(position.path() + "." + reference);
-		}
+        private List<Mogram> findInScope(String reference, Mogram scope) {
+            if (!positions.containsKey(scope)) return List.of();
+            return findPath(scope.children(), reference);
+        }
+
+        private static List<Mogram> findPath(List<Mogram> candidates, String reference) {
+            List<Mogram> matches = candidates;
+            String[] parts = reference.split("\\.", -1);
+            for (int i = 0; i < parts.length; i++) {
+                if (parts[i].isEmpty()) return List.of();
+                String identifier = parts[i];
+                matches = matches.stream().filter(mogram -> identifier.equals(mogram.identifier())).toList();
+                if (i < parts.length - 1) matches = matches.stream().flatMap(mogram -> mogram.children().stream()).toList();
+            }
+            return matches;
+        }
 
 		private record Position(String path, Mogram parent) {
 		}

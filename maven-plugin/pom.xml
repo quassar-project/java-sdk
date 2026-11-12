@@ -27,7 +27,6 @@
             <groupId>quassar.io</groupId>
             <artifactId>model-reader</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
