@@ -1,6 +1,6 @@
-# Template Engine API
+# Template Engine API for advanced use
 
-Template Engine turns Java objects and Quassar models into text, JSON, or source code. An `.itr` file defines what to output for each type of object and which values to insert. The engine needs Java 17 or later.
+Template Engine turns Java objects and Quassar models into text, JSON, or source code. An `.itr` file defines what to output for each type of object and which values to insert. The engine needs Java 17 or later. Use this guide to load templates directly at runtime or customize rendering. For templates compiled by Maven, start with the generated API. [Generated Template API](generated-template-api.md)
 
 ## Add the dependency for standalone use
 
@@ -23,7 +23,7 @@ To generate Java from an M1 model, write the source file you want the template t
 3. **Render children and references.** Add rules for the concepts reached through a placeholder. Use `...` and a separator to render repeated values, such as the arguments of a Java method call.
 4. **Render and save the source.** Load the template with `TemplateEngine.with(Path)`, pass a generated decorator to `render`, and write the returned string to a `.java` file named after its public type.
 
-The workflow example shows the complete template, the Java call that renders it, and the resulting source file. [Generate Java from a workflow](template-engine-examples.md#generate-java-from-a-workflow) · [Template syntax reference](#template-syntax-reference)
+The workflow example shows the complete template, the Java call that renders it, and the resulting source file. [Generate Java from a workflow](generated-template-api.md#generate-java-from-a-workflow) · [Template syntax reference](#template-syntax-reference)
 
 ## Generated decorators
 
