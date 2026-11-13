@@ -33,15 +33,21 @@ Replace `[code]` with the code of your metamodel (M2) in Quassar.
 
 Decide what should happen when your tool reads an M1 model. If you want to produce source code for a later build, choose compilation. If you want a Java application to act directly on the model at runtime, choose interpretation. Both use the typed Java API generated from M2.
 
-### 1. Generate an HTTP client
+### 1. Compilation
 
-You build a **Maven plugin for your DSL**. In that plugin project, set `<packaging>maven-plugin</packaging>` and replace `[mode]` with `maven-plugin` in the Quassar plugin configuration.
+Build a Maven plugin for your DSL that turns each model (M1) into source code in the consuming project's generated sources directory.
+
+```text
+Model (M1) → Your DSL's Maven plugin → Source code in the generated sources directory
+```
+
+In your DSL plugin project, set `<packaging>maven-plugin</packaging>` and replace `[mode]` with `maven-plugin` in the Quassar plugin configuration.
 
 When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and renders your `.itr` templates into source code for a target language such as Java or C.
 
-Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. The Quassar plugin helps build your DSL plugin, and your DSL plugin translates the consumer's models. [Generate a Java HTTP client step by step](docs/maven-plugin/web-service-client.md)
+Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Generate a Java HTTP client step by step](docs/maven-plugin/web-service-client.md)
 
-### 2. Interpret a service model at runtime
+### 2. Interpretation
 
 You build a **Java application that runs your DSL**. Replace `[mode]` with `application` and run `mvn generate-sources`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
 
