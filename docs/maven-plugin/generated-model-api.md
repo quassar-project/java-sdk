@@ -15,23 +15,47 @@ import java.nio.file.Path;
 
 var metamodel = Metamodels.load(URI.create("https://quassar.io/models/[code]"));
 MogramDecoratorGenerator.from(metamodel)
-	.inPackage("example.library")
+	.inPackage("example.model")
 	.writeTo(Path.of("src/main/gen"));
 ```
 
-The generator uses the `name` from the root `manifest.json` with a `Model` suffix. A manifest named `Library` generates `LibraryModel`. Use `.modelNamed(...)` to override the name.
+The generator uses the `name` from the root `manifest.json` with a `Model` suffix. A manifest named `Workflows` generates `WorkflowsModel`, as in the [interpreter example](../../README.md#interpreter). Use `.modelNamed(...)` to override the name.
 
 Use `.code()` to obtain the generated `JavaCode` records without writing files. Java keywords and name collisions receive safe generated names; lookups retain the original names from the metamodel.
+
+## Workflow metamodel
+
+The `Workflows` DSL defines workflows with an entry point and a sequence of steps. Each step references an action and can specify fallback actions.
+
+```tara
+dsl metta
+
+Concept Workflow
+	Concept:Single:Required EntryPoint
+		def string name
+	Concept:{1..*} Step
+		def string label
+		def integer timeoutSeconds
+		def boolean enabled
+		def Action action
+		def Action[] fallbackActions
+		facet Execution
+			sub Scheduled
+				def string schedule
+
+Concept Action
+	def string name
+```
 
 ## Property types
 
 | Metamodel declaration | Java getter |
 | --- | --- |
-| `def string title` | `String` |
-| `def integer year` | `BigDecimal` |
-| `def boolean available` | `boolean` |
-| `def Author author` | `Author` decorator |
-| `def Author[] authors` | `List<Author>` |
+| `def string label` | `String` |
+| `def integer timeoutSeconds` | `BigDecimal` |
+| `def boolean enabled` | `boolean` |
+| `def Action action` | `Action` decorator |
+| `def Action[] fallbackActions` | `List<Action>` |
 
 A reference without a declared target uses `MogramDecorator`. References resolve lazily against the loaded model, using their source mogram as context. Missing targets return null decorators with `isNull()` and empty property defaults. Relative references and cycles are supported.
 
@@ -39,28 +63,30 @@ A multiple property returns an empty list for an absent value, a singleton list 
 
 ## Use the generated model
 
-A root or child with a maximum cardinality of one has a singular getter that returns its decorator. For example, `Concept:{1..1} Library` generates `model.library()` and `Concept:Single:Required Catalogue` nested under it generates `library.catalogue()`. If a single mogram is absent, the getter returns a decorator with `isNull()` set to `true`. Repeated children return lists.
+A root or child with a maximum cardinality of one has a singular getter that returns its decorator. For example, `Concept:Single:Required EntryPoint` generates `workflow.entryPoint()`. If the root were declared as `Concept:{1..1} Workflow`, the model would expose `model.workflow()`. If a single mogram is absent, the getter returns a decorator with `isNull()` set to `true`. Repeated children return lists.
 
 The model facade exposes only root mograms. Concepts declared as components and concepts declared inside another concept are reached through their parent decorators.
 
 Replace the example URL with the M1 download URL from Quassar.
 
 ```java
+import example.model.WorkflowsModel;
 import java.net.URI;
 
-LibraryModel library = LibraryModel.load(URI.create("https://quassar.io/models/[code]"));
-Book book = library.books().get(0);
-String title = book.title();
-BigDecimal year = book.year();
-List<Author> authors = book.authors();
-boolean available = book.available();
+var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
+var workflow = model.workflows().get(0);
+var entryPoint = workflow.entryPoint();
+var step = workflow.steps().get(0);
+String label = step.label();
+var action = step.action();
+var fallbackActions = step.fallbackActions();
 ```
 
-`LibraryModel.load(...)` accepts `Path`, `URL` and `URI`, and declares `IOException`. It loads model instances using `model-reader`. The M2 metamodel supplies the declarations used to generate the Java API.
+`WorkflowsModel.load(...)` accepts `Path`, `URL` and `URI`, and declares `IOException`. It loads model instances using `model-reader`. The M2 metamodel supplies the declarations used to generate the Java API.
 
 Model collection methods return root mograms of the declared type. Child collection methods return direct children of the declared type. References resolve against the loaded model.
 
-For a book with the `Printed` facet, `book.isPrinted()` checks whether it is active and `book.asPrinted()` returns its typed view. Facet property getters belong to that view, so read the ISBN with `book.asPrinted().isbn()`. When the facet is absent, the view returns `true` from `isNull()`.
+For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.asScheduled()` returns its typed view. Read the schedule with `step.asScheduled().schedule()`. When the facet is absent, the view returns `true` from `isNull()`.
 
 ## Read a local M2 metamodel
 
@@ -70,28 +96,13 @@ import io.quassar.metamodel.model.Metamodel;
 
 import java.nio.file.Path;
 
-Metamodel metamodel = Metamodels.load(Path.of("library-metamodel.zip"));
+Metamodel metamodel = Metamodels.load(Path.of("workflows-metamodel.zip"));
 Metamodel folder = Metamodels.load(Path.of("m2"));
 ```
 
-Both sources can contain declarations in several `.tara` files, including files in subdirectories. To read M1 from a local folder, use `LibraryModel.load(Path.of("m1"))`.
+Both sources can contain declarations in several `.tara` files, including files in subdirectories. To read M1 from a local folder, use `WorkflowsModel.load(Path.of("m1"))`.
 
-```tara
-Concept Book
-	def string title
-	def Author[] authors
-	facet Edition
-		sub Printed
-			def string isbn
-	Concept:{1..*} Chapter
-		def string title
-	sub Novel
-		def string synopsis = empty
-
-Concept Author as component > def string name
-```
-
-`metamodel.types()` contains the immutable declarations. Names include their declaration scope, such as `Book.Chapter` and `Book.Edition.Printed`. Each type retains its own properties, facets, compositions, cardinality and modifiers. `scope()` identifies its enclosing declaration; `parent()` records inheritance through `sub` or `extends`. Facet alternatives are also facet types. Repeated declarations in the same scope are combined.
+`metamodel.types()` contains the immutable declarations. Names include their declaration scope, such as `Workflow.Step` and `Workflow.Step.Execution.Scheduled`. Each type retains its own properties, facets, compositions, cardinality and modifiers. `scope()` identifies its enclosing declaration; `parent()` records inheritance through `sub` or `extends`. Facet alternatives are also facet types. Repeated declarations in the same scope are combined.
 
 Properties retain their declared type, sequence element type, reference target spelling, constraints and default value. Defaults retain their source expression, including quotes, units or `empty`. Inherited properties and reference targets are not resolved by this reader.
 
