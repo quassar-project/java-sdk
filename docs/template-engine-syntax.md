@@ -17,7 +17,7 @@ Indent the rule body with a tab. Additional indentation becomes part of the rend
 
 ## Placeholders
 
-A placeholder is a reference to a value that the engine inserts into the output. Write `$name` to look up the slot named `name` on the object the current rule is rendering. A slot is a named value exposed by that object. Slot names are matched without regard to case. Generated decorators expose the properties, children, and references of the model as slots. [Render an object](template-engine-api.md#render-an-object)
+A placeholder tells the engine where to insert a value in the output. Write `$name` to read the slot named `name` from the current frame. The frame is the input the engine uses to apply a rule. It can be built from a Java object or supplied directly. Slots hold zero or more values, and the engine matches slot names without regard to case. [Render an object](template-engine-api.md#render-an-object)
 
 For each value in the slot, the engine looks for the first rule that matches that value. When no rule matches, a scalar such as text or a number renders as text, and an object produces no output. A missing slot also produces no output. Use an optional expression for fallback text or a separator to join repeated values. [Optional expressions](#optional-expressions) · [Lists and separators](#lists-and-separators)
 
