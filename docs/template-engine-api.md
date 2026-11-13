@@ -28,7 +28,7 @@ Use `TemplateEngine.with(...)` to load an `.itr` file at runtime or to use a tem
 
 The engine opens and closes files passed as a `Path`. If you pass an `InputStream`, close it in your code after the engine loads the template. Unreadable or malformed templates raise `TemplateReadException`.
 
-Save the workflow template as `workflow.itr` in the current directory, then load it. [Template examples](template-engine-examples.md) · [Template syntax reference](template-engine-syntax.md)
+This example assumes `workflow.itr` is in the current directory. [Template examples](template-engine-examples.md) · [Template syntax reference](template-engine-syntax.md)
 
 ```java
 import io.quassar.templating.TemplateEngine;
