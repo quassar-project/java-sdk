@@ -12,7 +12,7 @@ String summary = TemplateEngine.with(Path.of("order-batch.itr")).render(batch())
 
 Use Java 17 or later.
 
-Add the dependency below only if your project does not use the Quassar Maven plugin. With `<extensions>true</extensions>`, the plugin adds `template-engine` to your project automatically. [Quassar Maven plugin setup](../README.md#2-use-your-models-from-java)
+Add the dependency below **only if your project does not use the Quassar Maven plugin**. With `<extensions>true</extensions>`, the plugin adds `template-engine` to your project automatically. [Quassar Maven plugin setup](../README.md#2-use-your-models-from-java)
 
 ```xml
 <dependency>
