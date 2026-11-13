@@ -28,9 +28,13 @@ String source = engine.render(workflow);
 
 The engine reads and closes the file when you create it. You can reuse the engine to render other workflows with the same template.
 
-## Generated decorators
+## Objects and frames
 
-Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$step` renders children of type `Step` exposed by the Java getter `steps()`.
+Pass a generated model, one of its decorators, a Java class instance, or a record directly to `render`. The engine builds a frame from the object using reflection. A frame exposes a type and named values called slots, which the template uses to match rules and fill placeholders.
+
+For generated decorators, the engine reads getters that expose the model's types and names. For example, `$step` renders children of type `Step` exposed by the Java getter `steps()`. For other Java objects, the engine reads the object's class name and fields.
+
+You can also build a frame by hand and pass it directly to `render`. [Build frames explicitly](#build-frames-explicitly)
 
 ## Factories
 
@@ -92,8 +96,6 @@ Unreadable or malformed input raises `io.quassar.templating.ports.TemplateReadEx
 
 ## Advanced frame usage
 
-The engine represents objects as frames during rendering. For a plain Java record, the class name supplies the frame type and its fields supply the slots. Use the frame API when you need to construct or adapt that data explicitly.
-
 ### Create a frame from an object
 
 ```java
@@ -106,7 +108,9 @@ String source = engine.render(frame);
 
 `Frames.from(...)` adapts records and regular Java objects. It includes inherited fields and converts nested object, list, map and array fields. Static and transient fields are excluded. Each conversion creates its own frame tree and parent links. Passing an existing `Frame` returns that frame.
 
-Use `Frames.builder(...)` when you want to name the type and add slots yourself. Scalar values such as strings and numbers are added directly.
+### Build frames explicitly
+
+Use `Frames.builder(...)` to name the type and add slots yourself. Scalar values such as strings and numbers are added directly.
 
 ```java
 Frame step = Frames.builder("Step")
@@ -114,6 +118,7 @@ Frame step = Frames.builder("Step")
 	.add("timeoutSeconds", 30)
 	.add("enabled", true)
 	.toFrame();
+String source = engine.render(step);
 ```
 
 ### Customize rendering
