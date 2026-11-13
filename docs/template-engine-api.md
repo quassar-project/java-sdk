@@ -30,11 +30,9 @@ The engine reads and closes the file when you create it. You can reuse the engin
 
 ## Objects and frames
 
-Pass a generated model, one of its decorators, a Java class instance, or a record directly to `render`. The engine builds a frame from the object using reflection. A frame exposes a type and named values called slots, which the template uses to match rules and fill placeholders.
+The engine can render a generated model, a model decorator, an instance of a Java class, or a record. It uses reflection to convert these objects into frames.
 
-For generated decorators, the engine reads getters that expose the model's types and names. For example, `$step` renders children of type `Step` exposed by the Java getter `steps()`. For other Java objects, the engine reads the object's class name and fields.
-
-You can also build a frame by hand and pass it directly to `render`. [Build frames explicitly](#build-frames-explicitly)
+You can also pass a frame directly to `render`. [Build frames explicitly](#build-frames-explicitly)
 
 ## Factories
 
