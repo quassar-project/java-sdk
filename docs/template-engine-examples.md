@@ -13,7 +13,7 @@ var workflow = model.workflows().get(0);
 var step = workflow.steps().get(0);
 ```
 
-Replace `[code]` with your M1 model's code. Use `$step` in the template for the children exposed by `workflow.steps()`. [Template syntax reference](template-engine-api.md#template-syntax-reference)
+Replace `[code]` with your M1 model's code. Use `$step` in the template for the children exposed by `workflow.steps()`. [Template syntax reference](template-engine-syntax.md)
 
 ## Choose a rule from the data
 
