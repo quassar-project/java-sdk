@@ -55,13 +55,13 @@ In your DSL plugin project, set `<packaging>maven-plugin</packaging>` and replac
 
 When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and renders your `.itr` templates into source code for a target language such as Java or C.
 
-Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Code generation walkthrough](docs/maven-plugin/web-service-client.md)
+Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Code generation walkthrough](docs/maven-plugin/getting-started.md#compilation)
 
 ### Interpretation
 
 You build a **Java application that runs your DSL**. Replace `[mode]` with `application` and run `mvn generate-sources`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
 
-Implement the interpreter in the application. At runtime, it loads M1 through the generated API and carries out the behavior declared by the model. [Interpretation walkthrough](docs/maven-plugin/web-service-interpreter.md)
+Implement the interpreter in the application. At runtime, it loads M1 through the generated API and carries out the behavior declared by the model. [Interpretation walkthrough](docs/maven-plugin/getting-started.md#interpretation)
 
 ## Find the right guide
 
