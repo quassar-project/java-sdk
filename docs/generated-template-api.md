@@ -16,10 +16,7 @@ Use a path relative to `src/main/resources`, such as `solution/templates` for a 
 
 The example turns the `OrderFulfillment` workflow into a Java class whose `actions()` method lists the actions in execution order. The DSL definition (M2) determines what your Java code can read, and the workflow model (M1) supplies the values to render. [Workflow metamodel](generated-model-api.md#workflow-metamodel) · [Sample M1 model](model-reader-api.md#create-a-model-in-quassar)
 
-1. **Configure the Quassar plugin.** In your project's `pom.xml`, set `<package>example</package>` and point `<metamodel>` to the download URL of the Workflows metamodel (M2). [Maven setup](../README.md#use-your-models-from-java)
-2. **Add the template.** Save the template below as `src/main/resources/workflows/workflow.itr`. It defines the Java class to produce for a workflow.
-3. **Generate the Java API.** Run `mvn generate-sources`. The plugin generates `example.model.WorkflowsModel` from M2 and compiles the template into `example.templates.WorkflowTemplate`. Both classes are written under `src/main/gen`.
-4. **Render a workflow.** In the Java program below, load M1 through `WorkflowsModel`, select a workflow, and pass it to `WorkflowTemplate.render(workflow)`. Save the returned source as `OrderFulfillmentWorkflow.java` for the sample model.
+With the generated classes `example.model.WorkflowsModel` and `example.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.render(workflow)`. Here are the rules from `workflow.itr` that the generated template applies.
 
 ```itr
 rule type(Workflow)
