@@ -1,0 +1,11 @@
+rule type(OrderBatch)
+	$name
+	$orders...[$NL$NL]
+
+rule type(Order)
+	$number+UpperCase ($totalInCents)
+	Customer: $customer
+	<<Tracking: $trackingCode>>
+
+rule type(Customer)
+	$name

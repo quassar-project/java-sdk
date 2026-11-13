@@ -2,10 +2,10 @@
 
 Template Engine turns Java objects and Quassar models into text, JSON, or source code. An `.itr` file defines what to output for each type of object and which values to insert.
 
-From Java, load the template with `TemplateEngine.with(Path)` and pass the data to `render`. For example, to turn a library into a catalogue:
+From Java, load the template with `TemplateEngine.with(Path)` and pass the data to `render`. For example, to turn an order batch into a shipping summary:
 
 ```java
-String catalogue = TemplateEngine.with(Path.of("catalogue.itr")).render(library());
+String summary = TemplateEngine.with(Path.of("order-batch.itr")).render(batch());
 ```
 
 ## Add the dependency
@@ -20,25 +20,25 @@ Use Java 17 or later.
 </dependency>
 ```
 
-## Render a library catalogue
+## Render an order batch
 
-Save this as `catalogue.itr` in the directory from which you run the example.
+Save this as `order-batch.itr` in the directory from which you run the example.
 
 ```itr
-rule type(Library)
+rule type(OrderBatch)
 	$name
-	$books...[$NL$NL]
+	$orders...[$NL$NL]
 
-rule type(Book)
-	$title+UpperCase ($year)
-	By $author
-	<<ISBN: $isbn>>
+rule type(Order)
+	$number+UpperCase ($totalInCents)
+	Customer: $customer
+	<<Tracking: $trackingCode>>
 
-rule type(Author)
+rule type(Customer)
 	$name
 ```
 
-Save the Java example as `CatalogueExample.java`. The catalogue contains two books so you can see how optional data affects the output.
+Save the Java example as `OrderBatchExample.java`. The batch contains two orders so you can see how optional data affects the output.
 
 ```java
 import io.quassar.templating.TemplateEngine;
@@ -46,138 +46,138 @@ import io.quassar.templating.TemplateEngine;
 import java.nio.file.Path;
 import java.util.List;
 
-public class CatalogueExample {
+public class OrderBatchExample {
 	public static void main(String[] args) throws Exception {
-		System.out.println(TemplateEngine.with(Path.of("catalogue.itr")).render(library()));
+		System.out.println(TemplateEngine.with(Path.of("order-batch.itr")).render(batch()));
 	}
 
-	private static Library library() {
-		return new Library("City Library", List.of(
-			new Book("Don Quixote", 1605, new Author("Miguel de Cervantes"), "9788420412146", true),
-			new Book("The Trial", 1925, new Author("Franz Kafka"), null, false)));
+	private static OrderBatch batch() {
+		return new OrderBatch("Daily orders", List.of(
+			new Order("ORD-1042", 2599, new Customer("Alex Morgan"), "TRK-1042", true),
+			new Order("ORD-1043", 1499, new Customer("Sam Rivera"), null, false)));
 	}
 
-	public record Library(String name, List<Book> books) {
+	public record OrderBatch(String name, List<Order> orders) {
 	}
 
-	public record Book(String title, int year, Author author, String isbn, boolean available) {
+	public record Order(String number, long totalInCents, Customer customer, String trackingCode, boolean shipped) {
 	}
 
-	public record Author(String name) {
+	public record Customer(String name) {
 	}
 }
 ```
 
-The output shows both books and the ISBN for the printed edition.
+The output shows both orders and the tracking code for the shipped order.
 
 ```text
-City Library
-DON QUIXOTE (1605)
-By Miguel de Cervantes
-ISBN: 9788420412146
+Daily orders
+ORD-1042 (2599)
+Customer: Alex Morgan
+Tracking: TRK-1042
 
-THE TRIAL (1925)
-By Franz Kafka
+ORD-1043 (1499)
+Customer: Sam Rivera
 ```
 
-- A rule such as `type(Book)` selects the object to render. The first matching rule wins.
-- A placeholder such as `$title` reads a named value from the object. When the value is another object, `$author` renders it with its own rule.
-- `$books...[$NL$NL]` repeats the book rule with a blank line between books.
-- `+UpperCase` formats the title. `<<ISBN: $isbn>>` prints the whole line only when the ISBN exists.
+- A rule such as `type(Order)` selects the object to render. The first matching rule wins.
+- A placeholder such as `$number` reads a named value from the object. When the value is another object, `$customer` renders it with its own rule.
+- `$orders...[$NL$NL]` repeats the order rule with a blank line between orders.
+- `+UpperCase` formats the number. `<<Tracking: $trackingCode>>` prints the whole line only when the tracking code exists.
 
 ## Write your own templates
 
 Browse the [template examples](examples.md) for recipes with expected output, or use the [syntax reference](templates.md) to look up a construct.
 
-Save each example as a separate `.itr` file and reuse the Java records from the catalogue. Load the file with `TemplateEngine.with(Path.of("example.itr"))` and pass the object indicated in each example to `render`.
+Save each example as a separate `.itr` file and reuse the Java records from the order batch example. Load the file with `TemplateEngine.with(Path.of("example.itr"))` and pass the object indicated in each example to `render`.
 
 ### Choose a rule based on a property
 
-Render a `Book` with a different label depending on its availability. Put the more specific rule first so the general rule can handle the remaining books.
+Render an `Order` with a different label depending on whether it has shipped. Put the more specific rule first so the general rule can handle the remaining orders.
 
 ```itr
-rule type(Book) and attribute(available, true)
-	$title: available
+rule type(Order) and attribute(shipped, true)
+	$number: shipped
 
-rule type(Book)
-	$title: on loan
+rule type(Order)
+	$number: pending
 ```
 
-Rendering the two books separately produces these lines.
+Rendering the two orders separately produces these lines.
 
 ```text
-Don Quixote: available
-The Trial: on loan
+ORD-1042: shipped
+ORD-1043: pending
 ```
 
 ### Provide fallback text
 
-Use `?` inside `<<...>>` to supply an alternative when a value is missing. Render the two books separately to see both cases.
+Use `?` inside `<<...>>` to supply an alternative when a value is missing. Render the two orders separately to see both cases.
 
 ```itr
-rule type(Book)
-	$title — <<ISBN: $isbn?ISBN unavailable>>
+rule type(Order)
+	$number — <<Tracking: $trackingCode?Tracking unavailable>>
 ```
 
 ```text
-Don Quixote — ISBN: 9788420412146
-The Trial — ISBN unavailable
+ORD-1042 — Tracking: TRK-1042
+ORD-1043 — Tracking unavailable
 ```
 
 ### Render a list with a separator
 
-Render a `Library`. Each item in `books` uses the `Book` rule. The text in brackets goes between items.
+Render a `OrderBatch`. Each item in `orders` uses the `Order` rule. The text in brackets goes between items.
 
 ```itr
-rule type(Library)
-	$books...[, ]
+rule type(OrderBatch)
+	$orders...[, ]
 
-rule type(Book)
-	$title
+rule type(Order)
+	$number
 ```
 
 ```text
-Don Quixote, The Trial
+ORD-1042, ORD-1043
 ```
 
 ### Write JSON with optional fields
 
-Render a `Book` as JSON. `JsonString` quotes and escapes strings. Put the comma inside the optional expression so it disappears with the ISBN.
+Render an `Order` as JSON. `JsonString` quotes and escapes strings. Put the comma inside the optional expression so it disappears when the tracking code is missing.
 
 ```itr
-rule type(Book)
-	{"title": $title+JsonString, "year": $year<<, "isbn": $isbn+JsonString>>}
+rule type(Order)
+	{"number": $number+JsonString, "totalInCents": $totalInCents<<, "trackingCode": $trackingCode+JsonString>>}
 ```
 
-Each book produces its own JSON object.
+Each order produces its own JSON object.
 
 ```json
-{"title": "Don Quixote", "year": 1605, "isbn": "9788420412146"}
+{"number": "ORD-1042", "totalInCents": 2599, "trackingCode": "TRK-1042"}
 ```
 
 ```json
-{"title": "The Trial", "year": 1925}
+{"number": "ORD-1043", "totalInCents": 1499}
 ```
 
 ## Load a template from the project directory
 
-Put `catalogue.itr` in `src/main/resources/templates` and run the example from the project root.
+Put `order-batch.itr` in `src/main/resources/templates` and run the example from the project root.
 
 ```java
-var engine = TemplateEngine.with(Path.of("src/main/resources/templates/catalogue.itr"));
-String catalogue = engine.render(library);
+var engine = TemplateEngine.with(Path.of("src/main/resources/templates/order-batch.itr"));
+String summary = engine.render(batch);
 ```
 
 The engine reads and closes the file when you create it. Reuse the engine to render several objects.
 
 ```java
-String first = engine.render(firstLibrary);
-String second = engine.render(secondLibrary);
+String first = engine.render(firstBatch);
+String second = engine.render(secondBatch);
 ```
 
 ## Generated decorators
 
-Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$chapter` renders children of type `Chapter` even when the Java getter is `chapters()`.
+Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$task` renders children of type `Task` even when the Java getter is `tasks()`.
 
 Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Maven Plugin guide](../maven-plugin/getting-started.md)
 
@@ -187,8 +187,8 @@ Generate the Java model API from M2 before loading M1 and passing a decorator to
 import io.quassar.templating.Frames;
 import io.quassar.templating.model.Frame;
 
-Frame frame = Frames.from(library);
-String catalogue = engine.render(frame);
+Frame frame = Frames.from(batch);
+String summary = engine.render(frame);
 ```
 
 `Frames.from(...)` adapts records and regular Java objects. It includes inherited fields and converts nested object, list, map and array fields. Static and transient fields are excluded. Each conversion creates its own frame tree and parent links. Passing an existing `Frame` returns that frame.
@@ -196,9 +196,9 @@ String catalogue = engine.render(frame);
 Use `Frames.builder(...)` when you want to name the type and add slots yourself. Scalar values such as strings and numbers are added directly.
 
 ```java
-Frame book = Frames.builder("Book")
-	.add("title", "Don Quixote")
-	.add("year", 1605)
+Frame order = Frames.builder("Order")
+	.add("number", "ORD-1042")
+	.add("totalInCents", 2599)
 	.toFrame();
 ```
 
@@ -209,12 +209,12 @@ Register formatters and object adapters fluently:
 ```java
 TemplateEngine engine = TemplateEngine.with(Path.of("label.itr"))
 	.add("Label", value -> "[" + value + "]")
-	.add(ExternalBook.class, (source, frame) -> frame
-		.add("Book")
-		.add("title", source.label()));
+	.add(ExternalOrder.class, (source, frame) -> frame
+		.add("Order")
+		.add("number", source.label()));
 ```
 
-See [examples](examples.md) for matching templates, conditions, recursive chapters, explicit frames and Java generation.
+See [examples](examples.md) for matching templates, conditions, recursive tasks, explicit frames and Java generation.
 
 ## Factories
 

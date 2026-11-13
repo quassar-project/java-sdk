@@ -1,0 +1,7 @@
+Daily orders
+ORD-1042 (2599)
+Customer: Alex Morgan
+Tracking: TRK-1042
+
+ORD-1043 (1499)
+Customer: Sam Rivera

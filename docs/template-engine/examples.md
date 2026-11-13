@@ -2,100 +2,100 @@
 
 [Start here](getting-started.md) · [Template reference](templates.md)
 
-Reuse the `Book`, `Author` and `Library` records from the [catalogue example](getting-started.md#render-a-library-catalogue). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(Path.of("example.itr"))`, and pass the object named in the rule to `render`.
+Reuse the `Order`, `Customer` and `OrderBatch` records from the [order batch example](getting-started.md#render-an-order-batch). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(Path.of("example.itr"))`, and pass the object named in the rule to `render`.
 
 - **Rules** · [property conditions](#choose-a-rule-from-the-data) · [boolean conditions](#combine-conditions) · [the calling slot](#choose-output-based-on-the-calling-slot)
 - **Output** · [optional values](#optional-values-and-fallback-text) · [lists and separators](#render-a-list-and-format-each-value) · [JSON](#produce-json-with-optional-fields) · [literal text](#escape-template-characters) · [Java source](#generate-a-java-record)
-- **Navigation** · [root and named paths](#read-values-from-the-root-and-a-named-path) · [containers](#build-frames-explicitly-and-access-their-container) · [recursion](#render-a-recursive-table-of-contents)
+- **Navigation** · [root and named paths](#read-values-from-the-root-and-a-named-path) · [containers](#build-frames-explicitly-and-access-their-container) · [recursion](#render-a-recursive-table-of-tasks)
 - **Java API** · [custom formatters](#use-a-custom-formatter) · [object adapters](#adapt-an-existing-object) · [frames](#create-frames-from-the-model) · [rules in Java](#build-a-template-in-java) · [verification](#verify-a-template-against-sample-data)
 
 ## Choose a rule from the data
 
 ```itr
-rule type(Book) and attribute(available, true)
-	$title: available
+rule type(Order) and attribute(shipped, true)
+	$number: shipped
 
-rule type(Book)
-	$title: on loan
+rule type(Order)
+	$number: pending
 ```
 
-The specific rule comes first. The second rule handles all other books.
+The specific rule comes first. The second rule handles all other orders.
 
 ```java
-String available = engine.render(new Book("Don Quixote", 1605, author, isbn, true));
-String onLoan = engine.render(new Book("Don Quixote", 1605, author, isbn, false));
+String shipped = engine.render(new Order("ORD-1042", 2599, customer, trackingCode, true));
+String pending = engine.render(new Order("ORD-1042", 2599, customer, trackingCode, false));
 ```
 
 Output:
 
 ```text
-Don Quixote: available
-Don Quixote: on loan
+ORD-1042: shipped
+ORD-1042: pending
 ```
 
 ## Combine conditions
 
-Render the two catalogue books separately. A book gets a short label when it has an ISBN and is available, or when its year is 1925.
+Render the two orders separately. An order gets a short label when it has a tracking code and is shipped, or when its total is 1499 cents.
 
 ```itr
-rule type(Book) and ((attribute(isbn) and not attribute(available, false)) or attribute(year, 1925))
-	$title: featured
+rule type(Order) and ((attribute(trackingCode) and not attribute(shipped, false)) or attribute(totalInCents, 1499))
+	$number: featured
 
-rule type(Book)
-	$title: catalogue
+rule type(Order)
+	$number: standard
 ```
 
 ```text
-Don Quixote: featured
-The Trial: featured
+ORD-1042: featured
+ORD-1043: featured
 ```
 
 ## Choose output based on the calling slot
 
-Render the first book. The author rule checks that it was reached through `$author`.
+Render the first order. The customer rule checks that it was reached through `$customer`.
 
 ```itr
-rule type(Book)
-	$title by $author
+rule type(Order)
+	$number for $customer
 
-rule type(Author) and trigger(author)
+rule type(Customer) and trigger(customer)
 	$name+UpperCase
 
-rule type(Author)
+rule type(Customer)
 	$name
 ```
 
 ```text
-Don Quixote by MIGUEL DE CERVANTES
+ORD-1042 for ALEX MORGAN
 ```
 
 ## Optional values and fallback text
 
 ```itr
-rule type(Book)
-	$title: <<ISBN $isbn?ISBN unavailable>>
+rule type(Order)
+	$number: <<Tracking $trackingCode?Tracking unavailable>>
 ```
 
-With an ISBN:
+With a tracking code:
 
 ```text
-Don Quixote: ISBN 9788420412146
+ORD-1042: Tracking TRK-1042
 ```
 
-Without an ISBN:
+Without a tracking code:
 
 ```text
-The Trial: ISBN unavailable
+ORD-1043: Tracking unavailable
 ```
 
-Use `<<ISBN: $isbn>>` to omit the whole expression when the slot has no value. A record field set to `null` does not create a slot.
+Use `<<Tracking: $trackingCode>>` to omit the whole expression when the slot has no value. A record field set to `null` does not create a slot.
 
 ## Render a list and format each value
 
-Render a frame built with `Frames.builder("Book").add("tags", new String[]{"historical fiction", "classic"}).toFrame()`. The `tags` rule uses `$this` to format the current list item. The text between brackets after `...` separates items.
+Render a frame built with `Frames.builder("Order").add("tags", new String[]{"express shipping", "fragile"}).toFrame()`. The `tags` rule uses `$this` to format the current list item. The text between brackets after `...` separates items.
 
 ```itr
-rule type(Book)
+rule type(Order)
 	Tags: $tags...[, ]
 
 rule trigger(tags)
@@ -103,86 +103,86 @@ rule trigger(tags)
 ```
 
 ```text
-Tags: [HISTORICALFICTION], [CLASSIC]
+Tags: [EXPRESSSHIPPING], [FRAGILE]
 ```
 
 ## Produce JSON with optional fields
 
-Render the catalogue library. `JsonString` quotes and escapes text. The optional expression contains the comma so a missing ISBN leaves valid JSON.
+Render the order batch. `JsonString` quotes and escapes text. The optional expression contains the comma so a missing tracking code leaves valid JSON.
 
 ```itr
-rule type(Library)
-	{"books": [$books...[, ]]}
+rule type(OrderBatch)
+	{"orders": [$orders...[, ]]}
 
-rule type(Book)
-	{"title": $title+JsonString, "year": $year<<, "isbn": $isbn+JsonString>>}
+rule type(Order)
+	{"number": $number+JsonString, "totalInCents": $totalInCents<<, "trackingCode": $trackingCode+JsonString>>}
 ```
 
 ```json
-{"books": [{"title": "Don Quixote", "year": 1605, "isbn": "9788420412146"}, {"title": "The Trial", "year": 1925}]}
+{"orders": [{"number": "ORD-1042", "totalInCents": 2599, "trackingCode": "TRK-1042"}, {"number": "ORD-1043", "totalInCents": 1499}]}
 ```
 
 ## Escape template characters
 
-Render the first book. Use `~` to end a placeholder before adjacent text, `$$` for a literal dollar sign, and `$<<` and `$>>` for literal expression delimiters.
+Render the first order. Use `~` to end a placeholder before adjacent text, `$$` for a literal dollar sign, and `$<<` and `$>>` for literal expression delimiters.
 
 ```itr
-rule type(Book)
-	$year~AD $$5 $<<preview$>>
+rule type(Order)
+	$totalInCents~c $$5 $<<preview$>>
 ```
 
 ```text
-1605AD $5 <<preview>>
+2599c $5 <<preview>>
 ```
 
 ## Read values from the root and a named path
 
-Render the catalogue library. A named path such as `books.author` follows the first value at each step. Inside the book rule, `root` takes you back to the library.
+Render the order batch. A named path such as `orders.customer` follows the first value at each step. Inside the order rule, `root` takes you back to the batch.
 
 ```itr
-rule type(Library)
-	First author: $<books.author>name
-	$books...[$NL]
+rule type(OrderBatch)
+	First customer: $<orders.customer>name
+	$orders...[$NL]
 
-rule type(Book)
-	$title — $<root>name
+rule type(Order)
+	$number — $<root>name
 ```
 
 ```text
-First author: Miguel de Cervantes
-Don Quixote — City Library
-The Trial — City Library
+First customer: Alex Morgan
+ORD-1042 — Daily orders
+ORD-1043 — Daily orders
 ```
 
-## Render a recursive table of contents
+## Render a recursive task tree
 
 ```itr
-rule type(Chapter)
-	$title
+rule type(Task)
+	$number
 		<<$children...[$NL]>>
 ```
 
 ```java
-public record Chapter(String title, List<Chapter> children) {
-	public Chapter {
+public record Task(String number, List<Task> children) {
+	public Task {
 		children = List.copyOf(children);
 	}
 }
 
-Chapter contents = new Chapter("Contents", List.of(
-	new Chapter("Beginnings", List.of()),
-	new Chapter("Journey", List.of(new Chapter("Home", List.of())))));
+Task tasks = new Task("Fulfil order", List.of(
+	new Task("Pack items", List.of()),
+	new Task("Ship order", List.of(new Task("Confirm delivery", List.of())))));
 
-String result = engine.render(contents);
+String result = engine.render(tasks);
 ```
 
 Output:
 
 ```text
-Contents
-	Beginnings
-	Journey
-		Home
+Fulfil order
+	Pack items
+	Ship order
+		Confirm delivery
 ```
 
 Every child invokes the same rule. The template's extra tab indents the rendered children.
@@ -192,21 +192,21 @@ Every child invokes the same rule. The template's extra tab indents the rendered
 Save this as `label.itr`.
 
 ```itr
-rule type(Book)
-	$title+Label
+rule type(Order)
+	$number+Label
 ```
 
 ```java
 TemplateEngine engine = TemplateEngine.with(Path.of("label.itr"))
 	.add("Label", value -> "[" + value + "]");
 
-String result = engine.render(book);
+String result = engine.render(order);
 ```
 
 Output:
 
 ```text
-[Don Quixote]
+[ORD-1042]
 ```
 
 ## Adapt an existing object
@@ -214,25 +214,25 @@ Output:
 Use the same `label.itr` template with data that has different field names:
 
 ```java
-public record ExternalBook(String label) {
+public record ExternalOrder(String label) {
 }
 
 TemplateEngine engine = TemplateEngine.with(Path.of("label.itr"))
 	.add("Label", value -> "[" + value + "]")
-	.add(ExternalBook.class, (source, frame) -> frame
-		.add("Book")
-		.add("title", source.label()));
+	.add(ExternalOrder.class, (source, frame) -> frame
+		.add("Order")
+		.add("number", source.label()));
 
-String result = engine.render(new ExternalBook("The Trial"));
+String result = engine.render(new ExternalOrder("ORD-1043"));
 ```
 
 Output:
 
 ```text
-[The Trial]
+[ORD-1043]
 ```
 
-The adapter supplies the `Book` type and the `title` slot expected by the template.
+The adapter supplies the `Order` type and the `number` slot expected by the template.
 
 ## Create frames from the model
 
@@ -240,43 +240,43 @@ The adapter supplies the `Book` type and the `title` slot expected by the templa
 import io.quassar.templating.Frames;
 import io.quassar.templating.model.Frame;
 
-Frame libraryFrame = Frames.from(library);
-Frame bookFrame = libraryFrame.frames("books").next();
-Object title = bookFrame.frames("title").next().value();
-String result = engine.render(libraryFrame);
+Frame batchFrame = Frames.from(batch);
+Frame orderFrame = batchFrame.frames("orders").next();
+Object number = orderFrame.frames("number").next().value();
+String result = engine.render(batchFrame);
 ```
 
-The frame keeps the object's type and slots. The book's `container()` is `libraryFrame`.
+The frame keeps the object's type and slots. The order's `container()` is `batchFrame`.
 
 ## Build frames explicitly and access their container
 
 ```itr
-rule type(Library)
-	$books...[$NL]
+rule type(OrderBatch)
+	$orders...[$NL]
 
-rule type(Book)
-	$title ($<container>name)
+rule type(Order)
+	$number ($<container>name)
 ```
 
 ```java
 import io.quassar.templating.Frames;
 
-var book = Frames.builder("Book").add("title", "Don Quixote").toFrame();
-var library = Frames.builder("Library")
-	.add("name", "City Library")
-	.add("books", book)
+var order = Frames.builder("Order").add("number", "ORD-1042").toFrame();
+var batch = Frames.builder("OrderBatch")
+	.add("name", "Daily orders")
+	.add("orders", order)
 	.toFrame();
 
-String result = engine.render(library);
+String result = engine.render(batch);
 ```
 
 Output:
 
 ```text
-Don Quixote (City Library)
+ORD-1042 (Daily orders)
 ```
 
-`$<container>name` reads the library's name while rendering its book.
+`$<container>name` reads the batch's name while rendering its order.
 
 ## Generate a Java record
 
@@ -336,12 +336,12 @@ import static io.quassar.templating.model.outputs.Outputs.placeholder;
 import static io.quassar.templating.model.predicates.Predicates.allTypes;
 
 var template = new Template()
-	.add(new Rule().condition(allTypes("Book")).output(placeholder("title")));
+	.add(new Rule().condition(allTypes("Order")).output(placeholder("number")));
 
-String result = TemplateEngine.with(template).render(book);
+String result = TemplateEngine.with(template).render(order);
 ```
 
-For the first catalogue book, `result` is `Don Quixote`. To set a specific locale or line separator, see the [configuration example](templates.md#rendering-configuration).
+For the first order in the batch, `result` is `ORD-1042`. To set a specific locale or line separator, see the [configuration example](templates.md#rendering-configuration).
 
 ## Verify a template against sample data
 
@@ -353,14 +353,14 @@ import io.quassar.templating.TemplateVerifier;
 import io.quassar.templating.adapters.antlr.TemplateReader;
 import java.nio.file.Path;
 
-var template = TemplateReader.read(Path.of("catalogue.itr"));
-var report = TemplateVerifier.of(template).verify(Frames.from(library));
+var template = TemplateReader.read(Path.of("order-batch.itr"));
+var report = TemplateVerifier.of(template).verify(Frames.from(batch));
 System.out.println(report.isOk());
 ```
 
 ## Executable versions
 
-The [example resources](../../template-engine/src/test/resources/examples) and [DocumentationExamplesTest](../../template-engine/src/test/java/tests/DocumentationExamplesTest.java) exercise the public API with catalogues, recursive chapters, custom formatters, and Java generation.
+The [example resources](../../template-engine/src/test/resources/examples) and [DocumentationExamplesTest](../../template-engine/src/test/java/tests/DocumentationExamplesTest.java) exercise the public API with order batches, recursive tasks, custom formatters, and Java generation.
 
 Run these examples from the repository root:
 

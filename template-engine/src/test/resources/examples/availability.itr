@@ -1,5 +1,5 @@
-rule type(Book) and attribute(available, true)
-	$title: available
+rule type(Order) and attribute(shipped, true)
+	$number: shipped
 
-rule type(Book)
-	$title: on loan
+rule type(Order)
+	$number: pending

@@ -9,8 +9,8 @@ For complete input and output examples, see [conditions](examples.md#combine-con
 ## Rules
 
 ```itr
-rule type(Book)
-	$title
+rule type(Order)
+	$number
 ```
 
 A template is an ordered collection of rules. The engine selects the first rule whose condition matches the current frame. Put specific conditions before general ones.
@@ -24,10 +24,10 @@ The engine represents input objects as frames. For a plain Java record, the clas
 [Generated decorators](getting-started.md#generated-decorators) supply types and slots from the model through an internal frame view.
 
 ```itr
-rule type(Book)
-	$title by $author
+rule type(Order)
+	$number for $customer
 
-rule type(Author)
+rule type(Customer)
 	$name
 ```
 
@@ -37,25 +37,25 @@ Use `Frames.builder(...)` to supply slots explicitly or register a custom adapte
 
 | Condition | Matches |
 | --- | --- |
-| `type(Book)` | A frame of type `Book` |
-| `attribute(isbn)` | A frame with an `isbn` slot |
-| `attribute(available, true)` | A frame whose `available` slot contains `true` |
-| `trigger(title)` | Rendering triggered by the `title` placeholder |
+| `type(Order)` | A frame of type `Order` |
+| `attribute(trackingCode)` | A frame with an `trackingCode` slot |
+| `attribute(shipped, true)` | A frame whose `shipped` slot contains `true` |
+| `trigger(number)` | Rendering triggered by the `number` placeholder |
 
 Combine conditions with `and`, `or`, `not` and parentheses:
 
 ```itr
-rule type(Book) and attribute(isbn)
-	$title — ISBN $isbn
+rule type(Order) and attribute(trackingCode)
+	$number — Tracking $trackingCode
 
-rule type(Book) and not attribute(isbn)
-	$title
+rule type(Order) and not attribute(trackingCode)
+	$number
 ```
 
 ## Lists and separators
 
 ```itr
-$books...[$NL$NL]
+$orders...[$NL$NL]
 $tags...[, ]
 $properties...[, ]
 ```
@@ -70,26 +70,26 @@ $properties...[, ]
 ## Optional expressions
 
 ```itr
-<<ISBN: $isbn>>
+<<Tracking: $trackingCode>>
 ```
 
-The expression appears when its placeholders produce content. If `isbn` is absent, the label disappears with it.
+The expression appears when its placeholders produce content. If `trackingCode` is absent, the label disappears with it.
 
 Use `?` to supply an alternative:
 
 ```itr
-<<ISBN: $isbn?ISBN unavailable>>
+<<Tracking: $trackingCode?Tracking unavailable>>
 ```
 
 ## Formatters
 
 ```itr
-$title+UpperCase
+$number+UpperCase
 $name+FirstUpperCase
 $name+OnlyLetters+UpperCase
 ```
 
-Formatters transform values before rendering and can be chained. Register custom formatters with `engine.add("Label", formatter)` and use `$title+Label`.
+Formatters transform values before rendering and can be chained. Register custom formatters with `engine.add("Label", formatter)` and use `$number+Label`.
 
 Some built-in formatters:
 
@@ -107,7 +107,7 @@ Some built-in formatters:
 ```itr
 $<container>name
 $<root>name
-$<book.author>name
+$<order.customer>name
 ```
 
 `container` addresses the enclosing frame; `root` addresses the root frame. Named path segments traverse slots in order. The final placeholder selects a slot from the reached frame.
@@ -120,7 +120,7 @@ Use `~` to separate a placeholder name from an adjacent suffix:
 public class $name~Service {}
 ```
 
-For `name = Library`, this produces `public class LibraryService {}`.
+For `name = OrderBatch`, this produces `public class OrderBatchService {}`.
 
 ## Build a template in Java
 
@@ -132,8 +132,8 @@ import static io.quassar.templating.model.outputs.Outputs.placeholder;
 import static io.quassar.templating.model.predicates.Predicates.allTypes;
 
 Template template = new Template()
-	.add(new Rule().condition(allTypes("Book")).output(placeholder("title")))
-	.add(new Rule().condition(allTypes("Author")).output(placeholder("name")));
+	.add(new Rule().condition(allTypes("Order")).output(placeholder("number")))
+	.add(new Rule().condition(allTypes("Customer")).output(placeholder("name")));
 ```
 
 ## Rendering configuration
@@ -151,7 +151,7 @@ Configuration controls locale-sensitive built-in formatting and output line endi
 
 ## Input ownership and errors
 
-`TemplateEngine.with(Path.of("catalogue.itr"))` opens and closes a local template file for you.
+`TemplateEngine.with(Path.of("order-batch.itr"))` opens and closes a local template file for you.
 
 `TemplateEngine.with(input)` reads UTF-8 and leaves the stream open. Close it in the calling code, typically with try-with-resources. The engine retains the resulting template, so it can render after the stream has been closed.
 

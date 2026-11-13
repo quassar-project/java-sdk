@@ -1,5 +1,5 @@
-rule type(Library)
-	$books...[$NL]
+rule type(OrderBatch)
+	$orders...[$NL]
 
-rule type(Book)
-	$title ($<container>name)
+rule type(Order)
+	$number ($<container>name)

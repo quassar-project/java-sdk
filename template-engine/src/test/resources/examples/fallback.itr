@@ -1,2 +1,2 @@
-rule type(Book)
-	$title: <<ISBN $isbn?ISBN unavailable>>
+rule type(Order)
+	$number: <<Tracking $trackingCode?Tracking unavailable>>

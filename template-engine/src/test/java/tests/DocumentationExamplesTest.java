@@ -12,33 +12,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DocumentationExamplesTest {
 	@Test
-	public void rendersBooksAuthorsAndOptionalIsbn() throws Exception {
-		Library library = new Library("City Library", List.of(
-			new Book("Don Quixote", 1605, new Author("Miguel de Cervantes"), "9788420412146", true),
-			new Book("The Trial", 1925, new Author("Franz Kafka"), null, false)));
-		String result = render("catalogue", library);
-		assertThat(result).isEqualTo(TestTemplates.expected("catalogue"));
+	public void rendersOrdersCustomersAndOptionalTracking() throws Exception {
+		OrderBatch batch = new OrderBatch("Daily orders", List.of(
+			new Order("ORD-1042", 2599, new Customer("Alex Morgan"), "TRK-1042", true),
+			new Order("ORD-1043", 1499, new Customer("Sam Rivera"), null, false)));
+		String result = render("order-batch", batch);
+		assertThat(result).isEqualTo(TestTemplates.expected("order-batch"));
 	}
 
 	@Test
 	public void selectsTheFirstMatchingRule() throws Exception {
-		assertThat(render("availability", book(true))).isEqualTo("Don Quixote: available");
-		assertThat(render("availability", book(false))).isEqualTo("Don Quixote: on loan");
+		assertThat(render("availability", order(true))).isEqualTo("ORD-1042: shipped");
+		assertThat(render("availability", order(false))).isEqualTo("ORD-1042: pending");
 	}
 
 	@Test
 	public void rendersAFallbackForAnAbsentSlot() throws Exception {
-		assertThat(render("fallback", book(true))).isEqualTo("Don Quixote: ISBN 9788420412146");
-		Book book = new Book("The Trial", 1925, new Author("Franz Kafka"), null, false);
-		assertThat(render("fallback", book)).isEqualTo("The Trial: ISBN unavailable");
+		assertThat(render("fallback", order(true))).isEqualTo("ORD-1042: Tracking TRK-1042");
+		Order order = new Order("ORD-1043", 1499, new Customer("Sam Rivera"), null, false);
+		assertThat(render("fallback", order)).isEqualTo("ORD-1043: Tracking unavailable");
 	}
 
 	@Test
-	public void rendersRecursiveChapters() throws Exception {
-		Chapter chapter = new Chapter("Contents", List.of(
-			new Chapter("Beginnings", List.of()),
-			new Chapter("Journey", List.of(new Chapter("Home", List.of())))));
-		assertThat(render("contents", chapter)).isEqualTo("Contents\n\tBeginnings\n\tJourney\n\t\tHome");
+	public void rendersRecursiveTasks() throws Exception {
+		Task task = new Task("Fulfil order", List.of(
+			new Task("Pack items", List.of()),
+			new Task("Ship order", List.of(new Task("Confirm delivery", List.of())))));
+		assertThat(render("tasks", task)).isEqualTo("Fulfil order\n\tPack items\n\tShip order\n\t\tConfirm delivery");
 	}
 
 	@Test
@@ -53,25 +53,25 @@ public class DocumentationExamplesTest {
 	public void configuresAFormatterAndAnAdapter() throws Exception {
 		try (InputStream input = template("label")) {
 			TemplateEngine engine = TemplateEngine.with(input).add("Label", value -> "[" + value + "]");
-			assertThat(engine.render(book(true))).isEqualTo("[Don Quixote]");
+			assertThat(engine.render(order(true))).isEqualTo("[ORD-1042]");
 		}
 		try (InputStream input = template("label")) {
 			TemplateEngine engine = TemplateEngine.with(input)
 				.add("Label", value -> "[" + value + "]")
-				.add(ExternalBook.class, (source, frame) -> frame.add("Book").add("title", source.label()));
-			assertThat(engine.render(new ExternalBook("The Trial"))).isEqualTo("[The Trial]");
+				.add(ExternalOrder.class, (source, frame) -> frame.add("Order").add("number", source.label()));
+			assertThat(engine.render(new ExternalOrder("ORD-1043"))).isEqualTo("[ORD-1043]");
 		}
 	}
 
 	@Test
 	public void rendersAFrameAndItsContainer() throws Exception {
-		var book = Frames.builder("Book").add("title", "Don Quixote").toFrame();
-		var library = Frames.builder("Library").add("name", "City Library").add("books", book).toFrame();
-		assertThat(render("context", library)).isEqualTo("Don Quixote (City Library)");
+		var order = Frames.builder("Order").add("number", "ORD-1042").toFrame();
+		var batch = Frames.builder("OrderBatch").add("name", "Daily orders").add("orders", order).toFrame();
+		assertThat(render("context", batch)).isEqualTo("ORD-1042 (Daily orders)");
 	}
 
-	private Book book(boolean available) {
-		return new Book("Don Quixote", 1605, new Author("Miguel de Cervantes"), "9788420412146", available);
+	private Order order(boolean shipped) {
+		return new Order("ORD-1042", 2599, new Customer("Alex Morgan"), "TRK-1042", shipped);
 	}
 
 	private String render(String name, Object object) throws Exception {
@@ -84,20 +84,20 @@ public class DocumentationExamplesTest {
 		return TestTemplates.input("examples/" + name);
 	}
 
-	public record Author(String name) {
+	public record Customer(String name) {
 	}
 
-	public record Book(String title, int year, Author author, String isbn, boolean available) {
+	public record Order(String number, long totalInCents, Customer customer, String trackingCode, boolean shipped) {
 	}
 
-	public record Library(String name, List<Book> books) {
-		public Library {
-			books = List.copyOf(books);
+	public record OrderBatch(String name, List<Order> orders) {
+		public OrderBatch {
+			orders = List.copyOf(orders);
 		}
 	}
 
-	public record Chapter(String title, List<Chapter> children) {
-		public Chapter {
+	public record Task(String number, List<Task> children) {
+		public Task {
 			children = List.copyOf(children);
 		}
 	}
@@ -111,6 +111,6 @@ public class DocumentationExamplesTest {
 	public record Property(String type, String name) {
 	}
 
-	public record ExternalBook(String label) {
+	public record ExternalOrder(String label) {
 	}
 }
