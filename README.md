@@ -62,7 +62,7 @@ In the `pom.xml` of the plugin you are building for your DSL, add `<packaging>ma
 
 In that same POM, set `<mode>compiler</mode>` inside the Quassar plugin's `<configuration>` in the `<build>` block above.
 
-When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and renders your `.itr` templates into source code for a target language such as Java or C.
+When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and uses the Quassar Template Engine to render your `.itr` templates. The templates define the source code your compiler produces. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine guide](docs/template-engine/getting-started.md)
 
 Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Code generation walkthrough](docs/maven-plugin/getting-started.md#compilation)
 
