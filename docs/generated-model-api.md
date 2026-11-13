@@ -33,15 +33,17 @@ dsl metta
 Concept Workflow
 	Concept:Single:Required EntryPoint
 		def string name
-	Concept:{1..*} Step
-		def string label
-		def integer timeoutSeconds
-		def boolean enabled
-		def Action action
-		def Action[] fallbackActions
-		facet Execution
-			sub Scheduled
-				def string schedule
+	has:{1..*} Step
+
+Concept Step as component
+	def string label
+	def integer timeoutSeconds
+	def boolean enabled
+	def Action action
+	def Action[] fallbackActions
+	facet Execution
+		sub Scheduled
+			def string schedule
 
 Concept Action
 	def string name
@@ -102,7 +104,7 @@ Metamodel folder = Metamodels.load(Path.of("m2"));
 
 Both sources can contain declarations in several `.tara` files, including files in subdirectories. To read M1 from a local folder, use `WorkflowsModel.load(Path.of("m1"))`.
 
-`metamodel.types()` contains the immutable declarations. Names include their declaration scope, such as `Workflow.Step` and `Workflow.Step.Execution.Scheduled`. Each type retains its own properties, facets, compositions, cardinality and modifiers. `scope()` identifies its enclosing declaration; `parent()` records inheritance through `sub` or `extends`. Facet alternatives are also facet types. Repeated declarations in the same scope are combined.
+`metamodel.types()` contains the immutable declarations. Names include their declaration scope, such as `Workflow.EntryPoint` and `Step.Execution.Scheduled`. Each type retains its own properties, facets, compositions, cardinality and modifiers. `scope()` identifies its enclosing declaration; `parent()` records inheritance through `sub` or `extends`. Facet alternatives are also facet types. Repeated declarations in the same scope are combined.
 
 Properties retain their declared type, sequence element type, reference target spelling, constraints and default value. Defaults retain their source expression, including quotes, units or `empty`. Inherited properties and reference targets are not resolved by this reader.
 
