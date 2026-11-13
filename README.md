@@ -62,23 +62,23 @@ In the `pom.xml` of the plugin you are building for your DSL, add `<packaging>ma
 
 In that same POM, set `<mode>compiler</mode>` inside the Quassar plugin's `<configuration>` in the `<build>` block above.
 
-When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and uses the Quassar Template Engine to render your `.itr` templates. The templates define the source code your compiler produces. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine guide](docs/template-engine/getting-started.md)
+When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and uses the Quassar Template Engine to render your `.itr` templates. The templates define the source code your compiler produces. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine guide](docs/template-engine/getting-started.md) · [Template examples](docs/template-engine/examples.md)
 
 Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Code generation walkthrough](docs/maven-plugin/getting-started.md#compilation)
 
 ### Interpreter
 
-You build a **Java application that runs your DSL**. Set `<mode>interpreter</mode>` and run `mvn generate-sources`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
+Build a Java application that loads a model (M1) and executes the behavior it describes at runtime.
 
-Implement the interpreter in the application. At runtime, it loads M1 through the generated API and carries out the behavior declared by the model. [Interpretation walkthrough](docs/maven-plugin/getting-started.md#interpretation)
+```text
+Model (M1) → Your Java interpreter → Runtime behavior
+```
 
-## Find the right guide
+1. Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Main.java` if the Java source directory is empty. [Maven Plugin guide](docs/maven-plugin/getting-started.md#interpretation)
+2. In `Main`, pass the M1 download URI to the generated model class's `load` method. Use the generated getters to access the model's root concepts, then follow their children and references to read the data your interpreter needs.
+3. Implement what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application with the URL of the model you want to interpret.
 
-| I want to… | Start here |
-| --- | --- |
-| Generate typed classes from a metamodel or scaffold a Maven generator. | [Maven Plugin](docs/maven-plugin/getting-started.md) |
-| Write templates for text, JSON, or code. | [Template Engine](docs/template-engine/getting-started.md) · [Template examples](docs/template-engine/examples.md) |
-| Load and query a Tara model through a generic Java API. | [Model Reader](docs/model-reader/getting-started.md) |
+If your interpreter needs to query a model generically, use the Model Reader API to look up objects by type or identifier. [Model Reader guide](docs/model-reader/getting-started.md)
 
 ## Build the SDK from source
 
