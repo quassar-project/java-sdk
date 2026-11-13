@@ -10,7 +10,7 @@ By default, the plugin searches the root of Maven resources, `src/main/resources
 <templateDirectory>templates</templateDirectory>
 ```
 
-Use a path relative to `src/main/resources`, such as `templates/workflows` for a nested directory.
+Use a path relative to `src/main/resources`, such as `solution/templates` for a nested directory.
 
 ## Generate Java from a workflow
 
