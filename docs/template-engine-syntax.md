@@ -15,11 +15,11 @@ A template is an ordered collection of rules. The engine selects the first rule 
 
 Indent the rule body with a tab. Additional indentation becomes part of the rendered text.
 
-## Data and slots
+## Placeholders
 
-A slot is a named value available to the template. A slot containing another object can invoke another rule, and a list supplies multiple values under the same name.
+A placeholder is a reference to a value that the engine inserts into the output. Write `$name` to look up the slot named `name` on the object the current rule is rendering. A slot is a named value exposed by that object. Slot names are matched without regard to case. Generated decorators expose the properties, children, and references of the model as slots. [Render an object](template-engine-api.md#render-an-object)
 
-[Generated decorators](template-engine-api.md#render-an-object) supply the types and slots defined by the model.
+For each value in the slot, the engine looks for the first rule that matches that value. When no rule matches, a scalar such as text or a number renders as text, and an object produces no output. A missing slot also produces no output. Use an optional expression for fallback text or a separator to join repeated values. [Optional expressions](#optional-expressions) · [Lists and separators](#lists-and-separators)
 
 ```itr
 rule type(Step)
@@ -28,6 +28,14 @@ rule type(Step)
 rule type(Action)
 	$name
 ```
+
+When rendering the sample `Confirm` step, `$identifier` reads its identifier. The `$action` placeholder resolves to the referenced action, so the engine applies the `Action` rule. Inside that rule, `$name` reads the name from the action.
+
+```text
+Confirm calls Send confirmation
+```
+
+Use a qualified placeholder such as `$<container>identifier` to read a slot from a related object. [Frame context](template-engine-api.md#frame-context)
 
 ## Conditions
 
