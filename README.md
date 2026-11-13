@@ -1,12 +1,12 @@
 # Quassar Java SDK
 
-Create your own domain-specific language (DSL) in [Quassar](https://quassar.io). Use the Java SDK to turn the models people write in that language into applications, reports, or generated source code.
+Create your own domain-specific language (DSL) in [Quassar](https://quassar.io). Add the Quassar Maven plugin to your Java project to build a compiler or an interpreter for that DSL.
 
 ## Choose how to execute your DSL
 
-Both approaches use the metamodel (M2) to generate a typed Java API for reading models (M1). The choice is what happens after you load M1.
+Configure the Maven plugin with the Quassar URL for your metamodel (M2). In both modes, the plugin generates a typed Java API for reading models (M1). Its `scaffold` option sets up the entry point where you implement the compiler or interpreter. [Configure the Maven plugin](docs/maven-plugin/getting-started.md#2-configure-maven)
 
-| Approach | What happens to M1 | Maven scaffold |
+| Approach | What happens to M1 | `scaffold` |
 | --- | --- | --- |
 | **Compilation** | A generator renders M1 through `.itr` templates to produce source code in a target language such as Java or C. The target language's toolchain then builds that code for execution. | `maven-plugin` creates a Maven goal where you implement the generator. |
 | **Interpretation** | A Java application loads M1 at runtime and acts on its declarations directly. | `application` creates a `Main.java` where you implement the interpreter. |

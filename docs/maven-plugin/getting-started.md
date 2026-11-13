@@ -1,6 +1,6 @@
 # Quassar Maven Plugin
 
-Turn your DSL's metamodel into typed Java classes and compile `.itr` templates during the Maven build. Use Java 17 and Maven 3.9.9 or later.
+Use the Quassar Maven plugin to build a compiler or an interpreter for your DSL. Both use the typed Java classes the plugin generates from your metamodel. Set `scaffold` to `maven-plugin` to start a code generator or to `application` to start a runtime interpreter. The plugin can also compile `.itr` templates into Java renderers during the Maven build. Use Java 17 and Maven 3.9.9 or later.
 
 This quickstart uses a web service DSL to show how the plugin turns M2 into Java accessors and how a template reads endpoint data from M1. The [client generation example](web-service-client.md) takes the same model through to a Java client that sends HTTP requests.
 
