@@ -8,7 +8,7 @@ Both approaches use the metamodel (M2) to generate a typed Java API for reading 
 
 | Approach | What happens to M1 | Maven scaffold |
 | --- | --- | --- |
-| **Compilation** | A generator translates M1 into source code in a target language such as Java or C. The target language's toolchain builds that code for execution. | `maven-plugin` creates a Maven goal where you implement the generator. |
+| **Compilation** | A generator renders M1 through `.itr` templates to produce source code in a target language such as Java or C. The target language's toolchain then builds that code for execution. | `maven-plugin` creates a Maven goal where you implement the generator. |
 | **Interpretation** | A Java application loads M1 at runtime and acts on its declarations directly. | `application` creates a `Main.java` where you implement the interpreter. |
 
 For a web service DSL, a compiler can generate an HTTP client class per endpoint. An interpreter can read an endpoint at runtime, build the HTTP request from its method, route, and parameters, and send it directly.

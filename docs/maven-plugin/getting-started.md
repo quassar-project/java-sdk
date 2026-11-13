@@ -138,11 +138,11 @@ Set `scaffold` in the plugin's `configuration` to choose the entry point for you
 
 | Approach | Value | What it creates |
 | --- | --- | --- |
-| Compilation | `maven-plugin` | An editable Mojo with a `generate` goal. Add the logic that translates M1 into source code in a target language such as Java or C. Set the project's packaging to `maven-plugin`. A metamodel named `WebServices` produces `WebServicesMojo.java`. |
-| Interpretation | `application` (default) | An editable `Main.java` for running the model directly. The starter loads `m1` by default and prints the result when one template is available. |
+| Compilation | `maven-plugin` | An editable Mojo with a `generate` goal. Use it to load M1 and render `.itr` templates that emit source code in a target language such as Java or C. Set the project's packaging to `maven-plugin`. A metamodel named `WebServices` produces `WebServicesMojo.java`. |
+| Interpretation | `application` (default) | An editable `Main.java` where you load M1 and implement the behavior declared by the model at runtime. |
 | Supply your own entry point | `none` | Only generated Java from the configured metamodel and existing templates. |
 
-If M2 is configured and the templates directory has no `.itr` files, an application or Maven plugin scaffold also creates `model-json.itr`. To generate Java from templates alone, omit `metamodel`.
+If M2 is configured and the templates directory has no `.itr` files, both scaffolds create `model-json.itr` as a starter example. The application starter prints the rendered result when one template is available. To generate Java from templates alone, omit `metamodel`.
 
 The generated Maven goal reads `m1` and writes `target/generated-resources/model.json` when a metamodel and one template are available. Set `-Dquassar.source` and `-Dquassar.output` to use other paths.
 
