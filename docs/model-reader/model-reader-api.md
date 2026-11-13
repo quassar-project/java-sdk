@@ -16,18 +16,20 @@ Add the dependency below only if your project does not use the Quassar Maven plu
 
 ## 2. Create a model in Quassar
 
-Create a model in Quassar Studio with the following content. Copy its model URL and use it in the Java example. [Open Quassar Studio](https://quassar.io/studio)
+Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL for the Java example. [Open Quassar Studio](https://quassar.io/studio) · [Workflow metamodel](../maven-plugin/generated-model-api.md#workflow-metamodel)
 
 ```tara
-Author(name = "Franz Kafka") Kafka
+Action(name = "Send confirmation") SendConfirmation
+Action(name = "Queue for retry") QueueForRetry
+Action(name = "Log failure") LogFailure
 
-Book(year = 1915, author = Kafka) TheMetamorphosis
-	title = "The Metamorphosis"
-	tags = "fiction" "novella"
-	Chapter(number = 1) Opening > title = "The transformation"
+Workflow OrderFulfillment
+	EntryPoint(name = "Order placed") OrderPlaced
+	Step(label = "Confirm order", timeoutSeconds = 30, enabled = true, action = SendConfirmation) Confirm
+		fallbackActions = QueueForRetry LogFailure
 ```
 
-Each object is a *mogram*. `Book` is its type and `TheMetamorphosis` is its identifier. Indentation makes `Opening` a child of the book. The value `Kafka` refers to the author by identifier.
+Each object is a *mogram*. `Workflow` is a type and `OrderFulfillment` is its identifier. Indentation makes `Confirm` a child of the workflow. The value `SendConfirmation` refers to an action by identifier.
 
 ## 3. Load the model and follow a reference
 
@@ -35,34 +37,35 @@ Each object is a *mogram*. `Book` is its type and `TheMetamorphosis` is its iden
 import io.quassar.reader.Models;
 import java.net.URI;
 
-public class LibraryExample {
+public class WorkflowExample {
 	public static void main(String[] args) throws Exception {
 		var model = Models.load(URI.create("https://quassar.io/models/[code]"));
-		var book = model.get("TheMetamorphosis");
-		var author = model.get(book.property("author"), book);
+		var workflow = model.get("OrderFulfillment");
+		var step = model.get("OrderFulfillment.Confirm");
+		var action = model.get(step.property("action"), step);
 
-		System.out.println(book.property("title").asString());
-		System.out.println(author.property("name").asString());
+		System.out.println(workflow.identifier());
+		System.out.println(action.property("name").asString());
 	}
 }
 ```
 
-This prints `The Metamorphosis` and `Franz Kafka`. Passing `book` as context lets the reader resolve references relative to the book before looking from the root. Use `model.get(value)` when the reference is already rooted.
+This prints `OrderFulfillment` and `Send confirmation`. Passing `step` as context lets the reader resolve references relative to the step before looking from the root. Use `model.get(value)` when the reference is already rooted.
 
 ## 4. Find and navigate mograms
 
 Use an identifier path when you know the exact object. Use a query when you want to filter or navigate.
 
 ```java
-var chapter = model.get("TheMetamorphosis.Opening");
-var parent = model.parentOf(chapter);
+var step = model.get("OrderFulfillment.Confirm");
+var parent = model.parentOf(step);
 
-var books = model.roots().type("Book").list();
-var chapters = model.select(book).children().type("Chapter").list();
-var allChapters = model.select(book).descendants().type("Chapter").list();
+var workflows = model.roots().type("Workflow").list();
+var steps = model.select(workflow).children().type("Step").list();
+var allSteps = model.select(workflow).descendants().type("Step").list();
 ```
 
-`model.roots()` starts at the top level, `model.select()` starts with every mogram, and `model.select(book)` starts with one mogram. Add filters such as `type("Book")`, `facet("Printed")`, or `withProperty("title")`. Finish with `list()`, `stream()`, `first()`, `count()`, or `isEmpty()`. Queries return new selections and their result lists are immutable.
+`model.roots()` starts at the top level, `model.select()` starts with every mogram, and `model.select(workflow)` starts with one mogram. Add filters such as `type("Step")`, `facet("Scheduled")`, or `withProperty("action")`. Finish with `list()`, `stream()`, `first()`, `count()`, or `isEmpty()`. Queries return new selections and their result lists are immutable.
 
 ## Read values and handle missing data
 
@@ -71,13 +74,14 @@ Use a typed accessor for the property you expect.
 ```java
 import io.quassar.reader.model.Value;
 
-var year = book.property("year").asNumber();
-var tags = book.property("tags").asSequence().stream()
-	.map(Value::asString)
+var timeout = step.property("timeoutSeconds").asNumber();
+var enabled = step.property("enabled").asBoolean();
+var fallbackPaths = step.property("fallbackActions").asSequence().stream()
+	.map(Value::asReference)
 	.toList();
 
-if (book.property("isbn").isEmpty()) {
-	System.out.println("ISBN unavailable");
+if (step.property("schedule").isEmpty()) {
+	System.out.println("Schedule unavailable");
 }
 ```
 
@@ -98,9 +102,9 @@ A missing mogram, an unresolved reference, the parent of a root mogram, and `fir
 ```java
 import java.nio.file.Path;
 
-var archive = Models.load(Path.of("library.zip"));
+var archive = Models.load(Path.of("workflows.zip"));
 var folder = Models.load(Path.of("m1"));
-var bundled = Models.load(LibraryExample.class.getResource("/library.tara"));
+var bundled = Models.load(WorkflowExample.class.getResource("/workflows.tara"));
 ```
 
-A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `book.title()`, see the [Generated Model API](../maven-plugin/generated-model-api.md).
+A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `step.label()`, see the [Generated Model API](../maven-plugin/generated-model-api.md).
