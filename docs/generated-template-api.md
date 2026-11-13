@@ -2,20 +2,16 @@
 
 The Quassar Maven plugin compiles each `.itr` template from the configured template directory into a Java class under `src/main/gen` during `generate-sources`. Call the generated class's static `render` method with a model decorator to produce the text defined by the template. [Quassar Maven plugin setup](../README.md#use-your-models-from-java)
 
-## Choose the template directory
+## Place templates under resources
 
-The plugin looks for `.itr` files in `src/main/resources` by default. To use a different directory, add `<templatesDirectory>` inside the Quassar plugin's existing `<configuration>` in `pom.xml`.
-
-```xml
-<templatesDirectory>${project.basedir}/src/main/templates</templatesDirectory>
-```
+The plugin searches `src/main/resources` and its subdirectories for `.itr` files by default. To group workflow templates, save them under `src/main/resources/workflows/`. The plugin discovers them with its default configuration.
 
 ## Generate Java from a workflow
 
 The example turns the `OrderFulfillment` workflow into a Java class whose `actions()` method lists the actions in execution order. The DSL definition (M2) determines what your Java code can read, and the workflow model (M1) supplies the values to render. [Workflow metamodel](generated-model-api.md#workflow-metamodel) · [Sample M1 model](model-reader-api.md#create-a-model-in-quassar)
 
 1. **Configure the Quassar plugin.** In your project's `pom.xml`, set `<package>example</package>` and point `<metamodel>` to the download URL of the Workflows metamodel (M2). [Maven setup](../README.md#use-your-models-from-java)
-2. **Add the template.** Save the template below as `src/main/resources/workflow.itr`. It defines the Java class to produce for a workflow.
+2. **Add the template.** Save the template below as `src/main/resources/workflows/workflow.itr`. It defines the Java class to produce for a workflow.
 3. **Generate the Java API.** Run `mvn generate-sources`. The plugin generates `example.model.WorkflowsModel` from M2 and compiles the template into `example.templates.WorkflowTemplate`. Both classes are written under `src/main/gen`.
 4. **Render a workflow.** In the Java program below, load M1 through `WorkflowsModel`, select a workflow, and pass it to `WorkflowTemplate.render(workflow)`. Save the returned source as `OrderFulfillmentWorkflow.java` for the sample model.
 
