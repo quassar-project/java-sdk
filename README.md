@@ -39,7 +39,7 @@ Add the Quassar Maven plugin to your `pom.xml`. Use Java 17 or later and Maven 3
 
 Replace `[code]` with the M2 code so the plugin can generate the Java code for your DSL. Use the M1 URL in your compiler or interpreter to load a specific model. Choose the value for `[mode]` below.
 
-### Compilation
+### Compiler
 
 Build a Maven plugin for your DSL that turns each model (M1) into source code in the consuming project's generated sources directory.
 
@@ -47,13 +47,26 @@ Build a Maven plugin for your DSL that turns each model (M1) into source code in
 Model (M1) → Your DSL's Maven plugin → Source code in the generated sources directory
 ```
 
-In your DSL plugin project, set `<packaging>maven-plugin</packaging>` and set `<mode>compiler</mode>` in the Quassar plugin configuration.
+In the `pom.xml` of the plugin you are building for your DSL, add `<packaging>maven-plugin</packaging>` directly under `<project>`, alongside `<artifactId>` and `<version>`.
+
+```xml
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>example</groupId>
+	<artifactId>my-dsl-maven-plugin</artifactId>
+	<version>1.0.0</version>
+	<packaging>maven-plugin</packaging>
+	<!-- Add the <build> block shown above here. -->
+</project>
+```
+
+In that same POM, set `<mode>compiler</mode>` inside the Quassar plugin's `<configuration>` in the `<build>` block above.
 
 When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and renders your `.itr` templates into source code for a target language such as Java or C.
 
 Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Code generation walkthrough](docs/maven-plugin/getting-started.md#compilation)
 
-### Interpretation
+### Interpreter
 
 You build a **Java application that runs your DSL**. Set `<mode>interpreter</mode>` and run `mvn generate-sources`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
 
