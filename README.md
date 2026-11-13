@@ -1,10 +1,10 @@
 # Quassar Java SDK
 
-Create your own domain-specific language (DSL) in [Quassar](https://quassar.io). Add the Quassar Maven plugin to your Java project to build a compiler or an interpreter for that DSL.
+Create your own domain-specific language (DSL) in [Quassar](https://quassar.io). Add the Quassar Maven plugin to your Java project to build a compiler or an interpreter for that DSL. [Configure the Maven plugin](docs/maven-plugin/getting-started.md#2-configure-maven)
 
 ## Choose how to execute your DSL
 
-Configure the Maven plugin with the Quassar URL for your metamodel (M2). In both modes, the plugin generates a typed Java API for reading models (M1). Its `scaffold` option sets up the entry point where you implement the compiler or interpreter. [Configure the Maven plugin](docs/maven-plugin/getting-started.md#2-configure-maven)
+Configure the Maven plugin with the Quassar URL for your metamodel (M2). In both modes, the plugin generates a typed Java API for reading models (M1). Its `scaffold` option sets up the entry point where you implement the compiler or interpreter.
 
 | Approach | What happens to M1 | `scaffold` |
 | --- | --- | --- |
