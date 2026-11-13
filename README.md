@@ -72,7 +72,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
 5. **Install your DSL plugin.** Run `mvn install` in the DSL plugin project to install it in your local Maven repository.
 
-6. **Use your DSL plugin in the consumer project.** Add the plugin to the consumer project's `pom.xml` using the coordinates from step 1. Set `<model>` to the M1 download URL from Quassar.
+6. **Create a Maven project that uses your DSL plugin.** Create a new Maven project for the application that will use the generated code. In its `pom.xml`, add your DSL plugin under `<build><plugins>` using the coordinates from step 1. Set `<model>` to the M1 download URL from Quassar.
 
 	```xml
 	<build>
