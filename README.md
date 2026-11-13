@@ -27,9 +27,11 @@ To build a compiler or an interpreter for your DSL, add the following Quassar Ma
 
 ## Create your models
 
-To create a model (M1), you need a domain-specific language (DSL). In Quassar, you create that language by defining its metamodel (M2), which specifies its concepts, properties, and relationships. Once the DSL is available, use it to create models for your domain. [Open Quassar](https://quassar.io/)
+To create models (M1), start with a domain-specific language (DSL) that describes the things you want to model. In Quassar Forge, define the DSL's metamodel (M2). For a web service DSL, M2 might define an `Endpoint` with an HTTP method, a path, and a list of parameters.
 
-Replace `[code]` with the code of your metamodel (M2) in Quassar.
+Once the DSL is available, select it in Quassar Studio and create a model. For example, an M1 model might declare `GET /users/{userId}` with a required path parameter named `userId`. You can use the same DSL to describe multiple services. [Open Quassar](https://quassar.io/)
+
+Quassar gives M2 and M1 their own download URLs in the form `https://quassar.io/models/[code]`. In the POM above, replace `[code]` with the **M2 code** so the plugin can generate the Java classes for your DSL. Use the **M1 URL** when your compiler or interpreter loads a specific model.
 
 ## Choose how to process your models
 
