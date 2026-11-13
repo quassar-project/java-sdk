@@ -1,8 +1,8 @@
-# Generate decorators from M2
+# Generated Model API
 
 [Quassar Maven Plugin](getting-started.md)
 
-Use this guide to see how an M2 declaration becomes part of the generated Java API. Start with the Maven Plugin tutorial if you want a complete M2 and M1 example.
+Use the generated Java decorators to load an M1 model, read its properties, and navigate its children and references. The API follows the concepts and relationships defined in M2. [Maven Plugin setup](getting-started.md#2-configure-maven)
 
 ## Generate from Java
 

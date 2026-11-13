@@ -70,4 +70,4 @@ When a metamodel and one template are available, the starter goal requires `<mod
 | `templatesDirectory` | `${project.basedir}/src/main/resources` |
 | `outputDirectory` | `${project.basedir}/src/main/gen` |
 
-For property types, cardinality, and the generated Java API, see the [M2 guide](metamodel.md).
+To load M1 and navigate its properties, children, and references in Java, see the [Generated Model API](metamodel.md).
