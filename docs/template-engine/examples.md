@@ -280,6 +280,10 @@ Don Quixote (City Library)
 
 ## Generate a Java record
 
+An event schema can define the Java payload that producers and consumers share. This example takes the name and fields of an order event from the schema and generates a record for it.
+
+Save the template as `record.itr`.
+
 ```itr
 rule type(Entity)
 	public record $name($properties...[, ]) {}
@@ -298,18 +302,25 @@ public record Entity(String name, List<Property> properties) {
 	}
 }
 
-Entity entity = new Entity("Book", List.of(
-	new Property("String", "title"),
-	new Property("int", "year")));
+Entity event = new Entity("OrderPlaced", List.of(
+	new Property("String", "orderId"),
+	new Property("long", "totalInCents")));
 
-String java = engine.render(entity);
-Files.writeString(Path.of("Book.java"), java);
+String source = TemplateEngine.with(Path.of("record.itr")).render(event);
+Files.writeString(Path.of(event.name() + ".java"), source);
 ```
 
 Generated code:
 
 ```java
-public record Book(String title, int year) {}
+public record OrderPlaced(String orderId, long totalInCents) {}
+```
+
+The producer can create an `OrderPlaced` payload, and the consumer can read its fields through the generated accessors.
+
+```java
+var event = new OrderPlaced("ORD-1042", 2599);
+long total = event.totalInCents();
 ```
 
 ## Build a template in Java

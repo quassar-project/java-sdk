@@ -43,8 +43,10 @@ public class DocumentationExamplesTest {
 
 	@Test
 	public void generatesAJavaRecord() throws Exception {
-		Entity entity = new Entity("Book", List.of(new Property("String", "title"), new Property("int", "year")));
-		assertThat(render("record", entity)).isEqualTo("public record Book(String title, int year) {}");
+		Entity event = new Entity("OrderPlaced", List.of(
+			new Property("String", "orderId"),
+			new Property("long", "totalInCents")));
+		assertThat(render("record", event)).isEqualTo("public record OrderPlaced(String orderId, long totalInCents) {}");
 	}
 
 	@Test
