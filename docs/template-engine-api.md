@@ -14,9 +14,9 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 </dependency>
 ```
 
-## Load a template
+## Use a template
 
-Use `TemplateEngine.with(...)` to load a template at runtime.
+Use `TemplateEngine.with(...)` to load an `.itr` file at runtime or to use a template defined in Java. [Build templates explicitly](#build-templates-explicitly)
 
 | Factory | Input |
 | --- | --- |
