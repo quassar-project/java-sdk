@@ -20,16 +20,16 @@ Add this build configuration to your `pom.xml`. Use Java 17 or later and Maven 3
 			<configuration>
 				<package>example</package>
 				<metamodel>https://quassar.io/models/[code]</metamodel>
-				<scaffold>application</scaffold>
+				<scaffold>[mode]</scaffold>
 			</configuration>
 		</plugin>
 	</plugins>
 </build>
 ```
 
-Replace `[code]` with the code of your metamodel (M2) in Quassar. Choose the `scaffold` for your project below.
+Replace `[code]` with the code of your metamodel (M2) in Quassar. Replace `[mode]` with `maven-plugin` for compilation or `application` for interpretation, as described below.
 
-Run `mvn generate-sources` to generate the Java API and create the starter files if your Java source directory is empty. [Maven plugin guide](docs/maven-plugin/getting-started.md)
+Once you've chosen a mode, run `mvn generate-sources` to generate the Java API and create the starter files if your Java source directory is empty. [Maven plugin guide](docs/maven-plugin/getting-started.md)
 
 ## Choose how to execute your DSL
 
