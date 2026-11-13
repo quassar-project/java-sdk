@@ -101,9 +101,21 @@ TemplateEngine engine = TemplateEngine.with(template.ruleSet(), configuration);
 
 Configuration controls locale-sensitive built-in formatting and output line endings. The default is English with LF line endings.
 
-### Customize rendering
+### Register an object adapter
 
 The `step-config.itr` template expects a `Step` with the slots `identifier`, `timeoutSeconds`, and `enabled`.
+
+```itr
+rule type(Step) and attribute(enabled, true)
+	public record $identifier~Config() {
+		public int timeoutSeconds() { return $timeoutSeconds; }
+	}
+
+rule type(Step)
+	public record $identifier~Config() {
+		public int timeoutSeconds() { return 0; }
+	}
+```
 
 `ExternalStep` exposes `id` and `timeout`. Register an adapter to present it as a `Step`, map its fields to the names the template expects, and set `enabled` to `true` for these external steps.
 
@@ -126,6 +138,28 @@ The adapter makes the enabled rule match, so `output` contains this Java source.
 public record ConfirmConfig() {
 	public int timeoutSeconds() { return 30; }
 }
+```
+
+### Register a formatter
+
+Use `engine.add(name, formatter)` to register a formatter before rendering. Save this template as `step-label.itr`. The `+Label` suffix applies the formatter named `Label` to the step's identifier.
+
+```itr
+rule type(Step)
+	$identifier+Label
+```
+
+```java
+var engine = TemplateEngine.with(Path.of("step-label.itr"))
+	.add("Label", value -> "[" + value + "]");
+
+String output = engine.render(workflow.steps().get(0));
+```
+
+For the `Confirm` step, the formatter produces this output.
+
+```text
+[Confirm]
 ```
 
 ### Frame context
