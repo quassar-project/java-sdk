@@ -1,6 +1,6 @@
 # Template syntax reference
 
-Read a rule from top to bottom. Its condition selects the object and its indented body describes the output.
+Read a rule from top to bottom. Its condition selects the object and its indented body describes the output. The simplified EBNF below uses quotes for literal text, square brackets for optional parts, braces for repetition, and `|` for alternatives.
 
 For complete input and output examples, see [conditions](template-engine-examples.md#combine-conditions), [lists](template-engine-examples.md#render-a-list-and-format-each-value), [JSON](template-engine-examples.md#produce-json-with-optional-fields), and [escaping](template-engine-examples.md#escape-template-characters).
 
@@ -8,11 +8,30 @@ For complete input and output examples, see [conditions](template-engine-example
 
 Each rule starts with `rule`, followed by its condition.
 
+```ebnf
+rule = "rule", space, condition, newline, tab, body ;
+body = { text | placeholder | optionalExpression } ;
+```
+
+This Workflows rule renders the identifier of the current step.
+
+```itr
+rule type(Step)
+	$identifier
+```
+
+The `Confirm` step renders as `Confirm`.
+
 A template is an ordered collection of rules. The engine selects the first rule whose condition matches the current object. Put specific conditions before general ones.
 
 Indent the rule body with a tab. Additional indentation becomes part of the rendered text.
 
 ## Placeholders
+
+```ebnf
+placeholder = "$", [ "<", path, ">" ], slotName,
+              { "+", formatterName }, [ "...", "[", separator, "]" ] ;
+```
 
 A placeholder tells the engine where to insert a value in the output. Write `$name` to read the slot named `name` from the current frame. The frame is the input the engine uses to apply a rule. It can be built from a Java object or supplied directly. Slots hold zero or more values, and the engine matches slot names without regard to case. [Render an object](template-engine-api.md#render-an-object)
 
@@ -22,6 +41,11 @@ A qualified placeholder uses `$<path>slotName` to read a slot from another frame
 
 ## Conditions
 
+```ebnf
+condition = term, { ( "and" | "or" ), term } ;
+term = [ "not" ], ( predicate | "(", condition, ")" ) ;
+```
+
 | Condition syntax | Matches |
 | --- | --- |
 | `type(typeName)` | The current frame has the specified type. |
@@ -29,7 +53,14 @@ A qualified placeholder uses `$<path>slotName` to read a slot from another frame
 | `attribute(slotName, value)` | At least one value in the slot matches the specified value. |
 | `trigger(placeholderName)` | The specified placeholder triggered the current rendering. |
 
-Combine conditions with `and`, `or`, and `not`. Use parentheses to group conditions. [Workflow conditions](template-engine-examples.md#combine-conditions) · [Matching the calling placeholder](template-engine-examples.md#choose-output-based-on-the-calling-slot)
+Combine conditions with `and`, `or`, and `not`. Use parentheses to group conditions. For an enabled step, the following rule renders `Confirm order: enabled`.
+
+```itr
+rule type(Step) and attribute(enabled, true)
+	$label: enabled
+```
+
+See complete examples with fallback rules. [Workflow conditions](template-engine-examples.md#combine-conditions) · [Matching the calling placeholder](template-engine-examples.md#choose-output-based-on-the-calling-slot)
 
 ## Lists and separators
 
@@ -42,7 +73,20 @@ Combine conditions with `and`, `or`, and `not`. Use parentheses to group conditi
 
 ## Optional expressions
 
-Use `<<body>>` to emit a body when its placeholders produce content. Use `<<body?fallback>>` to emit fallback text otherwise. [Workflow fallback example](template-engine-examples.md#optional-values-and-fallback-text)
+```ebnf
+optionalExpression = "<<", branch, { "?", branch }, ">>" ;
+branch = ( text | placeholder | optionalExpression ),
+         { text | placeholder | optionalExpression } ;
+```
+
+Use `<<body>>` to emit a body when its placeholders produce content. Use `<<body?fallback>>` to emit fallback text otherwise.
+
+```itr
+rule type(Step)
+	$label: <<$schedule?Run immediately>>
+```
+
+The sample step has no schedule, so it renders as `Confirm order: Run immediately`. [Workflow fallback example](template-engine-examples.md#optional-values-and-fallback-text)
 
 ## Formatters
 
