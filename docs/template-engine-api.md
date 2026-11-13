@@ -164,10 +164,12 @@ For the `Confirm` step, the formatter produces this output.
 
 ### Frame context
 
-```itr
-$<container>name
-$<root>name
-$<step.action>name
-```
+Use frame context when a rule needs a value from another object while rendering the current one. For example, a step's output can include the identifier of the workflow it belongs to.
 
-`container` addresses the enclosing frame; `root` addresses the root frame. Named path segments traverse slots in order. The final placeholder selects a slot from the reached frame.
+| Expression | When to use it |
+| --- | --- |
+| `$<container>identifier` | Read the identifier of the object that contains the current one. In a step rule, this is the containing workflow's identifier. |
+| `$<root>identifier` | Read the identifier of the object passed to `render`. When rendering a workflow, its identifier is available even from a rule several levels deep. |
+| `$<step.action>name` | From a workflow rule, follow its first step to the referenced action and read the action's name. This lets you show the first action in a workflow summary. |
+
+See the templates and their output in the examples. [Access the containing workflow](template-engine-examples.md#access-the-containing-workflow) · [Read values from the root and a named path](template-engine-examples.md#read-values-from-the-root-and-a-named-path)
