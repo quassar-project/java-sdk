@@ -16,52 +16,20 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 
 ## Write your own templates
 
-Use the syntax reference to define rules that select model objects and describe the output. The workflow examples show complete templates alongside their rendered output, including Java source files. [Template syntax reference](#template-syntax-reference) · [Workflow template examples](template-engine-examples.md)
+To generate Java from an M1 model, write the source file you want the template to produce. Then replace the parts that vary between models with placeholders.
+
+1. **Select a model concept.** Save a local `.itr` file and start with a rule whose `type(...)` matches the decorator you will render.
+2. **Write the Java source in the rule body.** Indent the body with a tab. Keep fixed Java syntax as literal text and use placeholders such as `$identifier` for model values. Use `~` before an adjacent suffix and quote and escape values used as string literals.
+3. **Render children and references.** Add rules for the concepts reached through a placeholder. Use `...` and a separator to render repeated values, such as the arguments of a Java method call.
+4. **Render and save the source.** Load the template with `TemplateEngine.with(Path)`, pass a generated decorator to `render`, and write the returned string to a `.java` file named after its public type.
+
+The workflow example shows the complete template, the Java call that renders it, and the resulting source file. [Generate Java from a workflow](template-engine-examples.md#generate-java-from-a-workflow) · [Template syntax reference](#template-syntax-reference)
 
 ## Generated decorators
 
 Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$step` renders children of type `Step` exposed by the Java getter `steps()`.
 
 Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Generated Model API](generated-model-api.md)
-
-## Create a frame from an object
-
-```java
-import io.quassar.templating.Frames;
-import io.quassar.templating.model.Frame;
-
-Frame frame = Frames.from(workflow);
-String source = engine.render(frame);
-```
-
-`Frames.from(...)` adapts records and regular Java objects. It includes inherited fields and converts nested object, list, map and array fields. Static and transient fields are excluded. Each conversion creates its own frame tree and parent links. Passing an existing `Frame` returns that frame.
-
-Use `Frames.builder(...)` when you want to name the type and add slots yourself. Scalar values such as strings and numbers are added directly.
-
-```java
-Frame step = Frames.builder("Step")
-	.add("identifier", "Confirm")
-	.add("timeoutSeconds", 30)
-	.add("enabled", true)
-	.toFrame();
-```
-
-## Customize rendering
-
-Register formatters and object adapters on the engine.
-
-```java
-record ExternalStep(String id, int timeout) {}
-
-TemplateEngine engine = TemplateEngine.with(Path.of("step-config.itr"))
-	.add(ExternalStep.class, (source, frame) -> frame
-		.add("Step")
-		.add("identifier", source.id())
-		.add("timeoutSeconds", source.timeout())
-		.add("enabled", true));
-```
-
-See the workflow recipes for conditions, lists, and Java generation. [Template examples](template-engine-examples.md)
 
 ## Factories
 
@@ -95,15 +63,15 @@ rule type(Step)
 	$identifier
 ```
 
-A template is an ordered collection of rules. The engine selects the first rule whose condition matches the current frame. Put specific conditions before general ones.
+A template is an ordered collection of rules. The engine selects the first rule whose condition matches the current object. Put specific conditions before general ones.
 
 Indent the rule body with a tab. Additional indentation becomes part of the rendered text.
 
 ### Data and slots
 
-The engine represents input objects as frames. For a plain Java record, the class name is the frame type and each field supplies a named value called a slot. An object-valued slot can invoke another rule, and a list supplies multiple values under the same name.
+A slot is a named value available to the template. A slot containing another object can invoke another rule, and a list supplies multiple values under the same name.
 
-[Generated decorators](#generated-decorators) supply types and slots from the model through an internal frame view.
+[Generated decorators](#generated-decorators) supply the types and slots defined by the model.
 
 ```itr
 rule type(Step)
@@ -112,8 +80,6 @@ rule type(Step)
 rule type(Action)
 	$name
 ```
-
-Use `Frames.builder(...)` to supply slots explicitly or register a custom adapter with `.add(Class, ObjectMapper)`.
 
 ### Conditions
 
@@ -184,16 +150,6 @@ Some built-in formatters:
 | Numbers | `Words`, `Separators`, `TwoDecimals` |
 | Dates | `Year`, `YearMonth`, `YearMonthDay`, `ShortDate`, `FullDate` |
 
-### Frame context
-
-```itr
-$<container>name
-$<root>name
-$<step.action>name
-```
-
-`container` addresses the enclosing frame; `root` addresses the root frame. Named path segments traverse slots in order. The final placeholder selects a slot from the reached frame.
-
 ### Join a placeholder to literal text
 
 Use `~` to separate a placeholder name from an adjacent suffix:
@@ -238,3 +194,54 @@ Configuration controls locale-sensitive built-in formatting and output line endi
 `TemplateEngine.with(input)` reads UTF-8 and leaves the stream open. Close it in the calling code, typically with try-with-resources. The engine retains the resulting template, so it can render after the stream has been closed.
 
 Unreadable or malformed input raises `io.quassar.templating.ports.TemplateReadException`. Rendering does not require generating or compiling a Java template class.
+
+## Advanced frame usage
+
+The engine represents objects as frames during rendering. For a plain Java record, the class name supplies the frame type and its fields supply the slots. Use the frame API when you need to construct or adapt that data explicitly.
+
+### Create a frame from an object
+
+```java
+import io.quassar.templating.Frames;
+import io.quassar.templating.model.Frame;
+
+Frame frame = Frames.from(workflow);
+String source = engine.render(frame);
+```
+
+`Frames.from(...)` adapts records and regular Java objects. It includes inherited fields and converts nested object, list, map and array fields. Static and transient fields are excluded. Each conversion creates its own frame tree and parent links. Passing an existing `Frame` returns that frame.
+
+Use `Frames.builder(...)` when you want to name the type and add slots yourself. Scalar values such as strings and numbers are added directly.
+
+```java
+Frame step = Frames.builder("Step")
+	.add("identifier", "Confirm")
+	.add("timeoutSeconds", 30)
+	.add("enabled", true)
+	.toFrame();
+```
+
+### Customize rendering
+
+Register formatters and object adapters on the engine.
+
+```java
+record ExternalStep(String id, int timeout) {}
+
+TemplateEngine engine = TemplateEngine.with(Path.of("step-config.itr"))
+	.add(ExternalStep.class, (source, frame) -> frame
+		.add("Step")
+		.add("identifier", source.id())
+		.add("timeoutSeconds", source.timeout())
+		.add("enabled", true));
+```
+
+### Frame context
+
+```itr
+$<container>name
+$<root>name
+$<step.action>name
+```
+
+`container` addresses the enclosing frame; `root` addresses the root frame. Named path segments traverse slots in order. The final placeholder selects a slot from the reached frame.
