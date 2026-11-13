@@ -8,7 +8,7 @@ Open Quassar Forge and select **New DSL**. To create the DSL, define its metamod
 
 ## 2. Create your models
 
-Select your DSL in Quassar Studio and create a model (M1). Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models.
+Select your DSL in Quassar Studio and create a model (M1). Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models. [Open Quassar Studio](https://quassar.io/studio)
 
 Copy the download URLs for your M2 and M1 from Quassar. Each has its own code in the form `https://quassar.io/models/[code]`.
 

@@ -14,7 +14,7 @@ Load models written in your Tara DSL and query them from Java. The reader needs 
 
 ## 2. Create a model in Quassar
 
-Create a model in Quassar Studio with the following content. Copy its model URL and use it in the Java example.
+Create a model in Quassar Studio with the following content. Copy its model URL and use it in the Java example. [Open Quassar Studio](https://quassar.io/studio)
 
 ```tara
 Author(name = "Franz Kafka") Kafka
