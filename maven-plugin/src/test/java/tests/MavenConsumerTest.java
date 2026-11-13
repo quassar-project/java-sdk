@@ -72,17 +72,42 @@ class MavenConsumerTest {
 		Path repository = isolatedRepository();
 		Path generator = directory.resolve("generator");
 		Files.createDirectories(generator.resolve("metamodel"));
-		Files.createDirectories(generator.resolve("m1"));
 		Files.write(generator.resolve("pom.xml"), resource("/maven/generator/pom.xml"));
 		Files.write(generator.resolve("metamodel/library.tara"), resource("/maven/generator/metamodel/library.tara"));
 		Files.write(generator.resolve("metamodel/manifest.json"), resource("/maven/consumer/metamodel/manifest.json"));
-		Files.write(generator.resolve("m1/library.tara"), resource("/maven/generator/m1/library.tara"));
+		Path modelFile = Files.write(directory.resolve("library.tara"), resource("/maven/generator/m1/library.tara"));
 
 		build(repository, generator, "install");
 		assertThat(generator.resolve("src/main/java/example/LibraryMojo.java")).exists();
 		assertThat(generator.resolve("src/main/java/example/Main.java")).doesNotExist();
-		build(repository, generator, "io.quassar.integration:library-generator-maven-plugin:1.0.0:generate");
-		var model = JsonParser.parseString(Files.readString(generator.resolve("target/generated-resources/model.json"))).getAsJsonObject();
+		Path consumer = Files.createDirectory(directory.resolve("compiler-consumer"));
+		Files.writeString(consumer.resolve("pom.xml"), """
+			<project>
+				<modelVersion>4.0.0</modelVersion>
+				<groupId>io.quassar.integration</groupId>
+				<artifactId>compiler-consumer</artifactId>
+				<version>1.0.0</version>
+				<build>
+					<plugins>
+						<plugin>
+							<groupId>io.quassar.integration</groupId>
+							<artifactId>library-generator-maven-plugin</artifactId>
+							<version>1.0.0</version>
+							<executions>
+								<execution>
+									<goals><goal>generate</goal></goals>
+								</execution>
+							</executions>
+							<configuration>
+								<model>%s</model>
+							</configuration>
+						</plugin>
+					</plugins>
+				</build>
+			</project>
+			""".formatted(modelFile.toUri()));
+		build(repository, consumer, "generate-sources");
+		var model = JsonParser.parseString(Files.readString(consumer.resolve("target/generated-resources/model.json"))).getAsJsonObject();
 		var books = model.getAsJsonArray("book");
 		assertThat(books.size()).isEqualTo(2);
 		var atlas = books.get(0).getAsJsonObject();

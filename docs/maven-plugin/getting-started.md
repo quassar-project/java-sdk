@@ -46,7 +46,7 @@ Replace `[mode]` with the mode for your tool. Run `mvn generate-sources` to gene
 1. Set `<mode>compiler</mode>` and the project's `<packaging>maven-plugin</packaging>`. Run `mvn generate-sources` to create an editable Mojo with a `generate` goal.
 2. Write `.itr` templates that describe the source code to generate and put them in `src/main/resources`. This guide assumes Java output. The same template engine can generate source code for any programming language. [Template Engine guide](../template-engine/getting-started.md)
 3. Implement the goal to load M1 through the generated model class, use the Quassar Template Engine to render the templates with the model, and write the result to the consumer's generated sources directory.
-4. Run `mvn install` in the DSL plugin project. In the consuming project, add your plugin's Maven coordinates and bind its `generate` goal to run before compilation.
+4. Run `mvn install` in the DSL plugin project. In the consuming project, add your plugin's Maven coordinates and bind its `generate` goal to `generate-sources`, and set `<model>` in its configuration to the M1 download URL. Run `mvn compile` in the consumer project. [Consumer POM example](../../README.md#compiler)
 
 ### Interpretation
 
@@ -58,7 +58,7 @@ Use `<mode>none</mode>` if you want to supply your own entry point.
 
 If M2 is configured and the templates directory has no `.itr` files, both modes create `model-json.itr` as a starter example. The application starter prints the rendered result when one template is available. To generate Java from templates alone, omit `metamodel`.
 
-The generated Maven goal reads `m1` and writes `target/generated-resources/model.json` when a metamodel and one template are available. Set `-Dquassar.source` and `-Dquassar.output` to use other paths.
+When a metamodel and one template are available, the starter goal requires `<model>` and renders it to `target/generated-resources/model.json` by default. You can also pass the M1 URL with `-Dquassar.model` and change the output file with `-Dquassar.output`. Adapt the starter goal and its output for the code your compiler needs to generate.
 
 ## Configuration reference
 

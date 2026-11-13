@@ -86,7 +86,7 @@ class TranslatorMojoTest {
 		mojo.execute();
 		Path source = directory.resolve("src/main/java/library/model");
 		assertThat(source.resolve("LibraryMojo.java")).content().contains("class LibraryMojo extends AbstractMojo",
-			"@Mojo(name = \"generate\"", "LibraryModel.load(", "ModelJsonTemplate.render(model)");
+			"@Mojo(name = \"generate\"", "LibraryModel.load(model)", "ModelJsonTemplate.render(loadedModel)");
 		assertThat(source.resolve("Main.java")).doesNotExist();
 	}
 
