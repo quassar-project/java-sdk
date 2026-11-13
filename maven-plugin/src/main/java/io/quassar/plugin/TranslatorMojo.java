@@ -42,10 +42,6 @@ public final class TranslatorMojo extends AbstractMojo {
 	@Parameter
 	private String templateDirectory;
 
-	@Deprecated
-	@Parameter
-	private File templatesDirectory;
-
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
 	private MavenProject project;
 
@@ -67,8 +63,7 @@ public final class TranslatorMojo extends AbstractMojo {
 		if (generationMode == Mode.COMPILER && !"maven-plugin".equals(project.getPackaging()))
 			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> when using compiler mode");
 		var resources = project.getBasedir().toPath().resolve("src/main/resources");
-		var templatePath = templateDirectory != null ? resources.resolve(templateDirectory)
-			: templatesDirectory != null ? templatesDirectory.toPath() : resources;
+		var templatePath = templateDirectory == null ? resources : resources.resolve(templateDirectory);
 		var templateFiles = new TemplateFiles();
 		List<TemplateDefinition> definitions = templateFiles.read(templatePath);
 		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.COMPILER)
