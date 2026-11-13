@@ -2,8 +2,6 @@
 
 Add the Quassar Maven plugin to your Java project to build a compiler or an interpreter for your DSL.
 
-Every domain-specific language (DSL) in Quassar has a metamodel (M2) that defines its concepts, properties, and relationships. Models (M1) describe concrete examples using that language. Use [Quassar](https://quassar.io/) to create the metamodel and its models.
-
 Add this build configuration to your `pom.xml`. Use Java 17 or later and Maven 3.9.9 or later.
 
 ```xml
@@ -28,6 +26,8 @@ Add this build configuration to your `pom.xml`. Use Java 17 or later and Maven 3
 	</plugins>
 </build>
 ```
+
+Every domain-specific language (DSL) in Quassar has a metamodel (M2) that defines its concepts, properties, and relationships. Models (M1) describe concrete examples using that language. Use [Quassar](https://quassar.io/) to create the metamodel and its models.
 
 Replace `[code]` with the code of your metamodel (M2) in Quassar. Replace `[mode]` with `maven-plugin` for compilation or `application` for interpretation, as described below.
 
