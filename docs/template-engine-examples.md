@@ -1,4 +1,4 @@
-# Workflow template examples
+# Template examples
 
 These examples render the `OrderFulfillment` workflow from the Model Reader guide. It has a `Confirm` step that calls `SendConfirmation` and lists `QueueForRetry` and `LogFailure` as fallback actions. [M1 example](model-reader-api.md#create-a-model-in-quassar) · [Workflow metamodel](generated-model-api.md#workflow-metamodel)
 
