@@ -14,22 +14,23 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 </dependency>
 ```
 
-## Write your own templates
+## Load and render a template
 
-To generate Java from an M1 model, write the source file you want the template to produce. Then replace the parts that vary between models with placeholders.
+Use `TemplateEngine.with(Path)` to load an existing `.itr` file at runtime. This example assumes `workflow` is a decorator loaded from M1 and `workflow.itr` is in the current directory. [Generated Model API](generated-model-api.md) · [Workflow template and output](generated-template-api.md#generate-java-from-a-workflow)
 
-1. **Select a model concept.** Save a local `.itr` file and start with a rule whose `type(...)` matches the decorator you will render.
-2. **Write the Java source in the rule body.** Indent the body with a tab. Keep fixed Java syntax as literal text and use placeholders such as `$identifier` for model values. Use `~` before an adjacent suffix and quote and escape values used as string literals.
-3. **Render children and references.** Add rules for the concepts reached through a placeholder. Use `...` and a separator to render repeated values, such as the arguments of a Java method call.
-4. **Render and save the source.** Load the template with `TemplateEngine.with(Path)`, pass a generated decorator to `render`, and write the returned string to a `.java` file named after its public type.
+```java
+import io.quassar.templating.TemplateEngine;
+import java.nio.file.Path;
 
-The workflow example shows the complete template, the Java call that renders it, and the resulting source file. [Generate Java from a workflow](generated-template-api.md#generate-java-from-a-workflow) · [Template syntax reference](#template-syntax-reference)
+var engine = TemplateEngine.with(Path.of("workflow.itr"));
+String source = engine.render(workflow);
+```
+
+The engine reads and closes the file when you create it. You can reuse the engine to render other workflows with the same template.
 
 ## Generated decorators
 
 Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$step` renders children of type `Step` exposed by the Java getter `steps()`.
-
-Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Generated Model API](generated-model-api.md)
 
 ## Factories
 
