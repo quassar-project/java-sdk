@@ -4,7 +4,7 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 ## 1. Create your DSL
 
-In Quassar Forge, define the metamodel (M2) of your DSL. The metamodel defines the concepts, properties, and relationships that models can express. [Open Quassar](https://quassar.io/)
+Open Quassar Forge and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express. [Open Quassar Forge](https://quassar.io/forge)
 
 ## 2. Create your models
 
