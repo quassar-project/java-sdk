@@ -2,7 +2,7 @@
 
 [Template Engine API](template-engine-api.md) · [Template reference](template-engine-api.md#template-syntax-reference)
 
-Reuse the `Order`, `Customer` and `OrderBatch` records from the [order batch example](template-engine-api.md#render-an-order-batch). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(Path.of("example.itr"))`, and pass the object named in the rule to `render`.
+Reuse the `Order`, `Customer` and `OrderBatch` records from the [order batch example](template-engine-api.md#3-load-the-template-and-render-an-order-batch). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(Path.of("example.itr"))`, and pass the object named in the rule to `render`.
 
 - **Rules** · [property conditions](#choose-a-rule-from-the-data) · [boolean conditions](#combine-conditions) · [the calling slot](#choose-output-based-on-the-calling-slot)
 - **Output** · [optional values](#optional-values-and-fallback-text) · [lists and separators](#render-a-list-and-format-each-value) · [JSON](#produce-json-with-optional-fields) · [literal text](#escape-template-characters) · [Java source](#generate-a-java-record)
