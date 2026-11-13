@@ -35,7 +35,7 @@ In your project's POM, set `maven.compiler.release` to `17` or later and add thi
 </build>
 ```
 
-Replace the example URL with the M2 download URL from Quassar. With `extensions` enabled, Maven adds the reader and template engine as project dependencies.
+Replace the example URL with the M2 download URL from Quassar. With `<extensions>true</extensions>`, the Quassar Maven plugin adds `model-reader` and `template-engine` to your project automatically. Declare these dependencies explicitly only when you use the libraries without the Quassar Maven plugin.
 
 ## 3. Choose compilation or interpretation
 

@@ -8,9 +8,11 @@ From Java, load the template with `TemplateEngine.with(Path)` and pass the data 
 String summary = TemplateEngine.with(Path.of("order-batch.itr")).render(batch());
 ```
 
-## Add the dependency
+## Add the dependency for standalone use
 
 Use Java 17 or later.
+
+Add the dependency below only if your project does not use the Quassar Maven plugin. With `<extensions>true</extensions>`, the plugin adds `template-engine` to your project automatically. [Quassar Maven Plugin guide](../maven-plugin/getting-started.md#2-configure-maven)
 
 ```xml
 <dependency>
