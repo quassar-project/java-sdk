@@ -85,9 +85,21 @@ $name+FirstUpperCase
 $name+OnlyLetters+UpperCase
 ```
 
-Formatters transform values before rendering and can be chained. Register custom formatters with `engine.add("Label", formatter)` and use `$identifier+Label`.
+Formatters transform values before rendering and can be chained.
 
-Some built-in formatters:
+### Create your own formatter
+
+Define a formatter in Java and register it by name before calling `render`. This formatter surrounds a value with square brackets.
+
+```java
+var engine = TemplateEngine.with(Path.of("workflow.itr"))
+	.add("Label", value -> "[" + value + "]");
+```
+
+Use `$identifier+Label` in the template. An identifier of `Confirm` renders as `[Confirm]`.
+
+### Built-in formatters
+
 
 | Kind | Names |
 | --- | --- |
