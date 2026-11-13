@@ -25,7 +25,7 @@ To build a compiler or an interpreter for your DSL, add the following Quassar Ma
 </build>
 ```
 
-Every domain-specific language (DSL) in Quassar has a metamodel (M2) that defines its concepts, properties, and relationships. Models (M1) describe concrete examples using that language. Use [Quassar](https://quassar.io/) to create the metamodel and its models.
+Create your domain-specific language (DSL) in Quassar by defining its metamodel (M2), which specifies the language's concepts, properties, and relationships. Once the DSL is available, use it to create models (M1) that describe specific cases in your domain. [Open Quassar](https://quassar.io/)
 
 Replace `[code]` with the code of your metamodel (M2) in Quassar. Replace `[mode]` with `maven-plugin` for compilation or `application` for interpretation, as described below.
 
