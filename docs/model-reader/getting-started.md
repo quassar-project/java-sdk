@@ -12,9 +12,9 @@ Load models written in your Tara DSL and query them from Java. The reader needs 
 </dependency>
 ```
 
-## 2. Save a small model
+## 2. Create a model in Quassar
 
-Put this in `m1/library.tara`.
+Create a model in Quassar Studio with the following content. Copy its model URL and use it in the Java example.
 
 ```tara
 Author(name = "Franz Kafka") Kafka
@@ -31,11 +31,11 @@ Each object is a *mogram*. `Book` is its type and `TheMetamorphosis` is its iden
 
 ```java
 import io.quassar.reader.Models;
-import java.nio.file.Path;
+import java.net.URI;
 
 public class LibraryExample {
 	public static void main(String[] args) throws Exception {
-		var model = Models.load(Path.of("m1"));
+		var model = Models.load(URI.create("https://quassar.io/models/[code]"));
 		var book = model.get("TheMetamorphosis");
 		var author = model.get(book.property("author"), book);
 
@@ -94,10 +94,10 @@ A missing mogram, an unresolved reference, the parent of a root mogram, and `fir
 ## Load from another source
 
 ```java
-import java.net.URI;
+import java.nio.file.Path;
 
 var archive = Models.load(Path.of("library.zip"));
-var remote = Models.load(URI.create("https://example.org/library.zip"));
+var folder = Models.load(Path.of("m1"));
 var bundled = Models.load(LibraryExample.class.getResource("/library.tara"));
 ```
 

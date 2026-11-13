@@ -6,7 +6,7 @@ Use this guide to see how an M2 declaration becomes part of the generated Java A
 
 ## Generate from Java
 
-Load an M2 metamodel from `https://quassar.io/models/[id]`. Replace `[id]` with your metamodel ID.
+Load an M2 metamodel from `https://quassar.io/models/[code]`. Use the code of your metamodel in Quassar for `[code]`.
 
 ```java
 import io.quassar.javacode.MogramDecoratorGenerator;
@@ -15,7 +15,7 @@ import io.quassar.metamodel.Metamodels;
 import java.net.URI;
 import java.nio.file.Path;
 
-var metamodel = Metamodels.load(URI.create("https://quassar.io/models/[id]"));
+var metamodel = Metamodels.load(URI.create("https://quassar.io/models/[code]"));
 MogramDecoratorGenerator.from(metamodel)
 	.inPackage("example.library")
 	.writeTo(Path.of("src/main/gen"));
@@ -50,7 +50,7 @@ Replace the example URL with the M1 download URL from Quassar.
 ```java
 import java.net.URI;
 
-LibraryModel library = LibraryModel.load(URI.create("https://quassar.io/models/[id]"));
+LibraryModel library = LibraryModel.load(URI.create("https://quassar.io/models/[code]"));
 Book book = library.books().get(0);
 String title = book.title();
 BigDecimal year = book.year();

@@ -6,7 +6,7 @@ This quickstart uses a web service DSL to show how the plugin turns M2 into Java
 
 ## 1. Prepare M2 and M1 in Quassar
 
-M2 describes the language. M1 contains the objects written in that language. Copy the download URL for each model from Quassar. Use the M2 URL in Maven and the M1 URL when you load the model in Java.
+M2 describes the language. M1 contains the objects written in that language. Quassar provides both at `https://quassar.io/models/[code]`. Use the M2 code in the Maven configuration and the M1 code when loading the model in Java.
 
 Create a metamodel named `WebServices`. An endpoint has an HTTP method, a path, and a list of parameters.
 
@@ -24,7 +24,7 @@ Concept Parameter as component
 	def boolean required
 ```
 
-The metamodel name in its manifest determines the generated class name, `WebServicesModel`.
+Quassar includes a manifest in the downloaded archive. Maven uses the metamodel name from that manifest to generate `WebServicesModel`.
 
 Create an M1 model with one endpoint. `userId` is part of the path, and clients can pass `includeDetails` in the query string.
 
@@ -53,7 +53,7 @@ In your project's POM, set `maven.compiler.release` to `17` or later and add thi
 			</executions>
 			<configuration>
 				<package>example</package>
-				<metamodel>https://quassar.io/models/[id]</metamodel>
+				<metamodel>https://quassar.io/models/[code]</metamodel>
 				<scaffold>none</scaffold>
 			</configuration>
 		</plugin>
@@ -75,7 +75,7 @@ Replace the URL below with the M1 download URL from Quassar. It identifies the m
 import example.model.WebServicesModel;
 import java.net.URI;
 
-var services = WebServicesModel.load(URI.create("https://quassar.io/models/[id]"));
+var services = WebServicesModel.load(URI.create("https://quassar.io/models/[code]"));
 var endpoint = services.endpoints().get(0);
 
 System.out.println(endpoint.method() + " " + endpoint.path());
@@ -110,7 +110,7 @@ import java.net.URI;
 
 public final class Main {
 	public static void main(String[] args) throws IOException {
-		var services = WebServicesModel.load(URI.create("https://quassar.io/models/[id]"));
+		var services = WebServicesModel.load(URI.create("https://quassar.io/models/[code]"));
 		System.out.println(EndpointSummaryTemplate.render(services.endpoints().get(0)));
 	}
 }

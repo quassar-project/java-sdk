@@ -187,7 +187,7 @@ import io.quassar.templating.TemplateEngine;
 import java.net.URI;
 import java.nio.file.Path;
 
-var services = WebServicesModel.load(URI.create("https://quassar.io/models/[id]"));
+var services = WebServicesModel.load(URI.create("https://quassar.io/models/[code]"));
 var engine = TemplateEngine.with(Path.of("src/main/resources/endpoint-summary.itr"));
 String route = engine.render(services.endpoints().get(0));
 ```

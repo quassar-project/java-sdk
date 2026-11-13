@@ -87,7 +87,7 @@ import java.nio.file.Path;
 
 public final class GenerateClient {
 	public static void main(String[] args) throws IOException {
-		var services = WebServicesModel.load(URI.create("https://quassar.io/models/[id]"));
+		var services = WebServicesModel.load(URI.create("https://quassar.io/models/[code]"));
 		var output = Path.of("target/generated-clients/example/client");
 		Files.createDirectories(output);
 		for (var endpoint : services.endpoints()) {

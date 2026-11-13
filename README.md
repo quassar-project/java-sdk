@@ -8,8 +8,8 @@ Create your own domain-specific language (DSL) in [Quassar](https://quassar.io).
 | --- | --- | --- |
 | **Forge** | Define a DSL with endpoints, HTTP methods, paths, and parameters. | A metamodel (M2) that describes what a service can declare. |
 | **Studio** | Describe a service using that DSL. | A model (M1) with concrete routes, such as `GET /users/{userId}`. |
-| **Build the generator** | Configure Maven with the M2 download URL and add a client template. | Typed accessors such as `path()` and `parameters()`, plus a Java renderer for the template. |
-| **Generate the client** | Load M1 and render each endpoint through the template. | Java source such as `GetUserClient.java`. |
+| **Build the generator** | Configure Maven with the M2 URL from Quassar and add a client template. | Typed accessors such as `path()` and `parameters()`, plus a Java renderer for the template. |
+| **Generate the client** | Load M1 from its Quassar URL and render each endpoint through the template. | Java source such as `GetUserClient.java`. |
 | **Call the service** | Compile the generated source and pass the service's base URL and parameter values. | An HTTP response from the running service. |
 
 For example, an endpoint can declare a required path parameter and an optional query parameter:
@@ -27,6 +27,8 @@ var client = new GetUserClient(URI.create("https://api.example.com"), HttpClient
 var response = client.send(Map.of("userId", "42"), Map.of("includeDetails", "true"));
 System.out.println(response.body());
 ```
+
+Quassar serves M1 and M2 at `https://quassar.io/models/[code]`, using the code for the corresponding model. The downloaded archives already include their manifests.
 
 Follow the [web service client example](docs/maven-plugin/web-service-client.md) to run the full pipeline. The SDK also supports generators for other kinds of DSLs through the same metamodel and template workflow.
 
