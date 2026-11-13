@@ -39,13 +39,13 @@ var engine = TemplateEngine.with(Path.of("workflow.itr"));
 
 ## Render an object
 
-Pass an input to `render` to get the result as a string. Here, `workflow` is a decorator obtained from a loaded M1 model. [Generated Model API](generated-model-api.md) · [Workflow template and output](generated-template-api.md#generate-java-from-a-workflow)
+When you pass an object to `render`, the engine first creates a frame from that object. It then applies the template to the frame and returns the result as a string. Here, `workflow` is a decorator obtained from a loaded M1 model. [Generated Model API](generated-model-api.md) · [Workflow template and output](generated-template-api.md#generate-java-from-a-workflow)
 
 ```java
 String output = engine.render(workflow);
 ```
 
-The engine uses reflection to convert generated models, model decorators, Java class instances, and records into frames. You can also pass a frame directly to `render`. [Build frames explicitly](#build-frames-explicitly)
+The engine uses reflection to build frames from generated models, model decorators, Java class instances, and records. You can also pass a frame directly to `render`. [Build frames explicitly](#build-frames-explicitly)
 
 ## Advanced usage
 
