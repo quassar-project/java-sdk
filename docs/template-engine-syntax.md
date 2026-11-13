@@ -9,12 +9,15 @@ For complete input and output examples, see [conditions](template-engine-example
 A rule has a header and a body. The header starts with the keyword `rule`, followed by a condition built from predicates, logical operators, and parenthesized groups. The body starts on the next line.
 
 ```ebnf
-rule      = header, newline, tab, body ;
-header    = "rule", space, condition ;
-condition = term, { ( "and" | "or" ), term } ;
-term      = [ "not" ], ( predicate | "(", condition, ")" ) ;
-predicate = name, "(", argument, { ",", argument }, ")" ;
-body      = { text | placeholder | optionalExpression } ;
+rule = header, newline, tab, body ;
+header = "rule", space, condition ;
+condition = term,
+            { ( "and" | "or" ), term } ;
+term = [ "not" ],
+       ( predicate | "(", condition, ")" ) ;
+predicate = name, "(", argument,
+            { ",", argument }, ")" ;
+body = { text | placeholder | optionalExpression } ;
 ```
 
 This Workflows rule renders the identifier of the current step.
@@ -73,7 +76,8 @@ See complete examples with fallback rules. [Workflow conditions](template-engine
 ## Optional expressions
 
 ```ebnf
-optionalExpression = "<<", branch, { "?", branch }, ">>" ;
+optionalExpression = "<<", branch,
+                     { "?", branch }, ">>" ;
 branch = ( text | placeholder | optionalExpression ),
          { text | placeholder | optionalExpression } ;
 ```
