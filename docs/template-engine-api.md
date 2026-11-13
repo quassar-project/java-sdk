@@ -14,27 +14,9 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 </dependency>
 ```
 
-## Load and render a template
+## Load a template
 
-Use `TemplateEngine.with(Path)` to load an existing `.itr` file at runtime. This example assumes `workflow` is a decorator loaded from M1 and `workflow.itr` is in the current directory. [Generated Model API](generated-model-api.md) · [Workflow template and output](generated-template-api.md#generate-java-from-a-workflow)
-
-```java
-import io.quassar.templating.TemplateEngine;
-import java.nio.file.Path;
-
-var engine = TemplateEngine.with(Path.of("workflow.itr"));
-String source = engine.render(workflow);
-```
-
-The engine reads and closes the file when you create it. You can reuse the engine to render other workflows with the same template.
-
-## Objects and frames
-
-The engine can render a generated model, a model decorator, an instance of a Java class, or a record. It uses reflection to convert these objects into frames.
-
-You can also pass a frame directly to `render`. [Build frames explicitly](#build-frames-explicitly)
-
-## Factories
+Use `TemplateEngine.with(...)` to load a template at runtime.
 
 | Factory | Input |
 | --- | --- |
@@ -43,9 +25,29 @@ You can also pass a frame directly to `render`. [Build frames explicitly](#build
 | `TemplateEngine.with(template)` | An existing template |
 | `TemplateEngine.with(rules)` | An iterable of rendering rules |
 | `TemplateEngine.with(rules, configuration)` | Rules with explicit locale and line endings |
-| `TemplateEngine.with(template).using(factory)` | A template with custom frame adaptation |
 
-Unreadable or malformed templates raise `io.quassar.templating.ports.TemplateReadException`.
+The engine opens and closes files passed as a `Path`. If you pass an `InputStream`, close it in your code after the engine loads the template. Unreadable or malformed templates raise `TemplateReadException`.
+
+Save the workflow template as `workflow.itr` in the current directory, then load it. [Template examples](template-engine-examples.md) · [Template syntax reference](template-engine-syntax.md)
+
+```java
+import io.quassar.templating.TemplateEngine;
+import java.nio.file.Path;
+
+var engine = TemplateEngine.with(Path.of("workflow.itr"));
+```
+
+## Render an object
+
+Pass an input to `render` to get the result as a string. Here, `workflow` is a decorator obtained from a loaded M1 model. [Generated Model API](generated-model-api.md) · [Workflow template and output](generated-template-api.md#generate-java-from-a-workflow)
+
+```java
+String source = engine.render(workflow);
+```
+
+### Objects and frames
+
+The engine uses reflection to convert generated models, model decorators, Java class instances, and records into frames. You can also pass a frame directly to `render`. [Build frames explicitly](#build-frames-explicitly)
 
 ## Rendering options
 
@@ -75,14 +77,6 @@ TemplateEngine engine = TemplateEngine.with(template.ruleSet(), configuration);
 ```
 
 Configuration controls locale-sensitive built-in formatting and output line endings. The default is English with LF line endings.
-
-### Input ownership and errors
-
-`TemplateEngine.with(Path.of("workflow.itr"))` opens and closes a local template file for you.
-
-`TemplateEngine.with(input)` reads UTF-8 and leaves the stream open. Close it in the calling code, typically with try-with-resources. The engine retains the resulting template, so it can render after the stream has been closed.
-
-Unreadable or malformed input raises `io.quassar.templating.ports.TemplateReadException`. Rendering does not require generating or compiling a Java template class.
 
 ## Advanced frame usage
 
