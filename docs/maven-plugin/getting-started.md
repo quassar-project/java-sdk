@@ -44,8 +44,8 @@ Replace `[mode]` with the mode for your tool. Run `mvn generate-sources` to gene
 ### Compilation
 
 1. Set `<mode>compiler</mode>` and the project's `<packaging>maven-plugin</packaging>`. Run `mvn generate-sources` to create an editable Mojo with a `generate` goal.
-2. Write `.itr` templates that describe the source code to generate and put them in `src/main/resources`. This guide assumes Java output. The same template engine can generate source code for any programming language. [Template Engine guide](../template-engine/getting-started.md)
-3. Implement the goal to load M1 through the generated model class, use the Quassar Template Engine to render the templates with the model, and write the result to the consumer's generated sources directory.
+2. Choose any template engine for your compiler. If you use the Template Engine included in the Quassar SDK, write `.itr` templates and put them in `src/main/resources`. This guide assumes Java output. The same template engine can generate source code for any programming language. [Template Engine guide](../template-engine/getting-started.md)
+3. Implement the goal to load M1 through the generated model class, render the templates with the model using your chosen engine, and write the result to the consumer's generated sources directory.
 4. Run `mvn install` in the DSL plugin project. In the consuming project, add your plugin's Maven coordinates and bind its `generate` goal to `generate-sources`, and set `<model>` in its configuration to the M1 download URL. Run `mvn compile` in the consumer project. [Consumer POM example](../../README.md#compiler)
 
 ### Interpretation
