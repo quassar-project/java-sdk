@@ -6,10 +6,19 @@ Create your own domain-specific language (DSL) in [Quassar](https://quassar.io).
 
 Configure the Maven plugin with the Quassar URL for your metamodel (M2). In both modes, the plugin generates a typed Java API for reading models (M1). Its `scaffold` option sets up the entry point where you implement the compiler or interpreter.
 
-| Approach | What happens to M1 | `scaffold` |
-| --- | --- | --- |
-| **Compilation** | A generator renders M1 through `.itr` templates to produce source code in a target language such as Java or C. The target language's toolchain then builds that code for execution. | `maven-plugin` creates a Maven goal where you implement the generator. |
-| **Interpretation** | A Java application loads M1 at runtime and acts on its declarations directly. | `application` creates a `Main.java` where you implement the interpreter. |
+### Compilation with `scaffold=maven-plugin`
+
+You build a **Maven plugin for your DSL**. In that plugin project, set `<packaging>maven-plugin</packaging>` and configure the **Quassar Maven plugin** with `<scaffold>maven-plugin</scaffold>`.
+
+When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and renders your `.itr` templates into source code for a target language such as Java or C.
+
+Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. The Quassar plugin helps build your DSL plugin, and your DSL plugin translates the consumer's models.
+
+### Interpretation with `scaffold=application`
+
+You build a **Java application that runs your DSL**. Configure the Quassar Maven plugin with `<scaffold>application</scaffold>`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
+
+Implement the interpreter in the application. At runtime, it loads M1 through the generated API and carries out the behavior declared by the model.
 
 ## Configure Maven
 

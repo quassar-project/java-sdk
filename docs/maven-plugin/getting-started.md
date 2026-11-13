@@ -136,11 +136,17 @@ Maven compiles each template into its own Java class, so the generated renderer 
 
 Set `scaffold` in the plugin's `configuration` to choose the entry point for your DSL tool. In both modes, the plugin generates Java accessors from M2. Your code then decides how to process M1. Starter files are created when the main Java source directory is empty. Existing sources and templates take precedence.
 
-| Approach | Value | What it creates |
-| --- | --- | --- |
-| Compilation | `maven-plugin` | An editable Mojo with a `generate` goal. Use it to load M1 and render `.itr` templates that emit source code in a target language such as Java or C. Set the project's packaging to `maven-plugin`. A metamodel named `WebServices` produces `WebServicesMojo.java`. |
-| Interpretation | `application` (default) | An editable `Main.java` where you load M1 and implement the behavior declared by the model at runtime. |
-| Supply your own entry point | `none` | Only generated Java from the configured metamodel and existing templates. |
+### Compilation
+
+Set `scaffold` to `maven-plugin` and the project's packaging to `maven-plugin`. Quassar scaffolds the Maven plugin for your DSL. For a metamodel named `WebServices`, it creates an editable `WebServicesMojo.java` with a `generate` goal.
+
+Implement that goal to load M1 and render your `.itr` templates into source code. Run `mvn install` in the DSL plugin project to make it available locally. Add the DSL plugin's own Maven coordinates to the consuming project's POM and bind its `generate` goal to the build before compilation.
+
+### Interpretation
+
+Set `scaffold` to `application` to generate an editable `Main.java`. Implement the application so it loads M1 at runtime and executes the behavior declared by the model. This is the default scaffold.
+
+Use `scaffold=none` if you want to supply your own entry point.
 
 If M2 is configured and the templates directory has no `.itr` files, both scaffolds create `model-json.itr` as a starter example. The application starter prints the rendered result when one template is available. To generate Java from templates alone, omit `metamodel`.
 
