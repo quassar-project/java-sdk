@@ -1,8 +1,8 @@
 # Generated Model API
 
-Use the generated Java decorators to load an M1 model, read its properties, and navigate its children and references. The API follows the concepts and relationships defined in M2. [Maven Plugin setup](../README.md#use-your-models-from-java)
+Use the generated Java decorators to load an M1 model, read its properties, and navigate its children and references. The API follows the concepts and relationships defined in M2. [Quassar Maven plugin setup](../README.md#use-your-models-from-java)
 
-The Maven plugin generates the Java classes from M2 during `generate-sources`. It names the model class after the metamodel, so `Workflows` becomes `WorkflowsModel`.
+The Quassar Maven plugin generates the Java classes from M2 during `generate-sources`. It names the model class after the metamodel, so `Workflows` becomes `WorkflowsModel`.
 
 ## Workflow metamodel
 

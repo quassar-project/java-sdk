@@ -1,6 +1,6 @@
 # Template Engine API for advanced use
 
-Template Engine turns Java objects and Quassar models into text, JSON, or source code. An `.itr` file defines what to output for each type of object and which values to insert. The engine needs Java 17 or later. Use this guide to load templates directly at runtime or customize rendering. For templates compiled by Maven, start with the generated API. [Generated Template API](generated-template-api.md)
+Template Engine turns Java objects and Quassar models into text, JSON, or source code. An `.itr` file defines what to output for each type of object and which values to insert. The engine needs Java 17 or later. Use this guide to load templates directly at runtime or customize rendering. For templates compiled by the Quassar Maven plugin, start with the generated API. [Generated Template API](generated-template-api.md)
 
 ## Add the dependency for standalone use
 
