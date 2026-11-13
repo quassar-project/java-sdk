@@ -71,24 +71,6 @@ Model collection methods return root mograms of the declared type. Child collect
 
 For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.asScheduled()` returns its typed view. Read the schedule with `step.asScheduled().schedule()`. When the facet is absent, the view returns `true` from `isNull()`.
 
-## Read a local M2 metamodel
-
-```java
-import io.quassar.metamodel.Metamodels;
-import io.quassar.metamodel.model.Metamodel;
-
-import java.nio.file.Path;
-
-Metamodel metamodel = Metamodels.load(Path.of("workflows-metamodel.zip"));
-Metamodel folder = Metamodels.load(Path.of("m2"));
-```
-
-Both sources can contain declarations in several `.tara` files, including files in subdirectories. To read M1 from a local folder, use `WorkflowsModel.load(Path.of("m1"))`.
-
-`metamodel.types()` contains the immutable declarations. Names include their declaration scope, such as `Workflow.EntryPoint` and `Step.Execution.Scheduled`. Each type retains its own properties, facets, compositions, cardinality and modifiers. `scope()` identifies its enclosing declaration; `parent()` records inheritance through `sub` or `extends`. Facet alternatives are also facet types. Repeated declarations in the same scope are combined.
-
-Properties retain their declared type, sequence element type, reference target spelling, constraints and default value. Defaults retain their source expression, including quotes, units or `empty`. Inherited properties and reference targets are not resolved by this reader.
-
 ## Build and test
 
 From the repository root:
