@@ -1,6 +1,6 @@
 # Template reference
 
-[Quick start](getting-started.md) · [Examples](examples.md)
+[Template Engine API](template-engine-api.md) · [Examples](examples.md)
 
 Read a rule from top to bottom. Its condition selects the object and its indented body describes the output.
 
@@ -21,7 +21,7 @@ Indent the rule body with a tab. Additional indentation becomes part of the rend
 
 The engine represents input objects as frames. For a plain Java record, the class name is the frame type and each field supplies a named value called a slot. An object-valued slot can invoke another rule, and a list supplies multiple values under the same name.
 
-[Generated decorators](getting-started.md#generated-decorators) supply types and slots from the model through an internal frame view.
+[Generated decorators](template-engine-api.md#generated-decorators) supply types and slots from the model through an internal frame view.
 
 ```itr
 rule type(Order)

@@ -1,4 +1,4 @@
-# Template Engine
+# Template Engine API
 
 Template Engine turns Java objects and Quassar models into text, JSON, or source code. An `.itr` file defines what to output for each type of object and which values to insert.
 
