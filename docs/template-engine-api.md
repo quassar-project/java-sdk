@@ -172,4 +172,14 @@ Use frame context when a rule needs a value from another object while rendering 
 | `$<root>identifier` | Read the identifier of the object passed to `render`. When rendering a workflow, its identifier is available even from a rule several levels deep. |
 | `$<step.action>name` | From a workflow rule, follow its first step to the referenced action and read the action's name. This lets you show the first action in a workflow summary. |
 
-See the templates and their output in the examples. [Access the containing workflow](template-engine-examples.md#access-the-containing-workflow) · [Read values from the root and a named path](template-engine-examples.md#read-values-from-the-root-and-a-named-path)
+When you call `engine.render(workflow)`, the workflow rule renders its steps. Each step rule reads the identifier of its containing workflow.
+
+```itr
+rule type(Workflow)
+	$step...[$NL]
+
+rule type(Step)
+	$label ($<container>identifier)
+```
+
+For the sample workflow, the output is `Confirm order (OrderFulfillment)`. [Read values from the root and a named path](template-engine-examples.md#read-values-from-the-root-and-a-named-path)
