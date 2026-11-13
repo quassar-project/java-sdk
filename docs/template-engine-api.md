@@ -103,7 +103,21 @@ Configuration controls locale-sensitive built-in formatting and output line endi
 
 ### Customize rendering
 
-Register formatters and object adapters on the engine.
+The `step-config.itr` template expects a `Step` with the slots `identifier`, `timeoutSeconds`, and `enabled`.
+
+```itr
+rule type(Step) and attribute(enabled, true)
+	public record $identifier~Config() {
+		public int timeoutSeconds() { return $timeoutSeconds; }
+	}
+
+rule type(Step)
+	public record $identifier~Config() {
+		public int timeoutSeconds() { return 0; }
+	}
+```
+
+`ExternalStep` exposes `id` and `timeout`. Register an adapter to present it as a `Step`, map its fields to the names the template expects, and set `enabled` to `true` for these external steps.
 
 ```java
 record ExternalStep(String id, int timeout) {}
@@ -114,6 +128,16 @@ TemplateEngine engine = TemplateEngine.with(Path.of("step-config.itr"))
 		.add("identifier", source.id())
 		.add("timeoutSeconds", source.timeout())
 		.add("enabled", true));
+
+String output = engine.render(new ExternalStep("Confirm", 30));
+```
+
+The adapter makes the enabled rule match, so `output` contains this Java source.
+
+```java
+public record ConfirmConfig() {
+	public int timeoutSeconds() { return 30; }
+}
 ```
 
 ### Frame context
