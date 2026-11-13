@@ -12,7 +12,7 @@ String summary = TemplateEngine.with(Path.of("order-batch.itr")).render(batch())
 
 Use Java 17 or later.
 
-Add the dependency below only if your project does not use the Quassar Maven plugin. With `<extensions>true</extensions>`, the plugin adds `template-engine` to your project automatically. [Quassar Maven Plugin guide](../maven-plugin/getting-started.md#2-configure-maven)
+Add the dependency below only if your project does not use the Quassar Maven plugin. With `<extensions>true</extensions>`, the plugin adds `template-engine` to your project automatically. [Quassar Maven plugin setup](../../README.md#2-use-your-models-from-java)
 
 ```xml
 <dependency>
@@ -181,7 +181,7 @@ String second = engine.render(secondBatch);
 
 Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$task` renders children of type `Task` even when the Java getter is `tasks()`.
 
-Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Maven Plugin guide](../maven-plugin/getting-started.md)
+Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Generated Model API](../maven-plugin/generated-model-api.md)
 
 ## Create a frame from an object
 
