@@ -162,7 +162,7 @@ Confirm order (OrderFulfillment)
 
 ## Generate Java from a workflow
 
-The generated API guide shows the workflow template, the call to its generated Java class, and the resulting Java source. [Generate Java from a workflow](generated-template-api.md#generate-java-from-a-workflow)
+The generated API guide shows the workflow template, the call to its generated Java class, and the resulting Java source. [Generate Java from a workflow](generated-template-api.md#example-generate-java-from-a-workflow)
 
 ## Generate a Java step configuration
 

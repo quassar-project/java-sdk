@@ -12,9 +12,9 @@ By default, the plugin searches the root of Maven resources, `src/main/resources
 
 Use a path relative to `src/main/resources`, such as `solution/templates` for a nested directory.
 
-## Generate Java from a workflow
+## Example: Generate Java from a workflow
 
-The example turns the `OrderFulfillment` workflow into a Java class whose `actions()` method lists the actions in execution order. The DSL definition (M2) determines what your Java code can read, and the workflow model (M1) supplies the values to render. [Workflow metamodel](generated-model-api.md#workflow-metamodel) · [Sample M1 model](model-reader-api.md#create-a-model-in-quassar)
+This example uses a DSL called Workflows. Its metamodel (M2) defines workflows, steps, and actions. The sample model (M1) contains a workflow named `OrderFulfillment`. Rendering that workflow produces a Java class whose `actions()` method lists the actions in execution order. [Workflow metamodel](generated-model-api.md#workflow-metamodel) · [Sample M1 model](model-reader-api.md#create-a-model-in-quassar)
 
 With the generated classes `example.model.WorkflowsModel` and `example.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.render(workflow)`. Here are the rules from `workflow.itr` that the generated template applies.
 
