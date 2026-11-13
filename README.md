@@ -1,6 +1,6 @@
 # Quassar Java SDK
 
-Create your own domain-specific language (DSL) in [Quassar](https://quassar.io). Add the Quassar Maven plugin to your Java project to build a compiler or an interpreter for that DSL.
+Every domain-specific language (DSL) in Quassar has a metamodel (M2) that defines its concepts, properties, and relationships. Models (M1) describe concrete examples using that language. Add the Quassar Maven plugin to your Java project to build a compiler or an interpreter for your DSL. [Quassar](https://quassar.io)
 
 Add this build configuration to your `pom.xml`. Use Java 17 or later and Maven 3.9.9 or later.
 
