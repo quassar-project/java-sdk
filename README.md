@@ -47,47 +47,49 @@ Build a Maven plugin for your DSL that turns each model (M1) into source code in
 Model (M1) → Your DSL's Maven plugin → Source code in the generated sources directory
 ```
 
-In the `pom.xml` of the plugin you are building for your DSL, add `<packaging>maven-plugin</packaging>` directly under `<project>`, alongside `<artifactId>` and `<version>`.
+1. **Configure the DSL plugin project.** In its `pom.xml`, add `<packaging>maven-plugin</packaging>` directly under `<project>`, alongside `<artifactId>` and `<version>`.
 
-```xml
-<project>
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>example</groupId>
-	<artifactId>my-dsl-maven-plugin</artifactId>
-	<version>1.0.0</version>
-	<packaging>maven-plugin</packaging>
-	<!-- Add the <build> block shown above here. -->
-</project>
-```
+	```xml
+	<project>
+		<modelVersion>4.0.0</modelVersion>
+		<groupId>example</groupId>
+		<artifactId>my-dsl-maven-plugin</artifactId>
+		<version>1.0.0</version>
+		<packaging>maven-plugin</packaging>
+		<!-- Add the <build> block shown above here. -->
+	</project>
+	```
 
-In that same POM, set `<mode>compiler</mode>` inside the Quassar plugin's `<configuration>` in the `<build>` block above.
+   In that same POM, set `<mode>compiler</mode>` inside the Quassar plugin's `<configuration>` in the `<build>` block above.
 
-When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and uses the Quassar Template Engine to render your `.itr` templates. The templates define the source code your compiler produces. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine guide](docs/template-engine/getting-started.md) · [Template examples](docs/template-engine/examples.md)
+2. **Generate the plugin starter.** Run `mvn generate-sources`. Quassar generates the typed model API from M2 and creates an editable Mojo with a `generate` goal if the Java source directory is empty.
 
-Run `mvn install` in your DSL plugin project to install it locally. Then add that plugin to the **consumer project's `pom.xml`**. Use the coordinates of your DSL plugin and set its `model` parameter to the M1 download URL from Quassar.
+3. **Implement code generation.** Write `.itr` templates and implement the goal so it loads an M1 model and renders those templates with the Quassar Template Engine. The templates define the source code your compiler produces. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine guide](docs/template-engine/getting-started.md) · [Template examples](docs/template-engine/examples.md)
 
-```xml
-<build>
-	<plugins>
-		<plugin>
-			<groupId>example</groupId>
-			<artifactId>my-dsl-maven-plugin</artifactId>
-			<version>1.0.0</version>
-			<executions>
-				<execution>
-					<phase>generate-sources</phase>
-					<goals><goal>generate</goal></goals>
-				</execution>
-			</executions>
-			<configuration>
-				<model>https://quassar.io/models/[code]</model>
-			</configuration>
-		</plugin>
-	</plugins>
-</build>
-```
+4. **Install and configure your DSL plugin.** Run `mvn install` in the DSL plugin project, then add the plugin to the **consumer project's `pom.xml`**. Use the coordinates of your DSL plugin and set its `model` parameter to the M1 download URL from Quassar.
 
-Replace `[code]` with the M1 code and run `mvn compile` in the consumer project. Maven runs your DSL plugin before compiling the Java sources. [Code generation walkthrough](docs/maven-plugin/getting-started.md#compilation)
+	```xml
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>example</groupId>
+				<artifactId>my-dsl-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals><goal>generate</goal></goals>
+					</execution>
+				</executions>
+				<configuration>
+					<model>https://quassar.io/models/[code]</model>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	```
+
+5. **Build the consumer project.** Replace `[code]` with the M1 code and run `mvn compile` in the consumer project. Maven runs your DSL plugin before compiling the Java sources. [Code generation walkthrough](docs/maven-plugin/getting-started.md#compilation)
 
 ### Interpreter
 
