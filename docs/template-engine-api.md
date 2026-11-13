@@ -2,9 +2,9 @@
 
 Template Engine turns Java objects and Quassar models into text, JSON, or source code. An `.itr` file defines what to output for each type of object and which values to insert. The engine needs Java 17 or later.
 
-## 1. Add the dependency for standalone use
+## Add the dependency for standalone use
 
-Add the dependency below **only if your project does not use the Quassar Maven plugin**. With `<extensions>true</extensions>`, the plugin adds `template-engine` to your project automatically. [Quassar Maven plugin setup](../README.md#2-use-your-models-from-java)
+Add the dependency below **only if your project does not use the Quassar Maven plugin**. With `<extensions>true</extensions>`, the plugin adds `template-engine` to your project automatically. [Quassar Maven plugin setup](../README.md#use-your-models-from-java)
 
 ```xml
 <dependency>
@@ -14,7 +14,7 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 </dependency>
 ```
 
-## 2. Create an order batch template
+## Create an order batch template
 
 Save this as `order-batch.itr` in the directory from which you run the example.
 
@@ -32,7 +32,7 @@ rule type(Customer)
 	$name
 ```
 
-## 3. Load the template and render an order batch
+## Load the template and render an order batch
 
 Save the Java example as `OrderBatchExample.java`. The batch contains two orders so you can see how optional data affects the output.
 
@@ -81,7 +81,7 @@ Customer: Sam Rivera
 - `$orders...[$NL$NL]` repeats the order rule with a blank line between orders.
 - `+UpperCase` formats the number. `<<Tracking: $trackingCode>>` prints the whole line only when the tracking code exists.
 
-## 4. Write your own templates
+## Write your own templates
 
 Browse the [template examples](template-engine-examples.md) for recipes with expected output, or use the [syntax reference](#template-syntax-reference) to look up a construct.
 

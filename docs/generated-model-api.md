@@ -1,6 +1,6 @@
 # Generated Model API
 
-Use the generated Java decorators to load an M1 model, read its properties, and navigate its children and references. The API follows the concepts and relationships defined in M2. [Maven Plugin setup](../README.md#2-use-your-models-from-java)
+Use the generated Java decorators to load an M1 model, read its properties, and navigate its children and references. The API follows the concepts and relationships defined in M2. [Maven Plugin setup](../README.md#use-your-models-from-java)
 
 ## Generate from Java
 

@@ -2,9 +2,9 @@
 
 Load models written in your Tara DSL and query them from Java. The reader needs Java 17 or later.
 
-## 1. Add the dependency for standalone use
+## Add the dependency for standalone use
 
-Add the dependency below **only if your project does not use the Quassar Maven plugin**. With `<extensions>true</extensions>`, the plugin adds `model-reader` to your project automatically. [Quassar Maven plugin setup](../README.md#2-use-your-models-from-java)
+Add the dependency below **only if your project does not use the Quassar Maven plugin**. With `<extensions>true</extensions>`, the plugin adds `model-reader` to your project automatically. [Quassar Maven plugin setup](../README.md#use-your-models-from-java)
 
 ```xml
 <dependency>
@@ -14,7 +14,7 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 </dependency>
 ```
 
-## 2. Create a model in Quassar
+## Create a model in Quassar
 
 Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL for the Java example. [Open Quassar Studio](https://quassar.io/studio) · [Workflow metamodel](generated-model-api.md#workflow-metamodel)
 
@@ -31,7 +31,7 @@ Workflow OrderFulfillment
 
 Each object is a *mogram*. `Workflow` is a type and `OrderFulfillment` is its identifier. Indentation makes `Confirm` a child of the workflow. The value `SendConfirmation` refers to an action by identifier.
 
-## 3. Load the model and follow a reference
+## Load the model and follow a reference
 
 ```java
 import io.quassar.reader.Models;
@@ -52,7 +52,7 @@ public class WorkflowExample {
 
 This prints `OrderFulfillment` and `Send confirmation`. Passing `step` as context lets the reader resolve references relative to the step before looking from the root. Use `model.get(value)` when the reference is already rooted.
 
-## 4. Find and navigate mograms
+## Find and navigate mograms
 
 Use an identifier path when you know the exact object. Use a query when you want to filter or navigate.
 
