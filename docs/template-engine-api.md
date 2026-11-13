@@ -49,6 +49,20 @@ The engine uses reflection to convert generated models, model decorators, Java c
 
 ## Advanced usage
 
+### Read a template
+
+Use `TemplateReader.read(Path)` to get a `Template` from an `.itr` file. You can inspect its rules or pass the template to `TemplateEngine.with(template)` to render it.
+
+```java
+import io.quassar.templating.TemplateEngine;
+import io.quassar.templating.adapters.antlr.TemplateReader;
+import io.quassar.templating.model.Template;
+import java.nio.file.Path;
+
+Template template = TemplateReader.read(Path.of("workflow.itr"));
+var engine = TemplateEngine.with(template);
+```
+
 ### Build templates explicitly
 
 ```java
