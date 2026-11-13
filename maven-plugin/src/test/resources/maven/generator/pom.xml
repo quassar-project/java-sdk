@@ -16,7 +16,7 @@
 				<configuration>
 					<package>example</package>
 					<metamodel>${project.baseUri}metamodel/</metamodel>
-					<scaffold>maven-plugin</scaffold>
+					<mode>compiler</mode>
 				</configuration>
 			</plugin>
 		</plugins>

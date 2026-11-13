@@ -41,6 +41,7 @@ class TranslatorMojoTest {
 		MavenProject project = project();
 		project.getBuild().setSourceDirectory(source.toString());
 		TranslatorMojo mojo = configuredMojo(project);
+		parameter(mojo, "mode", "interpreter");
 		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
 		copyTemplate();
 
@@ -79,7 +80,7 @@ class TranslatorMojoTest {
 		MavenProject project = project();
 		project.getModel().setPackaging("maven-plugin");
 		TranslatorMojo mojo = configuredMojo(project);
-		parameter(mojo, "scaffold", "maven-plugin");
+		parameter(mojo, "mode", "compiler");
 		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
 
 		mojo.execute();
@@ -94,7 +95,7 @@ class TranslatorMojoTest {
 		MavenProject project = project();
 		project.getModel().setPackaging("maven-plugin");
 		TranslatorMojo mojo = configuredMojo(project);
-		parameter(mojo, "scaffold", "maven-plugin");
+		parameter(mojo, "mode", "compiler");
 
 		mojo.execute();
 
@@ -105,7 +106,7 @@ class TranslatorMojoTest {
 	@Test
 	void rejectsMavenPluginModeForJarProjects() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
-		parameter(mojo, "scaffold", "maven-plugin");
+		parameter(mojo, "mode", "compiler");
 
 		assertThatThrownBy(mojo::execute).isInstanceOf(MojoExecutionException.class)
 			.hasMessageContaining("<packaging>maven-plugin</packaging>");
@@ -114,8 +115,7 @@ class TranslatorMojoTest {
 	@Test
 	void generatesDecoratorsWithoutScaffoldingWhenDisabled() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
-		parameter(mojo, "scaffold", "none");
-		parameter(mojo, "mavenPlugin", true);
+		parameter(mojo, "mode", "none");
 		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
 
 		mojo.execute();
@@ -125,12 +125,12 @@ class TranslatorMojoTest {
 	}
 
 	@Test
-	void reportsSupportedScaffoldModesForUnknownValues() throws Exception {
+	void reportsSupportedModesForUnknownValues() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
-		parameter(mojo, "scaffold", "unknown");
+		parameter(mojo, "mode", "unknown");
 
 		assertThatThrownBy(mojo::execute).isInstanceOf(MojoExecutionException.class)
-			.hasMessageContaining("unknown").hasMessageContaining("application, maven-plugin or none");
+			.hasMessageContaining("unknown").hasMessageContaining("compiler, interpreter or none");
 	}
 
 	@Test

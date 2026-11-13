@@ -34,7 +34,7 @@ public final class TranslatorMojo extends AbstractMojo {
 	private URL metamodel;
 
 	@Parameter
-	private String scaffold;
+	private String mode;
 
 	@Deprecated
 	@Parameter(defaultValue = "false")
@@ -63,18 +63,18 @@ public final class TranslatorMojo extends AbstractMojo {
 	}
 
 	private void generate() throws IOException, TemplateReadException, MojoExecutionException {
-		Scaffold mode = scaffoldMode();
-		if (mode == Scaffold.MAVEN_PLUGIN && !"maven-plugin".equals(project.getPackaging()))
-			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> to scaffold a Maven plugin");
+		Mode generationMode = generationMode();
+		if (generationMode == Mode.COMPILER && !"maven-plugin".equals(project.getPackaging()))
+			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> when using compiler mode");
 		var templateDirectory = templatesDirectory.toPath();
 		var templateFiles = new TemplateFiles();
 		List<TemplateDefinition> definitions = templateFiles.read(templateDirectory);
-		if (definitions.isEmpty() && metamodel == null && mode != Scaffold.MAVEN_PLUGIN)
+		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.COMPILER)
 			throw new MojoExecutionException("Configure <metamodel> or add .itr templates to " + templatesDirectory);
 
 		var sourceDirectory = project.getBasedir().toPath().resolve(project.getBuild().getSourceDirectory());
 		var starter = new ProjectStarter(sourceDirectory, packageName);
-		boolean createStarter = mode != Scaffold.NONE && !starter.hasJavaSources();
+		boolean createStarter = generationMode != Mode.NONE && !starter.hasJavaSources();
 		List<JavaCode> code = new ArrayList<>();
 		String modelClass = null;
 		Optional<String> modelName = Optional.empty();
@@ -95,7 +95,7 @@ public final class TranslatorMojo extends AbstractMojo {
 				.generate(packageName, definitions);
 		code.addAll(templates);
 		if (createStarter) {
-			if (mode == Scaffold.MAVEN_PLUGIN) starter.writeMojo(modelName, modelClass, templates);
+			if (generationMode == Mode.COMPILER) starter.writeMojo(modelName, modelClass, templates);
 			else starter.writeMain(modelClass, templates);
 		}
 		new JavaCodeWriter().write(code, outputDirectory.toPath());
@@ -103,17 +103,17 @@ public final class TranslatorMojo extends AbstractMojo {
 		getLog().info("Generated " + code.size() + " Java classes in " + outputDirectory);
 	}
 
-	private Scaffold scaffoldMode() throws MojoExecutionException {
-		if (scaffold == null) return mavenPlugin ? Scaffold.MAVEN_PLUGIN : Scaffold.APPLICATION;
-		return switch (scaffold) {
-			case "application" -> Scaffold.APPLICATION;
-			case "maven-plugin" -> Scaffold.MAVEN_PLUGIN;
-			case "none" -> Scaffold.NONE;
-			default -> throw new MojoExecutionException("Unknown scaffold '" + scaffold + "'. Use application, maven-plugin or none.");
+	private Mode generationMode() throws MojoExecutionException {
+		if (mode == null) return mavenPlugin ? Mode.COMPILER : Mode.INTERPRETER;
+		return switch (mode) {
+			case "interpreter" -> Mode.INTERPRETER;
+			case "compiler" -> Mode.COMPILER;
+			case "none" -> Mode.NONE;
+			default -> throw new MojoExecutionException("Unknown mode '" + mode + "'. Use compiler, interpreter or none.");
 		};
 	}
 
-	private enum Scaffold {
-		APPLICATION, MAVEN_PLUGIN, NONE
+	private enum Mode {
+		COMPILER, INTERPRETER, NONE
 	}
 }

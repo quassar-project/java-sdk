@@ -8,8 +8,6 @@ Open Quassar Forge and select **New DSL**. To create the DSL, define its metamod
 
 Once your DSL is available, select it in Quassar Studio and create a model (M1). Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models. [Open Quassar Studio](https://quassar.io/studio)
 
-Copy the download URLs for your M2 and M1 from Quassar. Each has its own code in the form `https://quassar.io/models/[code]`.
-
 ## 2. Use your models from Java
 
 Decide how your tool should process M1. Choose compilation to generate source code for a later build, or interpretation to have a Java application act directly on the model at runtime. Both use the typed Java API generated from M2.
@@ -32,14 +30,14 @@ Add the Quassar Maven plugin to your `pom.xml`. Use Java 17 or later and Maven 3
 			<configuration>
 				<package>example</package>
 				<metamodel>https://quassar.io/models/[code]</metamodel>
-				<scaffold>[mode]</scaffold>
+				<mode>[mode]</mode>
 			</configuration>
 		</plugin>
 	</plugins>
 </build>
 ```
 
-Replace `[code]` with the M2 code so the plugin can generate the Java classes for your DSL. Use the M1 URL in your compiler or interpreter to load a specific model. Choose the value for `[mode]` below.
+Replace `[code]` with the M2 code so the plugin can generate the Java code for your DSL. Use the M1 URL in your compiler or interpreter to load a specific model. Choose the value for `[mode]` below.
 
 ### Compilation
 
@@ -49,7 +47,7 @@ Build a Maven plugin for your DSL that turns each model (M1) into source code in
 Model (M1) → Your DSL's Maven plugin → Source code in the generated sources directory
 ```
 
-In your DSL plugin project, set `<packaging>maven-plugin</packaging>` and replace `[mode]` with `maven-plugin` in the Quassar plugin configuration.
+In your DSL plugin project, set `<packaging>maven-plugin</packaging>` and set `<mode>compiler</mode>` in the Quassar plugin configuration.
 
 When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and renders your `.itr` templates into source code for a target language such as Java or C.
 
@@ -57,7 +55,7 @@ Install or publish your DSL plugin, then add it to a **consumer project's POM**.
 
 ### Interpretation
 
-You build a **Java application that runs your DSL**. Replace `[mode]` with `application` and run `mvn generate-sources`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
+You build a **Java application that runs your DSL**. Set `<mode>interpreter</mode>` and run `mvn generate-sources`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
 
 Implement the interpreter in the application. At runtime, it loads M1 through the generated API and carries out the behavior declared by the model. [Interpretation walkthrough](docs/maven-plugin/getting-started.md#interpretation)
 
