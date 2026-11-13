@@ -1,10 +1,10 @@
 # Template reference
 
-[Template Engine API](template-engine-api.md) · [Examples](examples.md)
+[Template Engine API](template-engine-api.md) · [Examples](template-engine-examples.md)
 
 Read a rule from top to bottom. Its condition selects the object and its indented body describes the output.
 
-For complete input and output examples, see [conditions](examples.md#combine-conditions), [lists](examples.md#render-a-list-and-format-each-value), [JSON](examples.md#produce-json-with-optional-fields), and [escaping](examples.md#escape-template-characters).
+For complete input and output examples, see [conditions](template-engine-examples.md#combine-conditions), [lists](template-engine-examples.md#render-a-list-and-format-each-value), [JSON](template-engine-examples.md#produce-json-with-optional-fields), and [escaping](template-engine-examples.md#escape-template-characters).
 
 ## Rules
 

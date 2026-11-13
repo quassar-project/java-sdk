@@ -1,6 +1,6 @@
 # Template examples
 
-[Template Engine API](template-engine-api.md) · [Template reference](templates.md)
+[Template Engine API](template-engine-api.md) · [Template reference](template-engine-templates.md)
 
 Reuse the `Order`, `Customer` and `OrderBatch` records from the [order batch example](template-engine-api.md#render-an-order-batch). Save a snippet as an `.itr` file, load it with `TemplateEngine.with(Path.of("example.itr"))`, and pass the object named in the rule to `render`.
 
@@ -341,7 +341,7 @@ var template = new Template()
 String result = TemplateEngine.with(template).render(order);
 ```
 
-For the first order in the batch, `result` is `ORD-1042`. To set a specific locale or line separator, see the [configuration example](templates.md#rendering-configuration).
+For the first order in the batch, `result` is `ORD-1042`. To set a specific locale or line separator, see the [configuration example](template-engine-templates.md#rendering-configuration).
 
 ## Verify a template against sample data
 

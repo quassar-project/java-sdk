@@ -89,7 +89,7 @@ Customer: Sam Rivera
 
 ## Write your own templates
 
-Browse the [template examples](examples.md) for recipes with expected output, or use the [syntax reference](templates.md) to look up a construct.
+Browse the [template examples](template-engine-examples.md) for recipes with expected output, or use the [syntax reference](template-engine-templates.md) to look up a construct.
 
 Save each example as a separate `.itr` file and reuse the Java records from the order batch example. Load the file with `TemplateEngine.with(Path.of("example.itr"))` and pass the object indicated in each example to `render`.
 
@@ -181,7 +181,7 @@ String second = engine.render(secondBatch);
 
 Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$task` renders children of type `Task` even when the Java getter is `tasks()`.
 
-Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Generated Model API](generated-model-api.md)
+Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Generated Model API](maven-plugin-generated-model-api.md)
 
 ## Create a frame from an object
 
@@ -216,7 +216,7 @@ TemplateEngine engine = TemplateEngine.with(Path.of("label.itr"))
 		.add("number", source.label()));
 ```
 
-See [examples](examples.md) for matching templates, conditions, recursive tasks, explicit frames and Java generation.
+See [examples](template-engine-examples.md) for matching templates, conditions, recursive tasks, explicit frames and Java generation.
 
 ## Factories
 
