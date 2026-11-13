@@ -155,7 +155,7 @@ Set these parameters inside the Quassar plugin's `<configuration>`.
 
 | Parameter | Default | Purpose |
 | --- | --- | --- |
-| `package` | `generated` | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
+| `package` | Project `groupId` (`${project.groupId}`) | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
 | `metamodel` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
 | `mode` | `interpreter` | Use `compiler` to scaffold a DSL Maven plugin, `interpreter` to scaffold a Java application, or `none` to skip starter files. |
 | `templateDirectory` | `src/main/resources` | Search for `.itr` files from the resources root. Set a relative path such as `templates` to search from `src/main/resources/templates`. |

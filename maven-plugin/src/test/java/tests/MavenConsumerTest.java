@@ -78,8 +78,8 @@ class MavenConsumerTest {
 		Path modelFile = Files.write(directory.resolve("library.tara"), resource("/maven/generator/m1/library.tara"));
 
 		build(repository, generator, "install");
-		assertThat(generator.resolve("src/main/java/example/LibraryMojo.java")).exists();
-		assertThat(generator.resolve("src/main/java/example/Interpreter.java")).doesNotExist();
+		assertThat(generator.resolve("src/main/java/io/quassar/integration/LibraryMojo.java")).exists();
+		assertThat(generator.resolve("src/main/java/io/quassar/integration/Interpreter.java")).doesNotExist();
 		Path consumer = Files.createDirectory(directory.resolve("compiler-consumer"));
 		Files.writeString(consumer.resolve("pom.xml"), """
 			<project>

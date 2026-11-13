@@ -27,7 +27,7 @@ import java.util.Optional;
 
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 public final class TranslatorMojo extends AbstractMojo {
-	@Parameter(alias = "package", defaultValue = "generated")
+	@Parameter(alias = "package", defaultValue = "${project.groupId}")
 	private String packageName;
 
 	@Parameter
