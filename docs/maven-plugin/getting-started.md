@@ -132,15 +132,15 @@ includeDetails (query, boolean, required=false)
 
 Maven compiles each template into its own Java class, so the generated renderer can run without the original `.itr` file. Use the same endpoint data in your own templates to generate client code or server stubs.
 
-## Choose what to scaffold
+## Choose compilation or interpretation
 
-Set `scaffold` in the plugin's `configuration`. Starter files are created when the main Java source directory is empty. Existing sources and templates take precedence.
+Set `scaffold` in the plugin's `configuration` to choose the entry point for your DSL tool. In both modes, the plugin generates Java accessors from M2. Your code then decides how to process M1. Starter files are created when the main Java source directory is empty. Existing sources and templates take precedence.
 
-| Value | What it creates |
-| --- | --- |
-| `application` (default) | An editable `Main.java`. It loads `m1` by default and prints the result when one template is available. |
-| `maven-plugin` | An editable Mojo with a `generate` goal. Set the project's packaging to `maven-plugin`. A metamodel named `WebServices` produces `WebServicesMojo.java`. |
-| `none` | Only generated Java from the configured metamodel and existing templates. |
+| Approach | Value | What it creates |
+| --- | --- | --- |
+| Compilation | `maven-plugin` | An editable Mojo with a `generate` goal. Add the logic that translates M1 into source code in a target language such as Java or C. Set the project's packaging to `maven-plugin`. A metamodel named `WebServices` produces `WebServicesMojo.java`. |
+| Interpretation | `application` (default) | An editable `Main.java` for running the model directly. The starter loads `m1` by default and prints the result when one template is available. |
+| Supply your own entry point | `none` | Only generated Java from the configured metamodel and existing templates. |
 
 If M2 is configured and the templates directory has no `.itr` files, an application or Maven plugin scaffold also creates `model-json.itr`. To generate Java from templates alone, omit `metamodel`.
 

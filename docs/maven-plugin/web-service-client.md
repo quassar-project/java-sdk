@@ -16,6 +16,8 @@ M2 and M1 come from Quassar. The base URL points to the running web service. Onc
 
 Use the M2, M1, and POM from steps 1 and 2 of the [Maven Plugin quickstart](getting-started.md). Add the following files to that project.
 
+The example uses `scaffold=none` and supplies `GenerateClient.main()` so you can run the generator directly. To expose the same generation logic as a Maven goal, use `scaffold=maven-plugin` and put it in the generated Mojo's `execute()` method. [Choose compilation or interpretation](getting-started.md#choose-compilation-or-interpretation)
+
 ## 2. Write the client template
 
 Save this as `src/main/resources/endpoint-client.itr`. Path and query parameters each have their own rule. The generator substitutes path placeholders, checks required values, and URL-encodes parameter values.

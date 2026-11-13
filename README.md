@@ -2,6 +2,17 @@
 
 Create your own domain-specific language (DSL) in [Quassar](https://quassar.io). Use the Java SDK to turn the models people write in that language into applications, reports, or generated source code.
 
+## Choose how to execute your DSL
+
+Both approaches use the metamodel (M2) to generate a typed Java API for reading models (M1). The choice is what happens after you load M1.
+
+| Approach | What happens to M1 | Maven scaffold |
+| --- | --- | --- |
+| **Compilation** | A generator translates M1 into source code in a target language such as Java or C. The target language's toolchain builds that code for execution. | `maven-plugin` creates a Maven goal where you implement the generator. |
+| **Interpretation** | A Java application loads M1 at runtime and acts on its declarations directly. | `application` creates a `Main.java` where you implement the interpreter. |
+
+For a web service DSL, a compiler can generate an HTTP client class per endpoint. An interpreter can read an endpoint at runtime, build the HTTP request from its method, route, and parameters, and send it directly.
+
 ## Use case: generate a Java client for a web service
 
 | Where | What you do | What you get |
