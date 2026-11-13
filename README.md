@@ -40,6 +40,20 @@ Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to 
 
 Replace `[code]` with the M2 code so the plugin can generate the Java code for your DSL. Use the M1 URL in your compiler or interpreter to load a specific model. Choose the value for `[mode]` below.
 
+### Quassar Maven plugin parameters
+
+Set these parameters inside the Quassar plugin's `<configuration>`.
+
+| Parameter | Default | Purpose |
+| --- | --- | --- |
+| `package` | `generated` | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
+| `metamodel` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
+| `mode` | `interpreter` | Use `compiler` to scaffold a DSL Maven plugin, `interpreter` to scaffold a Java application, or `none` to skip starter files. |
+| `templateDirectory` | `src/main/resources` | Search for `.itr` files from the resources root. Set a relative path such as `templates` to search from `src/main/resources/templates`. |
+| `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
+| `mavenPlugin` | `false` | Deprecated. Setting it to `true` selects compiler mode when `mode` is omitted. |
+| `templatesDirectory` | Unset | Deprecated. Sets the template directory when `templateDirectory` is omitted. |
+
 ### Compiler
 
 Build a Maven plugin for your DSL that turns each model (M1) into source code in the consuming project's generated sources directory.
@@ -96,6 +110,13 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
    Replace `[code]` with the M1 code and run `mvn compile` in the consumer project. Maven runs your DSL plugin before compiling the Java sources.
 
+   The generated compiler starter also accepts an output path when it includes a model and a template.
+
+   | Parameter | Default | Command-line property |
+   | --- | --- | --- |
+   | `model` | Required M1 download URL | `-Dquassar.model` |
+   | `outputFile` | `${project.build.directory}/generated-resources/model.json` | `-Dquassar.output` |
+
 ### Interpreter
 
 Build a Java application that loads a model (M1) and executes the behavior it describes at runtime.
@@ -129,23 +150,6 @@ Model (M1) → Your Java interpreter → Runtime behavior
    Replace `[code]` with the code of your M1 model in Quassar.
 
 3. **Implement and run the interpreter.** Define what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application to interpret the model at that URL.
-
-<details>
-<summary>Maven plugin configuration reference</summary>
-
-| Parameter | Default |
-| --- | --- |
-| `package` | `generated` |
-| `metamodel` | Optional M2 folder or ZIP URL |
-| `mode` | `interpreter` |
-| `templateDirectory` | Resources root (`src/main/resources`). Set a relative path such as `templates` to search a subdirectory. |
-| `outputDirectory` | `${project.basedir}/src/main/gen` |
-
-Use `<mode>none</mode>` to generate the API without starter Java files. To generate Java from templates alone, omit `metamodel`.
-
-When the compiler starter includes a model and a template, it writes `target/generated-resources/model.json` by default. You can pass the M1 URL with `-Dquassar.model` and change the output path with `-Dquassar.output`.
-
-</details>
 
 For direct template loading and frame customization, see the advanced API. [Template Engine API](docs/template-engine-api.md)
 
