@@ -105,18 +105,6 @@ Configuration controls locale-sensitive built-in formatting and output line endi
 
 The `step-config.itr` template expects a `Step` with the slots `identifier`, `timeoutSeconds`, and `enabled`.
 
-```itr
-rule type(Step) and attribute(enabled, true)
-	public record $identifier~Config() {
-		public int timeoutSeconds() { return $timeoutSeconds; }
-	}
-
-rule type(Step)
-	public record $identifier~Config() {
-		public int timeoutSeconds() { return 0; }
-	}
-```
-
 `ExternalStep` exposes `id` and `timeout`. Register an adapter to present it as a `Step`, map its fields to the names the template expects, and set `enabled` to `true` for these external steps.
 
 ```java
