@@ -42,7 +42,7 @@ var engine = TemplateEngine.with(Path.of("workflow.itr"));
 Pass an input to `render` to get the result as a string. Here, `workflow` is a decorator obtained from a loaded M1 model. [Generated Model API](generated-model-api.md) · [Workflow template and output](generated-template-api.md#generate-java-from-a-workflow)
 
 ```java
-String source = engine.render(workflow);
+String output = engine.render(workflow);
 ```
 
 ### Objects and frames
@@ -87,7 +87,7 @@ import io.quassar.templating.Frames;
 import io.quassar.templating.model.Frame;
 
 Frame frame = Frames.from(workflow);
-String source = engine.render(frame);
+String output = engine.render(frame);
 ```
 
 `Frames.from(...)` adapts records and regular Java objects. It includes inherited fields and converts nested object, list, map and array fields. Static and transient fields are excluded. Each conversion creates its own frame tree and parent links. Passing an existing `Frame` returns that frame.
@@ -102,7 +102,7 @@ Frame step = Frames.builder("Step")
 	.add("timeoutSeconds", 30)
 	.add("enabled", true)
 	.toFrame();
-String source = engine.render(step);
+String output = engine.render(step);
 ```
 
 ### Customize rendering
