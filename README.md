@@ -101,6 +101,28 @@ Model (M1) → Your Java interpreter → Runtime behavior
 
 1. **Generate the interpreter starter.** Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Interpreter.java` if the Java source directory is empty. [Maven Plugin guide](docs/maven-plugin/getting-started.md#interpretation)
 2. **Load and navigate the model.** In `Interpreter`, pass the M1 download URI to the generated model class's `load` method. Use the generated getters to access the model's root concepts, then follow their children and references to read the data your interpreter needs.
+
+   For example, a `Workflows` DSL might define `Workflow` as a repeatable root concept, `Step` as a repeated child, and `action` as a reference from each step to an `Action`. With `<package>example</package>`, the generated API lets you inspect the workflow in `Interpreter.java`.
+
+	```java
+	import example.model.WorkflowsModel;
+	import java.net.URI;
+
+	public final class Interpreter {
+		public static void main(String[] args) throws Exception {
+			var model = WorkflowsModel.load(URI.create(args[0]));
+
+			for (var workflow : model.workflows()) {
+				System.out.println(workflow.identifier());
+				for (var step : workflow.steps())
+					System.out.println(step.action().identifier());
+			}
+		}
+	}
+	```
+
+   Pass the M1 download URL as the first argument, using your model's code in `https://quassar.io/models/[code]`.
+
 3. **Implement and run the interpreter.** Define what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application with the URL of the model you want to interpret.
 
 If your interpreter needs to query a model generically, use the Model Reader API to look up objects by type or identifier. [Model Reader guide](docs/model-reader/getting-started.md)
