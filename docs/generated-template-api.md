@@ -4,7 +4,13 @@ The Quassar Maven plugin compiles each `.itr` template from the configured templ
 
 ## Place templates under resources
 
-By default, the template directory is the root of Maven resources, `src/main/resources`. The plugin finds `.itr` files at that root and in its subdirectories. For example, `workflows/workflow.itr` is a path relative to the resources root.
+By default, the plugin searches the root of Maven resources, `src/main/resources`, and its subdirectories. To search only within `src/main/resources/templates`, add this setting inside the Quassar plugin's `<configuration>` in your POM.
+
+```xml
+<templateDirectory>templates</templateDirectory>
+```
+
+Use a path relative to `src/main/resources`, such as `templates/workflows` for a nested directory.
 
 ## Generate Java from a workflow
 

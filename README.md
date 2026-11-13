@@ -138,7 +138,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 | `package` | `generated` |
 | `metamodel` | Optional M2 folder or ZIP URL |
 | `mode` | `interpreter` |
-| `templatesDirectory` | `${project.basedir}/src/main/resources` |
+| `templateDirectory` | Resources root (`src/main/resources`). Set a relative path such as `templates` to search a subdirectory. |
 | `outputDirectory` | `${project.basedir}/src/main/gen` |
 
 Use `<mode>none</mode>` to generate the API without starter Java files. To generate Java from templates alone, omit `metamodel`.

@@ -36,6 +36,23 @@ class TranslatorMojoTest {
 	}
 
 	@Test
+	void limitsTemplatesToTheConfiguredResourcesSubdirectory() throws Exception {
+		copyTemplate();
+		Path resources = directory.resolve("src/main/resources");
+		Path templates = Files.createDirectory(resources.resolve("templates"));
+		Files.move(resources.resolve("book-summary.itr"), templates.resolve("book-summary.itr"));
+		Files.writeString(resources.resolve("outside.itr"), "rule type(Book)\n\t$identifier\n");
+		TranslatorMojo mojo = configuredMojo(project());
+		parameter(mojo, "templateDirectory", "templates");
+
+		mojo.execute();
+
+		Path generated = directory.resolve("src/main/gen/library/model/templates");
+		assertThat(generated.resolve("BookSummaryTemplate.java")).exists();
+		assertThat(generated.resolve("OutsideTemplate.java")).doesNotExist();
+	}
+
+	@Test
 	void generatesInterpreterOnceForAnEmptyCustomSourceDirectory() throws Exception {
 		Path source = directory.resolve("app");
 		MavenProject project = project();
@@ -173,7 +190,6 @@ class TranslatorMojoTest {
 		TranslatorMojo mojo = new TranslatorMojo();
 		parameter(mojo, "project", project);
 		parameter(mojo, "outputDirectory", directory.resolve("src/main/gen").toFile());
-		parameter(mojo, "templatesDirectory", directory.resolve("src/main/resources").toFile());
 		parameter(mojo, "packageName", "library.model");
 		return mojo;
 	}

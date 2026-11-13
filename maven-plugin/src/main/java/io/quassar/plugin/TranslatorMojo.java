@@ -43,7 +43,11 @@ public final class TranslatorMojo extends AbstractMojo {
 	@Parameter(defaultValue = "${project.basedir}/src/main/gen", required = true)
 	private File outputDirectory;
 
-	@Parameter(defaultValue = "${project.basedir}/src/main/resources", required = true)
+	@Parameter
+	private String templateDirectory;
+
+	@Deprecated
+	@Parameter
 	private File templatesDirectory;
 
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -66,11 +70,13 @@ public final class TranslatorMojo extends AbstractMojo {
 		Mode generationMode = generationMode();
 		if (generationMode == Mode.COMPILER && !"maven-plugin".equals(project.getPackaging()))
 			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> when using compiler mode");
-		var templateDirectory = templatesDirectory.toPath();
+		var resources = project.getBasedir().toPath().resolve("src/main/resources");
+		var templatePath = templateDirectory != null ? resources.resolve(templateDirectory)
+			: templatesDirectory != null ? templatesDirectory.toPath() : resources;
 		var templateFiles = new TemplateFiles();
-		List<TemplateDefinition> definitions = templateFiles.read(templateDirectory);
+		List<TemplateDefinition> definitions = templateFiles.read(templatePath);
 		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.COMPILER)
-			throw new MojoExecutionException("Configure <metamodel> or add .itr templates to " + templatesDirectory);
+			throw new MojoExecutionException("Configure <metamodel> or add .itr templates to " + templatePath);
 
 		var sourceDirectory = project.getBasedir().toPath().resolve(project.getBuild().getSourceDirectory());
 		var starter = new ProjectStarter(sourceDirectory, packageName);
@@ -86,8 +92,8 @@ public final class TranslatorMojo extends AbstractMojo {
 			code.addAll(generator.code());
 			modelClass = modelPackage + "." + generator.modelClassName();
 			if (createStarter && definitions.isEmpty()) {
-				starter.writeJsonTemplate(templateDirectory, schema);
-				definitions = templateFiles.read(templateDirectory);
+				starter.writeJsonTemplate(templatePath, schema);
+				definitions = templateFiles.read(templatePath);
 			}
 		}
 		List<JavaCode> templates = definitions.isEmpty() ? List.of()
