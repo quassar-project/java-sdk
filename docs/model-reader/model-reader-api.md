@@ -1,4 +1,4 @@
-# Model Reader
+# Model Reader API
 
 Load models written in your Tara DSL and query them from Java. The reader needs Java 17 or later.
 

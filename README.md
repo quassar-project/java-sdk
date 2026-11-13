@@ -129,7 +129,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 
 3. **Implement and run the interpreter.** Define what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application to interpret the model at that URL.
 
-If your interpreter needs to query a model generically, use the Model Reader API to look up objects by type or identifier. [Model Reader guide](docs/model-reader/getting-started.md)
+If your interpreter needs to query a model generically, use the Model Reader API to look up objects by type or identifier. [Model Reader API](docs/model-reader/model-reader-api.md)
 
 <details>
 <summary>Maven plugin configuration reference</summary>
