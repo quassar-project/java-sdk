@@ -1,6 +1,22 @@
 # Quassar Java SDK
 
-To build a compiler or an interpreter for your DSL, add the following Quassar Maven plugin configuration to your `pom.xml`. Use Java 17 or later and Maven 3.9.9 or later.
+Use the Quassar Java SDK to build a compiler or an interpreter for models written in your own domain-specific language (DSL).
+
+## 1. Create your DSL
+
+In Quassar Forge, define the metamodel (M2) of your DSL. The metamodel specifies the concepts, properties, and relationships available to the people writing models. For a web service DSL, M2 might define an `Endpoint` with an HTTP method, a path, and a list of parameters. [Open Quassar](https://quassar.io/)
+
+## 2. Create your models
+
+Select your DSL in Quassar Studio and create a model (M1). For example, an M1 model might declare `GET /users/{userId}` with a required path parameter named `userId`. You can use the same DSL to describe multiple services.
+
+Copy the download URLs for your M2 and M1 from Quassar. Each has its own code in the form `https://quassar.io/models/[code]`.
+
+## 3. Use your models from Java
+
+Decide how your tool should process M1. Choose compilation to generate source code for a later build, or interpretation to have a Java application act directly on the model at runtime. Both use the typed Java API generated from M2.
+
+Add the Quassar Maven plugin to your `pom.xml`. Use Java 17 or later and Maven 3.9.9 or later.
 
 ```xml
 <build>
@@ -25,19 +41,9 @@ To build a compiler or an interpreter for your DSL, add the following Quassar Ma
 </build>
 ```
 
-## Create your models
+Replace `[code]` with the M2 code so the plugin can generate the Java classes for your DSL. Use the M1 URL in your compiler or interpreter to load a specific model. Choose the value for `[mode]` below.
 
-To create models (M1), start with a domain-specific language (DSL) that describes the things you want to model. In Quassar Forge, define the DSL's metamodel (M2). For a web service DSL, M2 might define an `Endpoint` with an HTTP method, a path, and a list of parameters.
-
-Once the DSL is available, select it in Quassar Studio and create a model. For example, an M1 model might declare `GET /users/{userId}` with a required path parameter named `userId`. You can use the same DSL to describe multiple services. [Open Quassar](https://quassar.io/)
-
-Quassar gives M2 and M1 their own download URLs in the form `https://quassar.io/models/[code]`. In the POM above, replace `[code]` with the **M2 code** so the plugin can generate the Java classes for your DSL. Use the **M1 URL** when your compiler or interpreter loads a specific model.
-
-## Choose how to process your models
-
-Decide what should happen when your tool reads an M1 model. If you want to produce source code for a later build, choose compilation. If you want a Java application to act directly on the model at runtime, choose interpretation. Both use the typed Java API generated from M2.
-
-### 1. Compilation
+### Compilation
 
 Build a Maven plugin for your DSL that turns each model (M1) into source code in the consuming project's generated sources directory.
 
@@ -51,7 +57,7 @@ When you run `mvn generate-sources` in a project with an empty Java source direc
 
 Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Generate a Java HTTP client step by step](docs/maven-plugin/web-service-client.md)
 
-### 2. Interpretation
+### Interpretation
 
 You build a **Java application that runs your DSL**. Replace `[mode]` with `application` and run `mvn generate-sources`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
 
