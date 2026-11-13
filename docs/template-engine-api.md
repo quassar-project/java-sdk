@@ -47,14 +47,6 @@ You can also pass a frame directly to `render`. [Build frames explicitly](#build
 
 Unreadable or malformed templates raise `io.quassar.templating.ports.TemplateReadException`.
 
-## Executable examples
-
-See the [example tests](../template-engine/src/test/java/tests/DocumentationExamplesTest.java) and their [template resources](../template-engine/src/test/resources/examples).
-
-Distributed under the [MIT license](../LICENSE).
-
-For the rules and placeholders used in `.itr` files, see the syntax reference. [Template syntax reference](template-engine-syntax.md)
-
 ## Rendering options
 
 ### Build a template in Java
