@@ -4,7 +4,7 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 ## 1. Create your DSL and models
 
-Open Quassar Forge and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express. [Open Quassar Forge](https://quassar.io/forge)
+Open Quassar Forge and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express. [Open Quassar Forge](https://quassar.io/forge) · [Metamodel guide](docs/maven-plugin/metamodel.md)
 
 Once your DSL is available, select it in Quassar Studio and create a model (M1). Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models. [Open Quassar Studio](https://quassar.io/studio)
 
@@ -64,7 +64,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
 2. **Generate the plugin starter.** Run `mvn generate-sources`. Quassar generates the typed model API from M2 and creates an editable Mojo with a `generate` goal if the Java source directory is empty.
 
-3. **Write the code generation templates.** Choose any template engine for your compiler. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, put your templates in `src/main/resources` of the DSL plugin project. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine guide](docs/template-engine/getting-started.md) · [Template examples](docs/template-engine/examples.md)
+3. **Write the code generation templates.** Choose any template engine for your compiler. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, put your templates in `src/main/resources` of the DSL plugin project. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine guide](docs/template-engine/getting-started.md) · [Template examples](docs/template-engine/examples.md) · [Template syntax reference](docs/template-engine/templates.md)
 
 4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by the `model` parameter. Render your templates with that model using your chosen engine, then write the resulting files to the consumer project’s generated sources directory.
 
@@ -139,6 +139,6 @@ Use Java 17 or later and Maven 3.9.9 or later. From the repository root, run:
 mvn clean install
 ```
 
-This runs the tests and installs the SDK modules into your local Maven repository.
+This runs the tests and installs the SDK modules into your local Maven repository. The Model Reader tests cover nested models, references, and several input formats. [Model Reader test fixtures](model-reader/src/test/resources/tara/README.md)
 
 [MIT License](LICENSE)
