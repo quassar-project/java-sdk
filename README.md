@@ -1,8 +1,6 @@
 # Quassar Java SDK
 
-Add the Quassar Maven plugin to your Java project to build a compiler or an interpreter for your DSL.
-
-Add this build configuration to your `pom.xml`. Use Java 17 or later and Maven 3.9.9 or later.
+To build a compiler or an interpreter for your DSL, add the following Quassar Maven plugin configuration to your `pom.xml`. Use Java 17 or later and Maven 3.9.9 or later.
 
 ```xml
 <build>
