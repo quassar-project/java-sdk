@@ -45,13 +45,11 @@ Pass an input to `render` to get the result as a string. Here, `workflow` is a d
 String output = engine.render(workflow);
 ```
 
-### Objects and frames
-
 The engine uses reflection to convert generated models, model decorators, Java class instances, and records into frames. You can also pass a frame directly to `render`. [Build frames explicitly](#build-frames-explicitly)
 
-## Rendering options
+## Advanced usage
 
-### Build a template in Java
+### Build templates explicitly
 
 ```java
 import io.quassar.templating.model.Rule;
@@ -64,21 +62,6 @@ Template template = new Template()
 	.add(new Rule().condition(allTypes("Step")).output(placeholder("identifier")))
 	.add(new Rule().condition(allTypes("Action")).output(placeholder("name")));
 ```
-
-### Rendering configuration
-
-```java
-import io.quassar.templating.TemplateEngine;
-import io.quassar.templating.model.Template.Configuration;
-import io.quassar.templating.model.Template.Configuration.LineSeparator;
-
-var configuration = new Configuration(Locale.ENGLISH, LineSeparator.LF);
-TemplateEngine engine = TemplateEngine.with(template.ruleSet(), configuration);
-```
-
-Configuration controls locale-sensitive built-in formatting and output line endings. The default is English with LF line endings.
-
-## Advanced frame usage
 
 ### Create a frame from an object
 
@@ -104,6 +87,19 @@ Frame step = Frames.builder("Step")
 	.toFrame();
 String output = engine.render(step);
 ```
+
+### Rendering configuration
+
+```java
+import io.quassar.templating.TemplateEngine;
+import io.quassar.templating.model.Template.Configuration;
+import io.quassar.templating.model.Template.Configuration.LineSeparator;
+
+var configuration = new Configuration(Locale.ENGLISH, LineSeparator.LF);
+TemplateEngine engine = TemplateEngine.with(template.ruleSet(), configuration);
+```
+
+Configuration controls locale-sensitive built-in formatting and output line endings. The default is English with LF line endings.
 
 ### Customize rendering
 

@@ -19,7 +19,7 @@ Indent the rule body with a tab. Additional indentation becomes part of the rend
 
 A slot is a named value available to the template. A slot containing another object can invoke another rule, and a list supplies multiple values under the same name.
 
-[Generated decorators](template-engine-api.md#objects-and-frames) supply the types and slots defined by the model.
+[Generated decorators](template-engine-api.md#render-an-object) supply the types and slots defined by the model.
 
 ```itr
 rule type(Step)
