@@ -6,10 +6,7 @@ For complete input and output examples, see [conditions](template-engine-example
 
 ## Rules
 
-```itr
-rule type(Step)
-	$identifier
-```
+Each rule starts with `rule`, followed by its condition.
 
 A template is an ordered collection of rules. The engine selects the first rule whose condition matches the current object. Put specific conditions before general ones.
 
@@ -21,50 +18,22 @@ A placeholder tells the engine where to insert a value in the output. Write `$na
 
 For each value in the slot, the engine looks for the first rule that matches that value. When no rule matches, a scalar such as text or a number renders as text, and an object produces no output. A missing slot also produces no output. Use an optional expression for fallback text or a separator to join repeated values. [Optional expressions](#optional-expressions) · [Lists and separators](#lists-and-separators)
 
-```itr
-rule type(Step)
-	$identifier calls $action
-
-rule type(Action)
-	$name
-```
-
-When rendering the sample `Confirm` step, `$identifier` reads its identifier. The `$action` placeholder resolves to the referenced action, so the engine applies the `Action` rule. Inside that rule, `$name` reads the name from the action.
-
-```text
-Confirm calls Send confirmation
-```
-
-Use a qualified placeholder such as `$<container>identifier` to read a slot from a related object. [Frame context](template-engine-api.md#frame-context)
+A qualified placeholder uses `$<path>slotName` to read a slot from another frame. [Frame context](template-engine-api.md#frame-context) · [Workflow example](template-engine-examples.md#read-values-from-the-root-and-a-named-path)
 
 ## Conditions
 
-| Condition | Matches |
+| Condition syntax | Matches |
 | --- | --- |
-| `type(Step)` | A frame of type `Step` |
-| `attribute(schedule)` | A frame with a `schedule` slot |
-| `attribute(enabled, true)` | A frame whose `enabled` slot contains `true` |
-| `trigger(action)` | Rendering triggered by the `action` placeholder |
+| `type(typeName)` | The current frame has the specified type. |
+| `attribute(slotName)` | The current frame has the specified slot. |
+| `attribute(slotName, value)` | At least one value in the slot matches the specified value. |
+| `trigger(placeholderName)` | The specified placeholder triggered the current rendering. |
 
-Combine conditions with `and`, `or`, `not` and parentheses:
-
-```itr
-rule type(Step) and attribute(schedule)
-	String schedule = $schedule+JsonString;
-
-rule type(Step) and not attribute(schedule)
-	String schedule = "";
-```
+Combine conditions with `and`, `or`, and `not`. Use parentheses to group conditions. [Workflow conditions](template-engine-examples.md#combine-conditions) · [Matching the calling placeholder](template-engine-examples.md#choose-output-based-on-the-calling-slot)
 
 ## Lists and separators
 
-```itr
-$step...[$NL$NL]
-$fallbackActions...[, ]
-$properties...[, ]
-```
-
-`...` renders all values of a slot. The text inside `[...]` separates their rendered outputs.
+`$slotName...[separator]` renders the values of a slot and inserts the separator between rendered outputs. [Workflow list example](template-engine-examples.md#render-a-list-and-format-each-value)
 
 | Mark | Meaning |
 | --- | --- |
@@ -73,41 +42,17 @@ $properties...[, ]
 
 ## Optional expressions
 
-```itr
-<<String schedule = $schedule+JsonString;>>
-```
-
-The expression appears when its placeholders produce content. If `schedule` is absent, the declaration disappears with it.
-
-Use `?` to supply an alternative:
-
-```itr
-String schedule = <<$schedule+JsonString?"immediate">>;
-```
+Use `<<body>>` to emit a body when its placeholders produce content. Use `<<body?fallback>>` to emit fallback text otherwise. [Workflow fallback example](template-engine-examples.md#optional-values-and-fallback-text)
 
 ## Formatters
 
-```itr
-$identifier+UpperCase
-$name+FirstUpperCase
-$name+OnlyLetters+UpperCase
-```
-
-Formatters transform values before rendering and can be chained.
+Append `+FormatterName` to a placeholder to format its value. Append more formatter names to apply them in order.
 
 ### Create your own formatter
 
-Define a formatter in Java and register it by name before calling `render`. This formatter surrounds a value with square brackets.
-
-```java
-var engine = TemplateEngine.with(Path.of("workflow.itr"))
-	.add("Wrapped", value -> "[" + value + "]");
-```
-
-Use `$identifier+Wrapped` in the template. An identifier of `Confirm` renders as `[Confirm]`.
+Register a formatter by name with `engine.add(name, formatter)` before rendering, then use that name after `+` in the template. [Register a formatter](template-engine-api.md#register-a-formatter)
 
 ### Built-in formatters
-
 
 | Kind | Names |
 | --- | --- |
@@ -120,10 +65,4 @@ Use `$identifier+Wrapped` in the template. An identifier of `Confirm` renders as
 
 ## Join a placeholder to literal text
 
-Use `~` to separate a placeholder name from an adjacent suffix:
-
-```itr
-public class $identifier~Workflow {}
-```
-
-For `identifier = OrderFulfillment`, this produces `public class OrderFulfillmentWorkflow {}`.
+Use `~` to mark the end of a placeholder when literal text follows immediately. In `$slotName~suffix`, the engine reads `slotName` and appends the literal suffix. [Workflow escaping example](template-engine-examples.md#escape-template-characters)
