@@ -40,20 +40,6 @@ Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to 
 
 Replace `[code]` with the M2 code so the plugin can generate the Java code for your DSL. Use the M1 URL in your compiler or interpreter to load a specific model. Choose the value for `[mode]` below.
 
-### Quassar Maven plugin parameters
-
-Set these parameters inside the Quassar plugin's `<configuration>`.
-
-| Parameter | Default | Purpose |
-| --- | --- | --- |
-| `package` | `generated` | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
-| `metamodel` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
-| `mode` | `interpreter` | Use `compiler` to scaffold a DSL Maven plugin, `interpreter` to scaffold a Java application, or `none` to skip starter files. |
-| `templateDirectory` | `src/main/resources` | Search for `.itr` files from the resources root. Set a relative path such as `templates` to search from `src/main/resources/templates`. |
-| `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
-| `mavenPlugin` | `false` | Deprecated. Setting it to `true` selects compiler mode when `mode` is omitted. |
-| `templatesDirectory` | Unset | Deprecated. Sets the template directory when `templateDirectory` is omitted. |
-
 ### Compiler
 
 Build a Maven plugin for your DSL that turns each model (M1) into source code in the consuming project's generated sources directory.
@@ -162,5 +148,19 @@ mvn clean install
 ```
 
 This runs the tests and installs the SDK modules into your local Maven repository. The Model Reader tests cover nested models, references, and several input formats. [Model Reader test fixtures](model-reader/src/test/resources/tara/README.md)
+
+## Quassar Maven plugin parameters
+
+Set these parameters inside the Quassar plugin's `<configuration>`.
+
+| Parameter | Default | Purpose |
+| --- | --- | --- |
+| `package` | `generated` | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
+| `metamodel` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
+| `mode` | `interpreter` | Use `compiler` to scaffold a DSL Maven plugin, `interpreter` to scaffold a Java application, or `none` to skip starter files. |
+| `templateDirectory` | `src/main/resources` | Search for `.itr` files from the resources root. Set a relative path such as `templates` to search from `src/main/resources/templates`. |
+| `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
+| `mavenPlugin` | `false` | Deprecated. Setting it to `true` selects compiler mode when `mode` is omitted. |
+| `templatesDirectory` | Unset | Deprecated. Sets the template directory when `templateDirectory` is omitted. |
 
 [MIT License](LICENSE)
