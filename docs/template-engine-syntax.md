@@ -93,10 +93,10 @@ Define a formatter in Java and register it by name before calling `render`. This
 
 ```java
 var engine = TemplateEngine.with(Path.of("workflow.itr"))
-	.add("Label", value -> "[" + value + "]");
+	.add("Wrapped", value -> "[" + value + "]");
 ```
 
-Use `$identifier+Label` in the template. An identifier of `Confirm` renders as `[Confirm]`.
+Use `$identifier+Wrapped` in the template. An identifier of `Confirm` renders as `[Confirm]`.
 
 ### Built-in formatters
 

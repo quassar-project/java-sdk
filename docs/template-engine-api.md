@@ -142,16 +142,16 @@ public record ConfirmConfig() {
 
 ### Register a formatter
 
-Use `engine.add(name, formatter)` to register a formatter before rendering. Save this template as `step-label.itr`. The `+Label` suffix applies the formatter named `Label` to the step's identifier.
+Use `engine.add(name, formatter)` to register a formatter before rendering. Save this template as `step-wrapped.itr`. The `+Wrapped` suffix applies the formatter named `Wrapped` to the step's identifier.
 
 ```itr
 rule type(Step)
-	$identifier+Label
+	$identifier+Wrapped
 ```
 
 ```java
-var engine = TemplateEngine.with(Path.of("step-label.itr"))
-	.add("Label", value -> "[" + value + "]");
+var engine = TemplateEngine.with(Path.of("step-wrapped.itr"))
+	.add("Wrapped", value -> "[" + value + "]");
 
 String output = engine.render(workflow.steps().get(0));
 ```
