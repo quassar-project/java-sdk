@@ -96,7 +96,7 @@ public final class TranslatorMojo extends AbstractMojo {
 		code.addAll(templates);
 		if (createStarter) {
 			if (generationMode == Mode.COMPILER) starter.writeMojo(modelName, modelClass, templates);
-			else starter.writeMain(modelClass, templates);
+			else starter.writeInterpreter(modelClass, templates);
 		}
 		new JavaCodeWriter().write(code, outputDirectory.toPath());
 		project.addCompileSourceRoot(outputDirectory.getAbsolutePath());

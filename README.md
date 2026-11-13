@@ -97,8 +97,8 @@ Build a Java application that loads a model (M1) and executes the behavior it de
 Model (M1) → Your Java interpreter → Runtime behavior
 ```
 
-1. Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Main.java` if the Java source directory is empty. [Maven Plugin guide](docs/maven-plugin/getting-started.md#interpretation)
-2. In `Main`, pass the M1 download URI to the generated model class's `load` method. Use the generated getters to access the model's root concepts, then follow their children and references to read the data your interpreter needs.
+1. Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Interpreter.java` if the Java source directory is empty. [Maven Plugin guide](docs/maven-plugin/getting-started.md#interpretation)
+2. In `Interpreter`, pass the M1 download URI to the generated model class's `load` method. Use the generated getters to access the model's root concepts, then follow their children and references to read the data your interpreter needs.
 3. Implement what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application with the URL of the model you want to interpret.
 
 If your interpreter needs to query a model generically, use the Model Reader API to look up objects by type or identifier. [Model Reader guide](docs/model-reader/getting-started.md)

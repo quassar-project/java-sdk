@@ -50,8 +50,8 @@ Replace `[mode]` with the mode for your tool. Run `mvn generate-sources` to gene
 
 ### Interpretation
 
-1. Set `<mode>interpreter</mode>`. Run `mvn generate-sources` to create an editable `Main.java`.
-2. In `Main`, call the generated model class's `load` method with the M1 download URI.
+1. Set `<mode>interpreter</mode>`. Run `mvn generate-sources` to create an editable `Interpreter.java`.
+2. In `Interpreter`, call the generated model class's `load` method with the M1 download URI.
 3. Use the generated getters to read the model and implement its behavior in Java. Compile and run the application with the M1 you want to interpret.
 
 Use `<mode>none</mode>` if you want to supply your own entry point.

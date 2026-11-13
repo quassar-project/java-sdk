@@ -20,14 +20,16 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.WRITE;
 
 public record ProjectStarter(Path sourceDirectory, String packageName) {
-	private static final Set<String> MAIN_NAMES = Set.of("Main", "String", "System", "IOException", "Path");
+	private static final String INTERPRETER_CLASS = "Interpreter";
+	private static final Set<String> INTERPRETER_NAMES = Set.of(INTERPRETER_CLASS, "String", "System", "IOException", "Path");
 	private static final Set<String> MOJO_NAMES = Set.of("AbstractMojo", "MojoExecutionException",
 		"LifecyclePhase", "Mojo", "Parameter", "IOException", "File", "Files");
 
-	public void writeMain(String modelClass, List<JavaCode> templates) throws IOException {
+	public void writeInterpreter(String modelClass, List<JavaCode> templates) throws IOException {
 		var values = sourceValues();
-		if (modelClass != null) addModel(values, modelClass, templates, MAIN_NAMES);
-		writeJava("Main", "main", values);
+		values.put("className", INTERPRETER_CLASS);
+		if (modelClass != null) addModel(values, modelClass, templates, INTERPRETER_NAMES);
+		writeJava(INTERPRETER_CLASS, "interpreter", values);
 	}
 
 	public void writeMojo(Optional<String> modelName, String modelClass, List<JavaCode> templates) throws IOException {

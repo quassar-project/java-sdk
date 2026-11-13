@@ -79,7 +79,7 @@ class MavenConsumerTest {
 
 		build(repository, generator, "install");
 		assertThat(generator.resolve("src/main/java/example/LibraryMojo.java")).exists();
-		assertThat(generator.resolve("src/main/java/example/Main.java")).doesNotExist();
+		assertThat(generator.resolve("src/main/java/example/Interpreter.java")).doesNotExist();
 		Path consumer = Files.createDirectory(directory.resolve("compiler-consumer"));
 		Files.writeString(consumer.resolve("pom.xml"), """
 			<project>

@@ -31,12 +31,12 @@ class TranslatorMojoTest {
 		assertThat(directory.resolve("src/main/gen/library/model/templates/BookSummaryTemplate.java")).exists();
 		assertThat(directory.resolve("target/generated-resources/metta/library/model/templates/BookSummaryTemplate.itr")).doesNotExist();
 		assertThat(directory.resolve("src/main/gen/library/model/model")).doesNotExist();
-		assertThat(directory.resolve("src/main/java/library/model/Main.java"))
-			.content().contains("public static void main(String[] args)");
+		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java"))
+			.content().contains("public final class Interpreter", "public static void main(String[] args)");
 	}
 
 	@Test
-	void generatesMainOnceForAnEmptyCustomSourceDirectory() throws Exception {
+	void generatesInterpreterOnceForAnEmptyCustomSourceDirectory() throws Exception {
 		Path source = directory.resolve("app");
 		MavenProject project = project();
 		project.getBuild().setSourceDirectory(source.toString());
@@ -46,7 +46,7 @@ class TranslatorMojoTest {
 		copyTemplate();
 
 		mojo.execute();
-		Path main = source.resolve("library/model/Main.java");
+		Path main = source.resolve("library/model/Interpreter.java");
 		assertThat(main).content().contains("package library.model;", "import library.model.model.LibraryModel;",
 			"LibraryModel.load(", "BookSummaryTemplate.render(model)");
 		assertThat(directory.resolve("src/main/resources/model-json.itr")).doesNotExist();
@@ -66,7 +66,7 @@ class TranslatorMojoTest {
 		assertThat(template).content().contains("rule type(Model)", "\"book\": [$book...[, ]]", "rule type(Book)",
 			"\"title\": $title+JsonValue");
 		assertThat(directory.resolve("src/main/gen/library/model/templates/ModelJsonTemplate.java")).exists();
-		assertThat(directory.resolve("src/main/java/library/model/Main.java"))
+		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java"))
 			.content().contains("ModelJsonTemplate.render(model)");
 
 		String edited = "rule type(Model)\n\t{\"edited\": true}\n";
@@ -76,7 +76,7 @@ class TranslatorMojoTest {
 	}
 
 	@Test
-	void createsAMojoInsteadOfMainForANewMavenPluginProject() throws Exception {
+	void createsAMojoInsteadOfInterpreterForANewMavenPluginProject() throws Exception {
 		MavenProject project = project();
 		project.getModel().setPackaging("maven-plugin");
 		TranslatorMojo mojo = configuredMojo(project);
@@ -87,7 +87,7 @@ class TranslatorMojoTest {
 		Path source = directory.resolve("src/main/java/library/model");
 		assertThat(source.resolve("LibraryMojo.java")).content().contains("class LibraryMojo extends AbstractMojo",
 			"@Mojo(name = \"generate\"", "LibraryModel.load(model)", "ModelJsonTemplate.render(loadedModel)");
-		assertThat(source.resolve("Main.java")).doesNotExist();
+		assertThat(source.resolve("Interpreter.java")).doesNotExist();
 	}
 
 	@Test
@@ -134,14 +134,14 @@ class TranslatorMojoTest {
 	}
 
 	@Test
-	void skipsMainWhenAnyJavaSourceExists() throws Exception {
+	void skipsInterpreterWhenAnyJavaSourceExists() throws Exception {
 		Path source = directory.resolve("src/main/java/another");
 		Files.createDirectories(source);
 		Files.writeString(source.resolve("Existing.java"), "package another; class Existing {}");
 		TranslatorMojo mojo = configuredMojo(project());
 		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
 		mojo.execute();
-		assertThat(directory.resolve("src/main/java/library/model/Main.java")).doesNotExist();
+		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).doesNotExist();
 		assertThat(directory.resolve("src/main/resources/model-json.itr")).doesNotExist();
 	}
 

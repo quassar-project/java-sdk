@@ -1,16 +1,16 @@
-rule type(main) and attribute(model)
+rule type(interpreter) and attribute(model)
 	<<package $package~;$NL$NL>>import java.io.IOException;
 	import java.nio.file.Path;<<$NL~import $modelImport~;>><<$NL~import $rendererImport~;>>
 
-	public final class Main {
+	public final class $className~ {
 		public static void main(String[] args) throws IOException {
 			Path source = Path.of(args.length == 0 ? "m1" : args[0]);
 			var model = $model~.load(source);<<$NL~		System.out.println($renderer~.render(model));>>
 		}
 	}$NL
 
-rule type(main)
-	<<package $package~;$NL$NL>>public final class Main {
+rule type(interpreter)
+	<<package $package~;$NL$NL>>public final class $className~ {
 		public static void main(String[] args) {
 		}
 	}$NL
