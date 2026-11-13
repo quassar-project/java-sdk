@@ -16,7 +16,7 @@ Add the dependency below only if your project does not use the Quassar Maven plu
 
 ## 2. Create a model in Quassar
 
-Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL for the Java example. [Open Quassar Studio](https://quassar.io/studio) · [Workflow metamodel](maven-plugin-generated-model-api.md#workflow-metamodel)
+Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL for the Java example. [Open Quassar Studio](https://quassar.io/studio) · [Workflow metamodel](generated-model-api.md#workflow-metamodel)
 
 ```tara
 Action(name = "Send confirmation") SendConfirmation
@@ -107,4 +107,4 @@ var folder = Models.load(Path.of("m1"));
 var bundled = Models.load(WorkflowExample.class.getResource("/workflows.tara"));
 ```
 
-A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `step.label()`, see the [Generated Model API](maven-plugin-generated-model-api.md).
+A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `step.label()`, see the [Generated Model API](generated-model-api.md).

@@ -181,7 +181,7 @@ String second = engine.render(secondBatch);
 
 Pass a model or one of its decorators directly to `render`. Use the model's names in the template. For example, `$task` renders children of type `Task` even when the Java getter is `tasks()`.
 
-Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Generated Model API](maven-plugin-generated-model-api.md)
+Generate the Java model API from M2 before loading M1 and passing a decorator to the engine. [Generated Model API](generated-model-api.md)
 
 ## Create a frame from an object
 

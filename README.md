@@ -10,7 +10,7 @@ Once your DSL is available, select it in Quassar Studio and create a model (M1).
 
 ## 2. Use your models from Java
 
-Decide how your tool should process M1. Choose compilation to generate source code for a later build, or interpretation to have a Java application act directly on the model at runtime. Both use Java decorators generated from M2 to load and navigate models. [Generated Model API](docs/maven-plugin-generated-model-api.md)
+Decide how your tool should process M1. Choose compilation to generate source code for a later build, or interpretation to have a Java application act directly on the model at runtime. Both use Java decorators generated from M2 to load and navigate models. [Generated Model API](docs/generated-model-api.md)
 The generated API uses Model Reader to load M1. You can also use Model Reader directly to load and query models through its generic Java API. [Model Reader API](docs/model-reader-api.md)
 
 Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
