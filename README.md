@@ -114,7 +114,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 
 	public final class Interpreter {
 		public static void main(String[] args) throws Exception {
-			var model = WorkflowsModel.load(URI.create(args[0]));
+			var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
 
 			for (var workflow : model.workflows()) {
 				System.out.println(workflow.identifier());
@@ -125,9 +125,9 @@ Model (M1) → Your Java interpreter → Runtime behavior
 	}
 	```
 
-   Pass the M1 download URL as the first argument, using your model's code in `https://quassar.io/models/[code]`.
+   Replace `[code]` with the code of your M1 model in Quassar.
 
-3. **Implement and run the interpreter.** Define what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application with the URL of the model you want to interpret.
+3. **Implement and run the interpreter.** Define what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application to interpret the model at that URL.
 
 If your interpreter needs to query a model generically, use the Model Reader API to look up objects by type or identifier. [Model Reader guide](docs/model-reader/getting-started.md)
 
