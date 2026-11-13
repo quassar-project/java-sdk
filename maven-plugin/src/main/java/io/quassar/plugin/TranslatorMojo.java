@@ -36,10 +36,6 @@ public final class TranslatorMojo extends AbstractMojo {
 	@Parameter
 	private String mode;
 
-	@Deprecated
-	@Parameter(defaultValue = "false")
-	private boolean mavenPlugin;
-
 	@Parameter(defaultValue = "${project.basedir}/src/main/gen", required = true)
 	private File outputDirectory;
 
@@ -110,7 +106,7 @@ public final class TranslatorMojo extends AbstractMojo {
 	}
 
 	private Mode generationMode() throws MojoExecutionException {
-		if (mode == null) return mavenPlugin ? Mode.COMPILER : Mode.INTERPRETER;
+		if (mode == null) return Mode.INTERPRETER;
 		return switch (mode) {
 			case "interpreter" -> Mode.INTERPRETER;
 			case "compiler" -> Mode.COMPILER;

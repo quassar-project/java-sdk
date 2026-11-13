@@ -160,7 +160,6 @@ Set these parameters inside the Quassar plugin's `<configuration>`.
 | `mode` | `interpreter` | Use `compiler` to scaffold a DSL Maven plugin, `interpreter` to scaffold a Java application, or `none` to skip starter files. |
 | `templateDirectory` | `src/main/resources` | Search for `.itr` files from the resources root. Set a relative path such as `templates` to search from `src/main/resources/templates`. |
 | `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
-| `mavenPlugin` | `false` | Deprecated. Setting it to `true` selects compiler mode when `mode` is omitted. |
 | `templatesDirectory` | Unset | Deprecated. Sets the template directory when `templateDirectory` is omitted. |
 
 [MIT License](LICENSE)
