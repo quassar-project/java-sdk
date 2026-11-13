@@ -4,11 +4,11 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 ## 1. Create your DSL
 
-In Quassar Forge, define the metamodel (M2) of your DSL. The metamodel specifies the concepts, properties, and relationships available to the people writing models. For a web service DSL, M2 might define an `Endpoint` with an HTTP method, a path, and a list of parameters. [Open Quassar](https://quassar.io/)
+In Quassar Forge, define the metamodel (M2) of your DSL. The metamodel defines the concepts, properties, and relationships that models can express. [Open Quassar](https://quassar.io/)
 
 ## 2. Create your models
 
-Select your DSL in Quassar Studio and create a model (M1). For example, an M1 model might declare `GET /users/{userId}` with a required path parameter named `userId`. You can use the same DSL to describe multiple services.
+Select your DSL in Quassar Studio and create a model (M1). Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models.
 
 Copy the download URLs for your M2 and M1 from Quassar. Each has its own code in the form `https://quassar.io/models/[code]`.
 
@@ -55,13 +55,13 @@ In your DSL plugin project, set `<packaging>maven-plugin</packaging>` and replac
 
 When you run `mvn generate-sources` in a project with an empty Java source directory, Quassar generates the typed model API and an editable Mojo with a `generate` goal. Implement that goal so it loads an M1 model and renders your `.itr` templates into source code for a target language such as Java or C.
 
-Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Generate a Java HTTP client step by step](docs/maven-plugin/web-service-client.md)
+Install or publish your DSL plugin, then add it to a **consumer project's POM**. Configure its `generate` goal to run during the consumer's build, before the generated code is compiled. [Code generation walkthrough](docs/maven-plugin/web-service-client.md)
 
 ### Interpretation
 
 You build a **Java application that runs your DSL**. Replace `[mode]` with `application` and run `mvn generate-sources`. In a project with an empty Java source directory, Quassar generates the typed model API and an editable `Main.java`.
 
-Implement the interpreter in the application. At runtime, it loads M1 through the generated API and carries out the behavior declared by the model. [Interpret an HTTP endpoint step by step](docs/maven-plugin/web-service-interpreter.md)
+Implement the interpreter in the application. At runtime, it loads M1 through the generated API and carries out the behavior declared by the model. [Interpretation walkthrough](docs/maven-plugin/web-service-interpreter.md)
 
 ## Find the right guide
 
