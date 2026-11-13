@@ -1,6 +1,6 @@
 # Generated Model API
 
-Use the generated Java decorators to load an M1 model, read its properties, and navigate its children and references. The API follows the concepts and relationships defined in M2. [Maven Plugin setup](../../README.md#2-use-your-models-from-java)
+Use the generated Java decorators to load an M1 model, read its properties, and navigate its children and references. The API follows the concepts and relationships defined in M2. [Maven Plugin setup](../README.md#2-use-your-models-from-java)
 
 ## Generate from Java
 
@@ -19,7 +19,7 @@ MogramDecoratorGenerator.from(metamodel)
 	.writeTo(Path.of("src/main/gen"));
 ```
 
-The generator uses the `name` from the root `manifest.json` with a `Model` suffix. A manifest named `Workflows` generates `WorkflowsModel`, as in the [interpreter example](../../README.md#interpreter). Use `.modelNamed(...)` to override the name.
+The generator uses the `name` from the root `manifest.json` with a `Model` suffix. A manifest named `Workflows` generates `WorkflowsModel`, as in the [interpreter example](../README.md#interpreter). Use `.modelNamed(...)` to override the name.
 
 Use `.code()` to obtain the generated `JavaCode` records without writing files. Java keywords and name collisions receive safe generated names; lookups retain the original names from the metamodel.
 

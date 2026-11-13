@@ -10,9 +10,8 @@ Once your DSL is available, select it in Quassar Studio and create a model (M1).
 
 ## 2. Use your models from Java
 
-Decide how your tool should process M1. Choose compilation to generate source code for a later build, or interpretation to have a Java application act directly on the model at runtime. Both use Java decorators generated from M2 to load and navigate models. [Generated Model API](docs/maven-plugin/generated-model-api.md)
-
-The generated API uses Model Reader to load M1. You can also use Model Reader directly to load and query models through its generic Java API. [Model Reader API](docs/model-reader/model-reader-api.md)
+Decide how your tool should process M1. Choose compilation to generate source code for a later build, or interpretation to have a Java application act directly on the model at runtime. Both use Java decorators generated from M2 to load and navigate models. [Generated Model API](docs/generated-model-api.md)
+The generated API uses Model Reader to load M1. You can also use Model Reader directly to load and query models through its generic Java API. [Model Reader API](docs/model-reader-api.md)
 
 Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
 
@@ -66,7 +65,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
 2. **Generate the plugin starter.** Run `mvn generate-sources`. Quassar generates the typed model API from M2 and creates an editable Mojo with a `generate` goal if the Java source directory is empty.
 
-3. **Write the code generation templates.** Choose any template engine for your compiler. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, put your templates in `src/main/resources` of the DSL plugin project. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine API](docs/template-engine/template-engine-api.md) · [Template examples](docs/template-engine/examples.md) · [Template syntax reference](docs/template-engine/templates.md)
+3. **Write the code generation templates.** Choose any template engine for your compiler. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, put your templates in `src/main/resources` of the DSL plugin project. This guide assumes Java output, and you can write templates for any other programming language. [Template Engine API](docs/template-engine-api.md) · [Template examples](docs/examples.md) · [Template syntax reference](docs/templates.md)
 
 4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by the `model` parameter. Render your templates with that model using your chosen engine, then write the resulting files to the consumer project’s generated sources directory.
 

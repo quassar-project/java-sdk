@@ -4,7 +4,7 @@ Load models written in your Tara DSL and query them from Java. The reader needs 
 
 ## 1. Add the dependency for standalone use
 
-Add the dependency below only if your project does not use the Quassar Maven plugin. With `<extensions>true</extensions>`, the plugin adds `model-reader` to your project automatically. [Quassar Maven plugin setup](../../README.md#2-use-your-models-from-java)
+Add the dependency below only if your project does not use the Quassar Maven plugin. With `<extensions>true</extensions>`, the plugin adds `model-reader` to your project automatically. [Quassar Maven plugin setup](../README.md#2-use-your-models-from-java)
 
 ```xml
 <dependency>
@@ -16,7 +16,7 @@ Add the dependency below only if your project does not use the Quassar Maven plu
 
 ## 2. Create a model in Quassar
 
-Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL for the Java example. [Open Quassar Studio](https://quassar.io/studio) · [Workflow metamodel](../maven-plugin/generated-model-api.md#workflow-metamodel)
+Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL for the Java example. [Open Quassar Studio](https://quassar.io/studio) · [Workflow metamodel](generated-model-api.md#workflow-metamodel)
 
 ```tara
 Action(name = "Send confirmation") SendConfirmation
@@ -107,4 +107,4 @@ var folder = Models.load(Path.of("m1"));
 var bundled = Models.load(WorkflowExample.class.getResource("/workflows.tara"));
 ```
 
-A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `step.label()`, see the [Generated Model API](../maven-plugin/generated-model-api.md).
+A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `step.label()`, see the [Generated Model API](generated-model-api.md).

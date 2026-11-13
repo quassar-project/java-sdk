@@ -360,7 +360,7 @@ System.out.println(report.isOk());
 
 ## Executable versions
 
-The [example resources](../../template-engine/src/test/resources/examples) and [DocumentationExamplesTest](../../template-engine/src/test/java/tests/DocumentationExamplesTest.java) exercise the public API with order batches, recursive tasks, custom formatters, and Java generation.
+The [example resources](../template-engine/src/test/resources/examples) and [DocumentationExamplesTest](../template-engine/src/test/java/tests/DocumentationExamplesTest.java) exercise the public API with order batches, recursive tasks, custom formatters, and Java generation.
 
 Run these examples from the repository root:
 
