@@ -140,17 +140,11 @@ Model (M1) → Your Java interpreter → Runtime behavior
 3. **Register and execute actions.** Map each action identifier to a Java handler. Each handler returns whether it succeeded. If the primary action fails, run its fallbacks in the order declared in M1. If the primary action fails and has no fallbacks, or if a fallback fails, the interpreter returns `false`.
 
 	```java
-	private final Map<String, ActionHandler> handlers;
-
-	public Interpreter(Map<String, ActionHandler> handlers) {
-		this.handlers = Map.copyOf(handlers);
-	}
-
 	public interface ActionHandler {
 		boolean execute(String orderId);
 	}
 
-	boolean run(Workflow workflow, String orderId) {
+	boolean run(Workflow workflow, String orderId, Map<String, ActionHandler> handlers) {
 		for (var step : workflow.steps()) {
 			if (!step.enabled()) continue;
 			if (handlers.get(step.action().identifier()).execute(orderId)) continue;
@@ -173,7 +167,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 		"QueueForRetry", retryQueue::enqueue,
 		"LogFailure", auditLog::recordConfirmationFailure);
 
-	boolean success = new Interpreter(handlers).run(model.workflows().get(0), orderId);
+	boolean success = new Interpreter().run(model.workflows().get(0), orderId, handlers);
 	```
 
    Replace `[code]` with your M1 code. The sample model contains one workflow, `OrderFulfillment`.
