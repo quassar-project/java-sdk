@@ -1,6 +1,6 @@
 # Template examples
 
-These examples render the `OrderFulfillment` workflow from the sample M1 model. It has a `Confirm` step that calls `SendConfirmation` and lists `QueueForRetry` and `LogFailure` as fallback actions. [M1 example](sample-m1-model.md) · [Workflow metamodel](sample-m2-model.md)
+These examples render the `OrderFulfillment` workflow from the sample M1 model. Its first step, `Confirm`, calls `SendConfirmation` and lists `QueueForRetry` and `LogFailure` as fallback actions. [M1 example](sample-m1-model.md) · [Workflow metamodel](sample-m2-model.md)
 
 Save each template in its own `.itr` file under the project’s resources root and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md)
 
@@ -110,7 +110,7 @@ rule type(Step)
 ```
 
 ```json
-{"steps": [{"label": "Confirm order", "timeoutSeconds": 30}]}
+{"steps": [{"label": "Confirm order", "timeoutSeconds": 30}, {"label": "Reserve stock", "timeoutSeconds": 20}, {"label": "Notify warehouse", "timeoutSeconds": 10}]}
 ```
 
 ## Escape template characters
@@ -142,6 +142,8 @@ rule type(Step)
 ```text
 First action: Send confirmation
 Confirm order — OrderFulfillment
+Reserve stock — OrderFulfillment
+Notify warehouse — OrderFulfillment
 ```
 
 ## Access the containing workflow
@@ -158,6 +160,8 @@ rule type(Step)
 
 ```text
 Confirm order (OrderFulfillment)
+Reserve stock (OrderFulfillment)
+Notify warehouse (OrderFulfillment)
 ```
 
 ## Generate Java from a workflow

@@ -208,4 +208,4 @@ rule type(Step)
 	$label ($<container>identifier)
 ```
 
-For the sample workflow, the output is `Confirm order (OrderFulfillment)`. [Read values from the root and a named path](template-engine-examples.md#read-values-from-the-root-and-a-named-path)
+For the sample workflow, the first line is `Confirm order (OrderFulfillment)`. [Read values from the root and a named path](template-engine-examples.md#read-values-from-the-root-and-a-named-path)

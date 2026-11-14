@@ -153,7 +153,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 ```
 
 1. **Generate the interpreter starter.** Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Interpreter.java` if the Java source directory is empty.
-2. **Load the workflow.** Use `WorkflowsModel` to load the M1 model from Quassar. The sample model defines an `OrderFulfillment` workflow with a `Confirm` step that runs `SendConfirmation`. Its fallback actions are `QueueForRetry` and `LogFailure`. [Sample M1 model](docs/sample-m1-model.md)
+2. **Load the workflow.** Use `WorkflowsModel` to load the M1 model from Quassar. The sample `OrderFulfillment` workflow confirms the order, reserves stock, and has a disabled warehouse notification step. If `SendConfirmation` fails, the interpreter runs `QueueForRetry` and `LogFailure`. [Sample M1 model](docs/sample-m1-model.md)
 
 3. **Register and execute actions.** Map each action identifier to a Java handler. Each handler returns whether it succeeded. If the primary action fails, run its fallbacks in the order declared in M1. If the primary action fails and has no fallbacks, or if a fallback fails, the interpreter returns `false`.
 
@@ -183,7 +183,9 @@ Model (M1) → Your Java interpreter → Runtime behavior
 	Map<String, Interpreter.ActionHandler> handlers = Map.of(
 		"SendConfirmation", notifications::sendConfirmation,
 		"QueueForRetry", retryQueue::enqueue,
-		"LogFailure", auditLog::recordConfirmationFailure);
+		"LogFailure", auditLog::recordConfirmationFailure,
+		"ReserveStock", inventory::reserve,
+		"NotifyWarehouse", warehouse::notifyOrder);
 
 	boolean success = new Interpreter().run(model.workflows().get(0), orderId, handlers);
 	```
