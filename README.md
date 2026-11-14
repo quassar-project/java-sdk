@@ -193,10 +193,10 @@ The table lists the available parameters. Add only the ones your project needs t
 
 | Parameter | Default | Purpose |
 | --- | --- | --- |
-| `output` | `${project.groupId}` | Base package for generated Java classes. Model classes go in `<output>.model` and template classes in `<output>.templates`. |
-| `input.model` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
 | `mode` | Unset | Use `compiler` to scaffold a DSL Maven plugin, or `interpreter` to scaffold a Java application. Leave it unset to skip starter files. |
+| `input.model` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
 | `input.templates` | `resources root` | Path relative to the project’s resources root, such as `templates`. The Quassar plugin uses it during `generate-sources`. |
+| `output` | `${project.groupId}` | Base package for generated Java classes. Model classes go in `<output>.model` and template classes in `<output>.templates`. |
 | `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
 
 The SDK is distributed under the [MIT License](LICENSE).
