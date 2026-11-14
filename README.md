@@ -198,10 +198,12 @@ The table lists the available parameters. Add only the ones your project needs t
 
 | Parameter | Default | Purpose |
 | --- | --- | --- |
-| `input-model` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
-| `input-templates` | Resources root | Path relative to the project’s resources root, such as `templates`. The Quassar plugin uses it during `generate-sources`. |
-| `mode` | Unset | Use `generator` to scaffold a DSL Maven plugin, or `interpreter` to scaffold a Java application. Leave it unset to skip starter files. |
-| `output-directory` | `src/main/gen` | Directory for generated Java source files, relative to the project root by default. |
-| `output-package` | Project `groupId` | Base package for generated Java classes. Model classes go in `<base package>.model` and template classes in `<base package>.templates`. |
+| `input-model` | Unset | M2 URL or local folder or ZIP URL. |
+| `input-templates` | Resources root | Template path relative to the resources root. |
+| `mode` | Unset | `generator` for a Maven plugin, `interpreter` for a Java app. |
+| `output-directory` | `src/main/gen` | Directory for generated Java sources. |
+| `output-package` | Project `groupId` | Base package for the `.model` and `.templates` APIs. |
+
+Omit `input-model` to generate from templates alone. Omit `mode` to skip starter files.
 
 The SDK is distributed under the [MIT License](LICENSE).
