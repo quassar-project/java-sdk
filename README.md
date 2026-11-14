@@ -85,8 +85,8 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
 			for (var workflow : workflows.workflows()) {
 				var filename = workflow.identifier() + "Workflow.java";
-				String source = WorkflowTemplate.render(workflow);
-				Files.writeString(output.resolve(filename), source);
+				String code = WorkflowTemplate.render(workflow);
+				Files.writeString(output.resolve(filename), code);
 			}
 
 			project.addCompileSourceRoot(output.toString());
