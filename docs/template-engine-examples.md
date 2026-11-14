@@ -1,6 +1,6 @@
 # Template examples
 
-These examples render the `OrderFulfillment` workflow from the Model Reader guide. It has a `Confirm` step that calls `SendConfirmation` and lists `QueueForRetry` and `LogFailure` as fallback actions. [M1 example](model-reader-api.md#create-a-model-in-quassar) · [Workflow metamodel](generated-model-api.md#workflow-metamodel)
+These examples render the `OrderFulfillment` workflow from the sample M1 model. It has a `Confirm` step that calls `SendConfirmation` and lists `QueueForRetry` and `LogFailure` as fallback actions. [M1 example](sample-m1-model.md) · [Workflow metamodel](sample-m2-model.md)
 
 Save each template in its own `.itr` file under the project’s resources root and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md)
 

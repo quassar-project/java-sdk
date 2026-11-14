@@ -6,7 +6,7 @@ Quassar is a platform for model-driven engineering (MDE). Define a domain-specif
 
 1. **Create your DSL.** Open [Quassar Forge](https://quassar.io/forge) and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express.
 
-2. **Create a model.** Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models.
+2. **Create a model.** Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models. The examples below use the [Workflows metamodel (M2)](docs/sample-m2-model.md) and its [sample model (M1)](docs/sample-m1-model.md).
 
 <a id="use-your-models-from-java"></a>
 
@@ -153,7 +153,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 ```
 
 1. **Generate the interpreter starter.** Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Interpreter.java` if the Java source directory is empty.
-2. **Load the workflow.** Use `WorkflowsModel` to load the M1 model from Quassar. The sample model defines an `OrderFulfillment` workflow with a `Confirm` step that runs `SendConfirmation`. Its fallback actions are `QueueForRetry` and `LogFailure`. [Sample M1 model](docs/model-reader-api.md#create-a-model-in-quassar)
+2. **Load the workflow.** Use `WorkflowsModel` to load the M1 model from Quassar. The sample model defines an `OrderFulfillment` workflow with a `Confirm` step that runs `SendConfirmation`. Its fallback actions are `QueueForRetry` and `LogFailure`. [Sample M1 model](docs/sample-m1-model.md)
 
 3. **Register and execute actions.** Map each action identifier to a Java handler. Each handler returns whether it succeeded. If the primary action fails, run its fallbacks in the order declared in M1. If the primary action fails and has no fallbacks, or if a fallback fails, the interpreter returns `false`.
 

@@ -16,20 +16,7 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 
 ## Create a model in Quassar
 
-Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL for the Java example. [Open Quassar Studio](https://quassar.io/studio) · [Workflow metamodel](generated-model-api.md#workflow-metamodel)
-
-```tara
-Action(name = "Send confirmation") SendConfirmation
-Action(name = "Queue for retry") QueueForRetry
-Action(name = "Log failure") LogFailure
-
-Workflow OrderFulfillment
-	EntryPoint(name = "Order placed") OrderPlaced
-	Step(label = "Confirm order", timeoutSeconds = 30, enabled = true, action = SendConfirmation) Confirm
-		fallbackActions = QueueForRetry LogFailure
-```
-
-Each object is a *mogram*. `Workflow` is a type and `OrderFulfillment` is its identifier. Indentation makes `Confirm` a child of the workflow. The value `SendConfirmation` refers to an action by identifier.
+Create the [sample M1 model](sample-m1-model.md) and use its download URL in the Java examples.
 
 ## Load the model and follow a reference
 

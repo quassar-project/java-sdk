@@ -24,7 +24,7 @@ placeholder = TRIGGER, [ TARGET ], ID,
 
 `BEGIN_RULE` is the `rule` keyword. `BEGIN_BODY` marks the line break after the condition and can consume the first indentation tab or four spaces. In a placeholder, `TRIGGER` is `$`, `TARGET` is an optional path in angle brackets, `OPTION` is `+`, and `LIST` is `...`. The lexer reads `SEPARATOR` as the text enclosed in square brackets. Optional expressions use `<<` and `>>`, with `?` between branches.
 
-The sections below use the Workflows sample model. [Sample M1 model](model-reader-api.md#create-a-model-in-quassar) · [Template examples](template-engine-examples.md)
+The sections below use the Workflows sample model. [Sample M1 model](sample-m1-model.md) · [Template examples](template-engine-examples.md)
 
 ## Rules
 

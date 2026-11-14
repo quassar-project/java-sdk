@@ -8,31 +8,7 @@ Set `input-model` to the M2 download URL. During `generate-sources`, the Quassar
 
 The plugin adds the `model` subpackage to the base package set by `output-package`, which defaults to the project's `groupId`. With the default package and a project `groupId` of `org.example` and the `Workflows` metamodel, the model class is `org.example.model.WorkflowsModel` and its default output path is `src/main/gen/org/example/model/WorkflowsModel.java`. Use it to load M1 when your generator or interpreter runs.
 
-## Workflow metamodel
-
-The `Workflows` DSL defines workflows with an entry point and a sequence of steps. Each step references an action and can specify fallback actions.
-
-```tara
-dsl metta
-
-Concept Workflow
-	Concept:Single:Required EntryPoint
-		def string name
-	has:{1..*} Step
-
-Concept Step as component
-	def string label
-	def integer timeoutSeconds
-	def boolean enabled
-	def Action action
-	def Action[] fallbackActions
-	facet Execution
-		sub Scheduled
-			def string schedule
-
-Concept Action
-	def string name
-```
+The examples below use the [sample Workflows metamodel](sample-m2-model.md).
 
 ## Property types
 
