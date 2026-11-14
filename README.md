@@ -96,10 +96,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
    The generated compiler starter accepts an output directory. With a single template, it writes `GeneratedModel.java` there. Customize the Mojo to choose the filenames and templates for your compiler.
 
-   | Parameter | Default | Command-line property |
-   | --- | --- | --- |
-   | `model` | Required M1 download URL | `-Dquassar.model` |
-   | `outputDirectory` | `${project.basedir}/src/main/gen` | `-Dquassar.output` |
+   Pass the required M1 download URL through `<model>` or `-Dquassar.model`. Set `<outputDirectory>` or `-Dquassar.output` to change the default output directory, `src/main/gen`.
 
 ### Interpreter
 
