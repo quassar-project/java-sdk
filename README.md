@@ -6,11 +6,12 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 Open Quassar Forge and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express. [Open Quassar Forge](https://quassar.io/forge)
 
-Once your DSL is available, select it in Quassar Studio and create a model (M1). Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models. [Open Quassar Studio](https://quassar.io/studio)
+Once your DSL is available, open Quassar Studio and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models. [Open Quassar Studio](https://quassar.io/studio)
 
 ## Use your models from Java
 
-Decide how your tool should process M1. Choose compilation to generate source code for a later build, or interpretation to have a Java application act directly on the model at runtime. Both use Java decorators generated from M2 to load and navigate models. [Generated Model API](docs/generated-model-api.md)
+Choose *compilation* to generate source code from M1 before the consumer project compiles. Choose *interpretation* to load M1 and execute its behavior at runtime. Both use Java decorators generated from M2 to load and navigate models. [Generated Model API](docs/generated-model-api.md)
+
 The generated API uses Model Reader to load M1. You can also use Model Reader directly to load and query models through its generic Java API. [Model Reader API](docs/model-reader-api.md)
 
 Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
