@@ -1,6 +1,6 @@
 # Quassar Java SDK
 
-Quassar is a platform for model-driven engineering (MDE). Define a domain-specific language (DSL), create models with it, and use the Quassar Java SDK to build a code generator or an interpreter for those models.
+Quassar is a platform for model-driven engineering (MDE). Define a domain-specific language (DSL), create models with it, and use the Quassar Java SDK to build a code generator or an interpreter for those models. The examples below use the [Workflows metamodel (M2)](docs/sample-m2-model.md) and its [sample model (M1)](docs/sample-m1-model.md).
 
 ## Create your DSL and models
 
