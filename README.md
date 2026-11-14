@@ -10,7 +10,7 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 <a id="use-your-models-from-java"></a>
 
-3. **Add the Quassar Maven plugin.** Open your existing Maven project in your IDE and add the configuration below to its `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
+3. **Add the Quassar Maven plugin.** Open your existing Maven project in your IDE and add the configuration below to its `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later.
 
 	```xml
 	<build>
@@ -40,7 +40,7 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 ### Compiler
 
-Build a Maven plugin for your DSL that turns each model (M1) into source code in the consuming project's generated sources directory.
+Si eliges compiler, vas a crear a Maven plugin for your DSL that turns each model (M1) into source code in the consuming project's generated sources directory.
 
 ```text
 Model (M1) → Your DSL's Maven plugin → Source code in the generated sources directory
