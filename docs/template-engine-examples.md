@@ -5,7 +5,7 @@ These examples render the `OrderFulfillment` workflow from the sample M1 model. 
 Save each template in its own `.itr` file under the project’s resources root and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md)
 
 ```java
-import org.example.model.WorkflowsModel;
+import org.workflows.model.WorkflowsModel;
 import java.net.URI;
 
 var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
