@@ -14,7 +14,9 @@
 				<extensions>true</extensions>
 				<executions><execution><goals><goal>generate</goal></goals></execution></executions>
 				<configuration>
-					<metamodel>${project.baseUri}metamodel/</metamodel>
+					<input>
+						<model>${project.baseUri}metamodel/</model>
+					</input>
 					<mode>compiler</mode>
 				</configuration>
 			</plugin>

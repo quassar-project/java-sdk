@@ -4,16 +4,18 @@ Call a generated template class's static `render` method with a model decorator 
 
 ## Generation inputs and output
 
-During `generate-sources`, the Quassar Maven plugin compiles `.itr` files found under `templateDirectory` into Java classes under `outputDirectory` (`src/main/gen` by default).
+During `generate-sources`, the Quassar Maven plugin compiles `.itr` files found under `input.templates` into Java classes under `outputDirectory` (`src/main/gen` by default).
 
-The plugin adds the `templates` subpackage to the base `package`, which defaults to the project's `groupId`. With `<package>example</package>`, `workflow.itr` generates `example.templates.WorkflowTemplate` at `src/main/gen/example/templates/WorkflowTemplate.java` by default.
+The plugin adds the `templates` subpackage to the base package set by `output`, which defaults to the project's `groupId`. With `<output>example</output>`, `workflow.itr` generates `example.templates.WorkflowTemplate` at `src/main/gen/example/templates/WorkflowTemplate.java` by default.
 
 ## Place templates under resources
 
-During `generate-sources`, the Quassar plugin searches from the project’s resources root. Set `templateDirectory` to a path relative to that root to limit the search to a subdirectory.
+During `generate-sources`, the Quassar plugin searches from the project’s resources root. Set `input.templates` to a path relative to that root to limit the search to a subdirectory.
 
 ```xml
-<templateDirectory>templates</templateDirectory>
+<input>
+	<templates>templates</templates>
+</input>
 ```
 
 Use `solution/templates` for a nested directory. The generated Java class contains the template rules and can render from the JAR without opening a template resource.

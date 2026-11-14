@@ -27,20 +27,17 @@ import java.util.Optional;
 
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 public final class TranslatorMojo extends AbstractMojo {
-	@Parameter(alias = "package", defaultValue = "${project.groupId}")
-	private String packageName;
+	@Parameter(defaultValue = "${project.groupId}")
+	private String output;
 
 	@Parameter
-	private URL metamodel;
+	private Input input = new Input();
 
 	@Parameter
 	private String mode;
 
 	@Parameter(defaultValue = "${project.basedir}/src/main/gen", required = true)
 	private File outputDirectory;
-
-	@Parameter
-	private String templateDirectory;
 
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
 	private MavenProject project;
@@ -62,21 +59,23 @@ public final class TranslatorMojo extends AbstractMojo {
 		Mode generationMode = generationMode();
 		if (generationMode == Mode.COMPILER && !"maven-plugin".equals(project.getPackaging()))
 			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> when using compiler mode");
+		URL metamodel = input.model;
+		String templateDirectory = input.templates;
 		var resources = project.getBasedir().toPath().resolve("src/main/resources");
 		var templatePath = templateDirectory == null ? resources : resources.resolve(templateDirectory);
 		var templateFiles = new TemplateFiles();
 		List<TemplateDefinition> definitions = templateFiles.read(templatePath);
 		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.COMPILER)
-			throw new MojoExecutionException("Configure <metamodel> or add .itr templates to " + templatePath);
+			throw new MojoExecutionException("Configure <input><model> or add .itr templates to " + templatePath);
 
 		var sourceDirectory = project.getBasedir().toPath().resolve(project.getBuild().getSourceDirectory());
-		var starter = new ProjectStarter(sourceDirectory, packageName);
+		var starter = new ProjectStarter(sourceDirectory, output);
 		boolean createStarter = generationMode != null && !starter.hasJavaSources();
 		List<JavaCode> code = new ArrayList<>();
 		String modelClass = null;
 		Optional<String> modelName = Optional.empty();
 		if (metamodel != null) {
-			String modelPackage = packageName.isEmpty() ? "model" : packageName + ".model";
+			String modelPackage = output.isEmpty() ? "model" : output + ".model";
 			var schema = Metamodels.load(metamodel);
 			modelName = schema.name();
 			var generator = MogramDecoratorGenerator.from(schema).inPackage(modelPackage);
@@ -89,7 +88,7 @@ public final class TranslatorMojo extends AbstractMojo {
 		}
 		List<JavaCode> templates = definitions.isEmpty() ? List.of()
 			: new TemplateGenerator(new ResourceTemplates(TranslatorMojo.class, List.of("template-class")))
-				.generate(packageName, definitions);
+				.generate(output, definitions);
 		code.addAll(templates);
 		if (createStarter) {
 			if (generationMode == Mode.COMPILER) starter.writeMojo(modelName, modelClass, templates);
@@ -107,6 +106,19 @@ public final class TranslatorMojo extends AbstractMojo {
 			case "compiler" -> Mode.COMPILER;
 			default -> throw new MojoExecutionException("Unknown mode '" + mode + "'. Use compiler or interpreter.");
 		};
+	}
+
+	public static final class Input {
+		private URL model;
+		private String templates;
+
+		public void setModel(URL model) {
+			this.model = model;
+		}
+
+		public void setTemplates(String templates) {
+			this.templates = templates;
+		}
 	}
 
 	private enum Mode {

@@ -42,7 +42,9 @@ class TranslatorMojoTest {
 		Files.move(resources.resolve("book-summary.itr"), templates.resolve("book-summary.itr"));
 		Files.writeString(resources.resolve("outside.itr"), "rule type(Book)\n\t$identifier\n");
 		TranslatorMojo mojo = configuredMojo(project());
-		parameter(mojo, "templateDirectory", "templates");
+		var input = new TranslatorMojo.Input();
+		input.setTemplates("templates");
+		parameter(mojo, "input", input);
 
 		mojo.execute();
 
@@ -58,7 +60,7 @@ class TranslatorMojoTest {
 		project.getBuild().setSourceDirectory(source.toString());
 		TranslatorMojo mojo = configuredMojo(project);
 		parameter(mojo, "mode", "interpreter");
-		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
+		setModelInput(mojo);
 		copyTemplate();
 
 		mojo.execute();
@@ -76,7 +78,7 @@ class TranslatorMojoTest {
 	void createsAndCompilesAnEditableJsonTemplateForANewModelProject() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
 		parameter(mojo, "mode", "interpreter");
-		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
+		setModelInput(mojo);
 
 		mojo.execute();
 		Path template = directory.resolve("src/main/resources/model-json.itr");
@@ -98,7 +100,7 @@ class TranslatorMojoTest {
 		project.getModel().setPackaging("maven-plugin");
 		TranslatorMojo mojo = configuredMojo(project);
 		parameter(mojo, "mode", "compiler");
-		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
+		setModelInput(mojo);
 
 		mojo.execute();
 		Path source = directory.resolve("src/main/java/library/model");
@@ -132,7 +134,7 @@ class TranslatorMojoTest {
 	@Test
 	void generatesDecoratorsWithoutScaffoldingWhenModeIsOmitted() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
-		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
+		setModelInput(mojo);
 
 		mojo.execute();
 		assertThat(directory.resolve("src/main/gen/library/model/model/LibraryModel.java")).exists();
@@ -156,7 +158,7 @@ class TranslatorMojoTest {
 		Files.writeString(source.resolve("Existing.java"), "package another; class Existing {}");
 		TranslatorMojo mojo = configuredMojo(project());
 		parameter(mojo, "mode", "interpreter");
-		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
+		setModelInput(mojo);
 		mojo.execute();
 		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).doesNotExist();
 		assertThat(directory.resolve("src/main/resources/model-json.itr")).doesNotExist();
@@ -190,8 +192,14 @@ class TranslatorMojoTest {
 		TranslatorMojo mojo = new TranslatorMojo();
 		parameter(mojo, "project", project);
 		parameter(mojo, "outputDirectory", directory.resolve("src/main/gen").toFile());
-		parameter(mojo, "packageName", "library.model");
+		parameter(mojo, "output", "library.model");
 		return mojo;
+	}
+
+	private void setModelInput(TranslatorMojo mojo) throws Exception {
+		var input = new TranslatorMojo.Input();
+		input.setModel(getClass().getResource("/maven/consumer/metamodel/"));
+		parameter(mojo, "input", input);
 	}
 
 	private static void parameter(TranslatorMojo mojo, String name, Object value) throws Exception {

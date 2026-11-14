@@ -13,8 +13,11 @@
 				<extensions>true</extensions>
 				<executions><execution><goals><goal>generate</goal></goals></execution></executions>
 				<configuration>
-					<package>example</package>
-					<metamodel>${project.baseUri}metamodel/</metamodel>
+					<output>example</output>
+					<input>
+						<model>${project.baseUri}metamodel/</model>
+						<templates>.</templates>
+					</input>
 				</configuration>
 			</plugin>
 			<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version></plugin>
