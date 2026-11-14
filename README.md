@@ -190,7 +190,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 	boolean success = new Interpreter().run(model.workflows().get(0), orderId, handlers);
 	```
 
-   Replace `[code]` with your M1 code. The sample model contains one workflow, `OrderFulfillment`.
+   Replace `[code]` with your M1 code. The interpreter call above runs the first workflow, `OrderFulfillment`. The code generator writes both `OrderFulfillmentWorkflow.java` and `ReturnProcessingWorkflow.java`.
 
 For direct template loading and frame customization, see the [Template Engine API](docs/template-engine-api.md).
 
