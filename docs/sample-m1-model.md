@@ -1,6 +1,6 @@
 # Sample M1 model
 
-Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL to load this model from Java. [Open Quassar Studio](https://quassar.io/studio) · [Workflow metamodel](sample-m2-model.md)
+Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL to load this model from Java. [Open Quassar Studio](https://quassar.io/studio) · [Sample metamodel (M2)](sample-m2-model.md)
 
 ```tara
 Action(name = "Send confirmation") SendConfirmation

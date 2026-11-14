@@ -1,4 +1,4 @@
-# Sample M2 metamodel
+# Sample metamodel (M2)
 
 Create a DSL named `Workflows` in [Quassar Forge](https://quassar.io/forge) using this metamodel.
 

@@ -20,7 +20,7 @@ Use `solution/templates` for a nested directory. The generated Java class contai
 
 ## Example: Generate Java from a workflow
 
-This example uses a DSL called Workflows. Its metamodel (M2) defines workflows, steps, and actions. The sample model (M1) contains a workflow named `OrderFulfillment`. Rendering that workflow produces a Java class whose `actions()` method lists all primary actions in model order, including those of disabled steps. [Workflow metamodel](sample-m2-model.md) · [Sample M1 model](sample-m1-model.md)
+This example uses a DSL called Workflows. Its metamodel (M2) defines workflows, steps, and actions. The sample model (M1) contains a workflow named `OrderFulfillment`. Rendering that workflow produces a Java class whose `actions()` method lists all primary actions in model order, including those of disabled steps. [Sample metamodel (M2)](sample-m2-model.md) · [Sample M1 model](sample-m1-model.md)
 
 With the generated classes `org.workflows.model.WorkflowsModel` and `org.workflows.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.render(workflow)`. The generated class applies the rules from the [sample workflow template](sample-templates.md#workflowitr).
 

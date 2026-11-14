@@ -1,6 +1,6 @@
 # Template cookbook
 
-Choose a recipe for the output you want to produce. Each recipe gives you an input from the Workflows sample model, an `.itr` template, and the expected result. [Sample M1 model](sample-m1-model.md) · [Workflow metamodel](sample-m2-model.md)
+Choose a recipe for the output you want to produce. Each recipe gives you an input from the Workflows sample model, an `.itr` template, and the expected result. [Sample M1 model](sample-m1-model.md) · [Sample metamodel (M2)](sample-m2-model.md)
 
 - **Select output** · [Choose a rule from the data](#choose-a-rule-from-the-data) · [Combine conditions](#combine-conditions) · [Match the calling slot](#choose-output-based-on-the-calling-slot)
 - **Format output** · [Supply fallback text](#optional-values-and-fallback-text) · [Format a list](#render-a-list-and-format-each-value) · [Omit absent JSON fields](#produce-json-with-optional-fields) · [Escape template characters](#escape-template-characters)
