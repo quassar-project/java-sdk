@@ -6,7 +6,7 @@ Call a generated template class's static `render` method with a model decorator 
 
 During `generate-sources`, the Quassar Maven plugin compiles `.itr` files found under `input.templates` into Java classes under `output.directory` (`src/main/gen` by default).
 
-The plugin adds the `templates` subpackage to the base package set by `output.package`, which defaults to the project's `groupId`. With `output.package = example`, `workflow.itr` generates `example.templates.WorkflowTemplate` at `src/main/gen/example/templates/WorkflowTemplate.java` by default.
+The plugin adds the `templates` subpackage to the base package set by `output.package`, which defaults to the project's `groupId`. With the default package and a project `groupId` of `org.example`, `workflow.itr` generates `org.example.templates.WorkflowTemplate` at `src/main/gen/org/example/templates/WorkflowTemplate.java` by default.
 
 ## Place templates under resources
 
@@ -24,7 +24,7 @@ Use `solution/templates` for a nested directory. The generated Java class contai
 
 This example uses a DSL called Workflows. Its metamodel (M2) defines workflows, steps, and actions. The sample model (M1) contains a workflow named `OrderFulfillment`. Rendering that workflow produces a Java class whose `actions()` method lists the actions in execution order. [Workflow metamodel](generated-model-api.md#workflow-metamodel) · [Sample M1 model](model-reader-api.md#create-a-model-in-quassar)
 
-With the generated classes `example.model.WorkflowsModel` and `example.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.render(workflow)`. Here are the rules from `workflow.itr` that the generated template applies.
+With the generated classes `org.example.model.WorkflowsModel` and `org.example.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.render(workflow)`. Here are the rules from `workflow.itr` that the generated template applies.
 
 ```itr
 rule type(Workflow)
@@ -48,8 +48,8 @@ The workflow rule renders each child `Step`. The step rule follows its `action` 
 Save this program as `GenerateWorkflow.java` and replace `[code]` with the code of your M1 model in Quassar.
 
 ```java
-import example.model.WorkflowsModel;
-import example.templates.WorkflowTemplate;
+import org.example.model.WorkflowsModel;
+import org.example.templates.WorkflowTemplate;
 
 import java.net.URI;
 import java.nio.file.Files;

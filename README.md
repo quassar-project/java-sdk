@@ -10,7 +10,7 @@ Quassar is a platform for model-driven engineering (MDE). Define a domain-specif
 
 <a id="use-your-models-from-java"></a>
 
-3. **Add the Quassar Maven plugin.** Open your existing Maven project in your IDE and add the configuration below to its `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later.
+3. **Add the Quassar Maven plugin.** Open your existing Maven project in your IDE and add the configuration below to its `pom.xml`. The examples use `org.example` as the project’s `groupId`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later.
 
 	```xml
 	<build>
@@ -30,10 +30,7 @@ Quassar is a platform for model-driven engineering (MDE). Define a domain-specif
 						<model>https://quassar.io/models/[code]</model>
 					</input>
 					<mode>[mode]</mode>
-					<output>
-						<directory>${project.basedir}/src/main/gen</directory>
-						<package>example</package>
-					</output>
+
 				</configuration>
 			</plugin>
 		</plugins>
@@ -47,10 +44,10 @@ To generate source code from an M1 model, you can write templates that define th
 
 During `generate-sources`, the Quassar plugin generates a Java API for each input it finds and writes the classes under `output.directory` (`src/main/gen` by default). The `output.package` parameter sets their base Java package and defaults to the project's `groupId`.
 
-| Generated API | Input | Java package with `output.package = example` |
+| Generated API | Input | Java package with `groupId` set to `org.example` |
 | --- | --- | --- |
-| [Generated Model API](docs/generated-model-api.md) | The M2 metamodel supplied through `input.model` | `example.model` |
-| [Generated Template API](docs/generated-template-api.md) | The `.itr` files found under `input.templates` | `example.templates` |
+| [Generated Model API](docs/generated-model-api.md) | The M2 metamodel supplied through `input.model` | `org.example.model` |
+| [Generated Template API](docs/generated-template-api.md) | The `.itr` files found under `input.templates` | `org.example.templates` |
 
 Your code generator or interpreter loads M1 through the Generated Model API. For template-based code generation, your generator then passes model objects to the Generated Template API to produce source code.
 
@@ -67,7 +64,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 	```xml
 	<project>
 		<modelVersion>4.0.0</modelVersion>
-		<groupId>example</groupId>
+		<groupId>org.example</groupId>
 		<artifactId>my-dsl-maven-plugin</artifactId>
 		<version>1.0.0</version>
 		<packaging>maven-plugin</packaging>
@@ -83,7 +80,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    Maven injects the M1 URL from the consumer POM’s `<input><model>` configuration in step 6 into the Mojo’s `input.model` field. Maven also supplies `output` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. The snippet uses the fields and nested `Input` class already declared in the generated Mojo.
 
-   **Workflows example.** Save the example’s `workflow.itr` in your project’s resources and run `mvn generate-sources` to obtain `example.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Example template](docs/generated-template-api.md#example-generate-java-from-a-workflow)
+   **Workflows example.** Save the example’s `workflow.itr` in your project’s resources and run `mvn generate-sources` to obtain `org.example.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Example template](docs/generated-template-api.md#example-generate-java-from-a-workflow)
 
 	```java
 	@Parameter(required = true)
@@ -112,7 +109,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    In the generated Mojo’s `execute()`, replace the statements inside the existing `try` block with a call to `generateSources()`. Keep the generated exception handling.
 
-   Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.File`, `java.io.IOException`, and `java.nio.file.Files` in the Mojo. Import `MavenProject` from `org.apache.maven.project` and `Parameter` from `org.apache.maven.plugins.annotations`.
+   Import `org.example.model.WorkflowsModel`, `org.example.templates.WorkflowTemplate`, `java.io.File`, `java.io.IOException`, and `java.nio.file.Files` in the Mojo. Import `MavenProject` from `org.apache.maven.project` and `Parameter` from `org.apache.maven.plugins.annotations`.
 
 5. **Install your DSL plugin.** Run `mvn install` in the DSL plugin project to install it in your local Maven repository.
 
@@ -122,7 +119,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>example</groupId>
+				<groupId>org.example</groupId>
 				<artifactId>my-dsl-maven-plugin</artifactId>
 				<version>1.0.0</version>
 				<executions>
@@ -178,7 +175,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 	}
 	```
 
-   Add these members to `Interpreter.java` and import `example.model.Workflow` and `java.util.Map`. Register a handler for each action used by the model. This example assumes the service methods return a boolean and the caller handles errors when loading M1.
+   Add these members to `Interpreter.java` and import `org.example.model.Workflow` and `java.util.Map`. Register a handler for each action used by the model. This example assumes the service methods return a boolean and the caller handles errors when loading M1.
 
 	```java
 	var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
