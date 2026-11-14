@@ -139,30 +139,62 @@ Model (M1) → Your Java interpreter → Runtime behavior
 ```
 
 1. **Generate the interpreter starter.** Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Interpreter.java` if the Java source directory is empty.
-2. **Load and navigate the model.** In `Interpreter`, pass the M1 download URI to the generated model class's `load` method. Use the generated getters to access the model's root concepts, then follow their children and references to read the data your interpreter needs.
+2. **Load the workflow.** Use `WorkflowsModel` to load the M1 model from Quassar. The sample model defines an `OrderFulfillment` workflow with a `Confirm` step that runs `SendConfirmation`. Its fallback actions are `QueueForRetry` and `LogFailure`. [Sample M1 model](docs/model-reader-api.md#create-a-model-in-quassar)
 
-   For example, a `Workflows` DSL might define `Workflow` as a repeatable root concept, `Step` as a repeated child, and `action` as a reference from each step to an `Action`. With `<package>example</package>`, the generated API lets you inspect the workflow in `Interpreter.java`.
+3. **Register and execute actions.** In `Interpreter.java`, use a `Map<String, ActionHandler>` to map the action identifiers from M1 to Java handlers. Pass the order ID to each handler. If the primary handler throws an `IOException`, the interpreter runs the fallback actions in the order declared in M1. A primary failure with no fallbacks, or a failure in a fallback, propagates to the caller.
 
 	```java
 	import example.model.WorkflowsModel;
+
+	import java.io.IOException;
 	import java.net.URI;
+	import java.util.Map;
 
 	public final class Interpreter {
-		public static void main(String[] args) throws Exception {
-			var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
+		@FunctionalInterface
+		public interface ActionHandler {
+			void execute(String orderId) throws IOException;
+		}
 
-			for (var workflow : model.workflows()) {
-				System.out.println(workflow.identifier());
-				for (var step : workflow.steps())
-					System.out.println(step.action().identifier());
+		public void run(String orderId, Map<String, ActionHandler> handlers) throws IOException {
+			var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
+			var workflow = model.workflows().stream()
+				.filter(candidate -> candidate.identifier().equals("OrderFulfillment"))
+				.findFirst().orElseThrow();
+
+			for (var step : workflow.steps()) {
+				if (!step.enabled()) continue;
+
+				try {
+					execute(step.action().identifier(), orderId, handlers);
+				} catch (IOException failure) {
+					var fallbacks = step.fallbackActions();
+					if (fallbacks.isEmpty()) throw failure;
+					for (var fallback : fallbacks)
+						execute(fallback.identifier(), orderId, handlers);
+				}
 			}
+		}
+
+		private void execute(String actionId, String orderId, Map<String, ActionHandler> handlers)
+			throws IOException {
+			var handler = handlers.get(actionId);
+			if (handler == null) throw new IllegalArgumentException("Unknown action: " + actionId);
+			handler.execute(orderId);
 		}
 	}
 	```
 
-   Replace `[code]` with the code of your M1 model in Quassar.
+   Replace `[code]` with your M1 code. In your application, wire the handlers to your notification service, retry queue, and audit log, then call the interpreter when an order needs confirmation.
 
-3. **Implement and run the interpreter.** Define what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application to interpret the model at that URL.
+	```java
+	Map<String, Interpreter.ActionHandler> handlers = Map.of(
+		"SendConfirmation", notifications::sendConfirmation,
+		"QueueForRetry", retryQueue::enqueue,
+		"LogFailure", auditLog::recordConfirmationFailure);
+
+	new Interpreter().run(orderId, handlers);
+	```
 
 For direct template loading and frame customization, see the [Template Engine API](docs/template-engine-api.md).
 
