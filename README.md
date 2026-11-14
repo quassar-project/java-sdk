@@ -67,6 +67,30 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
 4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by the `model` parameter. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 
+   In the generated Mojo, the fields `model`, `outputDirectory`, and `project` are supplied by Maven. This implementation writes one Java file per workflow using the [generated workflow template](docs/generated-template-api.md#example-generate-java-from-a-workflow).
+
+	```java
+	@Override
+	public void execute() throws MojoExecutionException {
+		try {
+			var workflows = WorkflowsModel.load(model);
+			var output = outputDirectory.toPath().toAbsolutePath();
+			Files.createDirectories(output);
+
+			for (var workflow : workflows.workflows()) {
+				var filename = workflow.identifier() + "Workflow.java";
+				Files.writeString(output.resolve(filename), WorkflowTemplate.render(workflow));
+			}
+
+			project.addCompileSourceRoot(output.toString());
+		} catch (IOException exception) {
+			throw new MojoExecutionException("Could not generate workflow sources", exception);
+		}
+	}
+	```
+
+   Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.IOException`, and `java.nio.file.Files` in the Mojo.
+
 5. **Install your DSL plugin.** Run `mvn install` in the DSL plugin project to install it in your local Maven repository.
 
 6. **Create a Maven project that uses your DSL plugin.** Create a new Maven project for the application that will use the generated code. In its `pom.xml`, add your DSL plugin under `<build><plugins>` using the coordinates from step 1. Set `<model>` to the M1 download URL from Quassar.
