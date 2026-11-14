@@ -4,13 +4,13 @@ The Quassar Maven plugin compiles each `.itr` template from the configured templ
 
 ## Place templates under resources
 
-By default, the plugin searches the root of Maven resources, `src/main/resources`, and its subdirectories. To search only within `src/main/resources/templates`, add this setting inside the Quassar plugin's `<configuration>` in your POM.
+During `generate-sources`, the Quassar plugin searches from the project’s resources root. Set `templateDirectory` to a path relative to that root to limit the search to a subdirectory.
 
 ```xml
 <templateDirectory>templates</templateDirectory>
 ```
 
-Use a path relative to `src/main/resources`, such as `solution/templates` for a nested directory.
+Use `solution/templates` for a nested directory. The generated Java class contains the template rules and can render from the JAR without opening a template resource.
 
 ## Example: Generate Java from a workflow
 

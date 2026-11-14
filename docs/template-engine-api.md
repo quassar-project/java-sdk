@@ -39,6 +39,16 @@ import java.nio.file.Path;
 var engine = TemplateEngine.with(Path.of("workflow.itr"));
 ```
 
+For an `.itr` packaged as a JAR resource, open it as a stream. This example loads `templates/workflow.itr` from the classpath root, using a class from the application to locate the resource.
+
+```java
+TemplateEngine engine;
+try (var input = MyApplication.class.getResourceAsStream("/templates/workflow.itr")) {
+	if (input == null) throw new java.io.IOException("Missing template resource");
+	engine = TemplateEngine.with(input);
+}
+```
+
 ## Render an object
 
 When you pass an object to `render`, the engine first creates a frame from that object. It then applies the template to the frame and returns the result as a string. Here, `workflow` is a decorator obtained from a loaded M1 model. [Generated Model API](generated-model-api.md) · [Workflow template and output](generated-template-api.md#example-generate-java-from-a-workflow)
