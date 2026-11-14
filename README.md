@@ -10,7 +10,7 @@ Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and
 
 ## Use your models from Java
 
-Choose *compilation* to generate source code from M1 before the consumer project compiles. Choose *interpretation* to load M1 and execute its behavior at runtime. Both use [Java decorators generated from M2](docs/generated-model-api.md) to load and navigate models.
+Choose *compilation* to generate source code from M1 before the consumer project compiles. Choose *interpretation* to load M1 and execute its behavior at runtime. In both cases, you can use the [Generated Model API](docs/generated-model-api.md) to load and navigate models.
 
 The generated API uses Model Reader to load M1. You can also use Model Reader directly to load and query models through the [Model Reader API](docs/model-reader-api.md).
 
