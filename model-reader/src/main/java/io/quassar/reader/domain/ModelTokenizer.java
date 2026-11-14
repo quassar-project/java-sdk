@@ -34,18 +34,18 @@ final class ModelTokenizer {
 	private String readToken() {
 		int start = position;
 		char first = text.charAt(position++);
-		if (first == '"') {
-			skipQuotedText();
+		if (first == '"' || first == '\'') {
+			skipQuotedText(first);
 		} else if (!isDelimiter(first)) skipUnquotedText();
 		return text.substring(start, position);
 	}
 
-	private void skipQuotedText() {
+	private void skipQuotedText(char quote) {
 		while (position < text.length()) {
 			char character = text.charAt(position++);
 			if (character == '\\' && position < text.length()) {
 				position++;
-			} else if (character == '"') return;
+			} else if (character == quote) return;
 		}
 	}
 

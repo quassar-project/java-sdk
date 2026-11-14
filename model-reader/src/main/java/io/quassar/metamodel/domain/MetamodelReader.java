@@ -68,10 +68,20 @@ public final class MetamodelReader {
 		private void readStatement(String statement, int indent) {
 			if (statement.isEmpty() || statement.startsWith("dsl ")) return;
 			while (!scope.isEmpty() && scope.peek().indent() >= indent) scope.pop();
-			if (statement.startsWith("def ")) scope.peek().type().properties.add(property(statement.substring(4)));
+			if (statement.startsWith("def ")) addProperty(property(statement.substring(4)));
 			else if (statement.startsWith("has")) readComposition(statement);
-			else readType(statement, indent);
+			else if (statement.matches("(?:Concept|facet|sub)(?:[:\\s].*)?")) readType(statement, indent);
 		}
+
+        private void addProperty(PropertyDefinition property) {
+            TypeBuilder owner = scope.peek().type();
+            var previous = owner.properties.stream().filter(candidate -> candidate.name().equals(property.name())).findFirst();
+            if (previous.isPresent()) {
+                if (!previous.get().equals(property)) throw new IllegalArgumentException("Conflicting property definition: " + owner.name + "." + property.name());
+                return;
+            }
+            owner.properties.add(property);
+        }
 
 		private void readComposition(String statement) {
 			Header header = header(statement);
@@ -106,15 +116,18 @@ public final class MetamodelReader {
 	private static PropertyDefinition property(String statement) {
 		int boundary = typeBoundary(statement);
 		String declaration = statement.substring(0, boundary);
-		String remainder = statement.substring(boundary).strip();
+		String remainder = withoutAnnotations(statement.substring(boundary).strip());
 		int equals = remainder.indexOf('=');
 		String name = (equals < 0 ? remainder : remainder.substring(0, equals)).strip();
 		String defaultValue = equals < 0 ? "" : remainder.substring(equals + 1).strip();
 		int constraint = declaration.indexOf(":{");
 		String declaredType = constraint < 0 ? declaration : declaration.substring(0, constraint);
 		List<String> constraints = constraint < 0 ? List.of() : words(declaration.substring(constraint + 2, declaration.length() - 1));
-		boolean multiple = declaredType.endsWith("[]");
-		String scalar = multiple ? declaredType.substring(0, declaredType.length() - 2) : declaredType;
+		int bracket = declaredType.indexOf('[');
+        String scalar = bracket < 0 ? declaredType : declaredType.substring(0, bracket);
+        String cardinality = bracket < 0 ? "" : declaredType.substring(bracket + 1, declaredType.indexOf(']', bracket));
+        String maximum = cardinality.contains("..") ? cardinality.substring(cardinality.indexOf("..") + 2) : cardinality;
+        boolean multiple = bracket >= 0 && !maximum.equals("1") && !maximum.equals("0");
 		Kind kind = switch (scalar) {
 			case "string", "word", "resource", "date", "time", "datetime" -> Kind.STRING;
 			case "integer", "long", "double", "float", "decimal", "number" -> Kind.NUMBER;
@@ -125,6 +138,20 @@ public final class MetamodelReader {
 		return new PropertyDefinition(name, -1, type, kind == Kind.REFERENCE ? List.of(scalar) : List.of(),
 			declaredType, constraints, defaultValue);
 	}
+
+    private static String withoutAnnotations(String text) {
+        char quote = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (quote != 0) {
+                if (c == '\\') i++;
+                else if (c == quote) quote = 0;
+            } else if (c == '\'' || c == '"') quote = c;
+            else if (text.startsWith("as", i) && i > 0 && Character.isWhitespace(text.charAt(i - 1)) &&
+                    i + 2 < text.length() && Character.isWhitespace(text.charAt(i + 2))) return text.substring(0, i).strip();
+        }
+        return text;
+    }
 
 	private static int typeBoundary(String statement) {
 		int braces = 0;

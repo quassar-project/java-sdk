@@ -108,3 +108,43 @@ var bundled = Models.load(WorkflowExample.class.getResource("/workflows.tara"));
 ```
 
 A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `step.label()`, see the [Generated Model API](generated-model-api.md).
+
+## Common entry points
+
+Use `Models.create` to read model text directly and `Models.load` to read files, folders, ZIP archives, and URLs.
+
+```java
+var fromText = Models.create("dsl workflows\nWorkflow OrderFulfillment\n");
+var fromFile = Models.load(Path.of("main.tara"));
+var fromFolder = Models.load(Path.of("workspace"));
+var fromZip = Models.load(Path.of("release.zip"));
+var fromUrl = Models.load(java.net.URI.create("https://quassar.io/releases/commit"));
+```
+
+Use `ModelRelease` when you also need metadata, resources or authenticated downloads:
+
+```java
+var release = io.quassar.reader.ModelRelease.open(Path.of("release.zip"));
+var model = release.model();
+var metadata = release.metadata();
+try (var input = release.resource("icons/logo.svg")) {
+	var bytes = input.readAllBytes();
+}
+var downloaded = io.quassar.reader.ModelRelease.download(url, token);
+```
+
+Releases are read in memory without extracting files. Model files under `views/` are combined; files under `resources/` remain resources even when their extension is `.tara`. Authenticated downloads do not follow redirects.
+
+Without a metamodel, the reader represents only the supplied values. Pass the DSL definition to resolve defaults:
+
+```java
+var effective = Models.create(modelText, metamodelText);
+var fromFile = Models.load(Path.of("main.tara"), metamodelText);
+var resolver = new io.quassar.reader.domain.EffectiveValueResolver(metamodelText);
+var another = resolver.resolve(Models.create(otherModelText));
+var release = io.quassar.reader.ModelRelease.open(Path.of("release.zip")).withDefaults(resolver);
+```
+
+Explicit values take precedence over defaults, including `false`, `0`, `""` and `empty`. Explicit lists replace default lists. The closest ancestor supplies inherited defaults; a child property declaration replaces the inherited definition. Applied facets contribute defaults as well. Each property exposes `origin()` (`EXPLICIT` or `DEFAULT`). Resolution returns a new model and leaves the input untouched, so retain the original model when saving only explicit values.
+
+The resolver does not execute semantic constraints or validate cardinalities. Compilation and validation remain backend responsibilities.

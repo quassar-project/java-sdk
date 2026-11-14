@@ -66,6 +66,9 @@ public sealed interface Value {
 		}
 	}
 
+	record Expression(String code) implements Value {
+	}
+
 	record Empty() implements Value {
 	}
 }

@@ -114,6 +114,8 @@ public final class ModelReader {
 		}
 
 		private Value readAtom(String text) {
+			if (text.equals("empty")) return new Value.Empty();
+			if (text.startsWith("\'")) return new Value.Expression(unquote(text));
 			if (text.startsWith("\"")) return new Value.Text(unquote(text));
 			if (text.equals("true") || text.equals("false")) return new Value.Bool(Boolean.parseBoolean(text));
 			try {
@@ -139,6 +141,7 @@ public final class ModelReader {
 						case 't':
 							result.append('\t');
 							break;
+						case '\'':
 						case '"':
 						case '\\':
 							result.append(escaped);
