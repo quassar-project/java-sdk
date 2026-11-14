@@ -10,10 +10,6 @@ Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and
 
 ## Use your models from Java
 
-Choose *compilation* to generate source code from M1 before the consumer project compiles. Choose *interpretation* to load M1 and execute its behavior at runtime. In both cases, you can use the [Generated Model API](docs/generated-model-api.md) to load and navigate models.
-
-The generated API uses Model Reader to load M1. You can also use Model Reader directly to load and query models through the [Model Reader API](docs/model-reader-api.md).
-
 Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
 
 ```xml
@@ -39,7 +35,14 @@ Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to 
 </build>
 ```
 
-Replace `[code]` with the M2 code so the plugin can generate the Java code for your DSL. Use the M1 URL in your compiler or interpreter to load a specific model. Choose the value for `[mode]` below.
+In `<metamodel>`, replace `[code]` with your M2 code from Quassar. The plugin uses M2 to generate the Java API for your DSL.
+
+Set `<mode>` to one of these values.
+
+- `compiler` creates a Maven plugin starter that takes an M1 model and generates source code before the consumer project compiles.
+- `interpreter` creates a Java application starter that loads an M1 model and executes its behavior at runtime.
+
+In both modes, pass the URL of the M1 model you want to process to the [Generated Model API](docs/generated-model-api.md). You can also load and query M1 directly through the [Model Reader API](docs/model-reader-api.md).
 
 ### Compiler
 
