@@ -40,7 +40,7 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 ### Compiler
 
-Si eliges compiler, vas a crear a Maven plugin for your DSL that turns each model (M1) into source code in the consuming project's generated sources directory.
+If you choose `compiler`, you will build a Maven plugin for your DSL. It takes a model (M1) and writes the generated source code to the consuming project's generated sources directory.
 
 ```text
 Model (M1) → Your DSL's Maven plugin → Source code in the generated sources directory
