@@ -62,7 +62,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 	<project>
 		<modelVersion>4.0.0</modelVersion>
 		<groupId>org.workflows</groupId>
-		<artifactId>workflows-maven-plugin</artifactId>
+		<artifactId>code-generator</artifactId>
 		<version>1.0.0</version>
 		<packaging>maven-plugin</packaging>
 		<!-- Add the <build> block shown above here. -->
@@ -121,7 +121,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 		<plugins>
 			<plugin>
 				<groupId>org.workflows</groupId>
-				<artifactId>workflows-maven-plugin</artifactId>
+				<artifactId>code-generator</artifactId>
 				<version>1.0.0</version>
 				<executions>
 					<execution>
