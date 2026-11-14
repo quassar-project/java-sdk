@@ -23,7 +23,7 @@ public record ProjectStarter(Path sourceDirectory, String packageName) {
 	private static final String INTERPRETER_CLASS = "Interpreter";
 	private static final Set<String> INTERPRETER_NAMES = Set.of(INTERPRETER_CLASS, "String", "System", "IOException", "Path");
 	private static final Set<String> MOJO_NAMES = Set.of("AbstractMojo", "MojoExecutionException",
-		"LifecyclePhase", "Mojo", "Parameter", "IOException", "File", "Files");
+		"LifecyclePhase", "Mojo", "Parameter", "IOException", "File", "Files", "MavenProject", "URL");
 
 	public void writeInterpreter(String modelClass, List<JavaCode> templates) throws IOException {
 		var values = sourceValues();
@@ -42,7 +42,7 @@ public record ProjectStarter(Path sourceDirectory, String packageName) {
 			values.put("baseClass", "AbstractMojo");
 			values.put("baseImport", baseClass);
 		}
-		if (modelClass != null && templates.size() == 1) addModel(values, modelClass, templates, MOJO_NAMES);
+		if (modelClass != null) addModel(values, modelClass, templates, MOJO_NAMES);
 		writeJava(className, "starter-mojo", values);
 	}
 

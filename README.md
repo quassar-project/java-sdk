@@ -94,12 +94,12 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
    Replace `[code]` with the M1 code and run `mvn compile` in the consumer project. Maven runs your DSL plugin before compiling the Java sources.
 
-   The generated compiler starter also accepts an output path when it includes a model and a template.
+   The generated compiler starter accepts an output directory. With a single template, it writes `GeneratedModel.java` there. Customize the Mojo to choose the filenames and templates for your compiler.
 
    | Parameter | Default | Command-line property |
    | --- | --- | --- |
    | `model` | Required M1 download URL | `-Dquassar.model` |
-   | `outputFile` | `${project.build.directory}/generated-resources/model.json` | `-Dquassar.output` |
+   | `outputDirectory` | `${project.build.directory}/generated-sources/quassar` | `-Dquassar.output` |
 
 ### Interpreter
 

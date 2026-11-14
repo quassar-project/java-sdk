@@ -36,6 +36,7 @@ public final class MavenDependencies {
 		for (String artifact : ARTIFACTS) dependencies.add(new DependencySpec("quassar.io", artifact, version, "compile"));
 		if ("maven-plugin".equals(project.getPackaging())) {
 			dependencies.add(new DependencySpec("org.apache.maven", "maven-plugin-api", "3.9.9", "provided"));
+			dependencies.add(new DependencySpec("org.apache.maven", "maven-core", "3.9.9", "provided"));
 			dependencies.add(new DependencySpec("org.apache.maven.plugin-tools", "maven-plugin-annotations", "3.15.1", "provided"));
 		}
 		return dependencies;

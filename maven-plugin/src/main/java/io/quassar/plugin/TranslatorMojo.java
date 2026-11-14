@@ -82,7 +82,7 @@ public final class TranslatorMojo extends AbstractMojo {
 			var generator = MogramDecoratorGenerator.from(schema).inPackage(modelPackage);
 			code.addAll(generator.code());
 			modelClass = modelPackage + "." + generator.modelClassName();
-			if (createStarter && definitions.isEmpty()) {
+			if (createStarter && generationMode == Mode.INTERPRETER && definitions.isEmpty()) {
 				starter.writeJsonTemplate(templatePath, schema);
 				definitions = templateFiles.read(templatePath);
 			}

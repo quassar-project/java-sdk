@@ -1,6 +1,5 @@
 package tests;
 
-import com.google.gson.JsonParser;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.junit.jupiter.api.Test;
@@ -77,6 +76,17 @@ class MavenConsumerTest {
 		Files.write(generator.resolve("metamodel/manifest.json"), resource("/maven/consumer/metamodel/manifest.json"));
 		Path modelFile = Files.write(directory.resolve("library.tara"), resource("/maven/generator/m1/library.tara"));
 
+		Path templates = Files.createDirectories(generator.resolve("src/main/resources"));
+		Files.writeString(templates.resolve("generated-model.itr"), """
+			rule type(Model)
+				public class GeneratedModel {
+					$book...[$NL]
+				}
+
+			rule type(Book)
+				public static final String $identifier = $title+JsonString;
+			""");
+
 		build(repository, generator, "install");
 		assertThat(generator.resolve("src/main/java/io/quassar/integration/LibraryMojo.java")).exists();
 		assertThat(generator.resolve("src/main/java/io/quassar/integration/Interpreter.java")).doesNotExist();
@@ -87,6 +97,7 @@ class MavenConsumerTest {
 				<groupId>io.quassar.integration</groupId>
 				<artifactId>compiler-consumer</artifactId>
 				<version>1.0.0</version>
+				<properties><maven.compiler.release>17</maven.compiler.release></properties>
 				<build>
 					<plugins>
 						<plugin>
@@ -106,23 +117,10 @@ class MavenConsumerTest {
 				</build>
 			</project>
 			""".formatted(modelFile.toUri()));
-		build(repository, consumer, "generate-sources");
-		var model = JsonParser.parseString(Files.readString(consumer.resolve("target/generated-resources/model.json"))).getAsJsonObject();
-		var books = model.getAsJsonArray("book");
-		assertThat(books.size()).isEqualTo(2);
-		var atlas = books.get(0).getAsJsonObject();
-		assertThat(atlas.get("id").getAsString()).isEqualTo("Atlas");
-		assertThat(atlas.get("title").getAsString()).isEqualTo("Atlas \"illustrated\"");
-		assertThat(atlas.get("year").getAsInt()).isEqualTo(2024);
-		assertThat(atlas.get("available").getAsBoolean()).isFalse();
-		assertThat(atlas.get("isbn").getAsString()).isEqualTo("123");
-		assertThat(atlas.get("related").getAsString()).isEqualTo("Nocturne");
-		assertThat(atlas.getAsJsonArray("companions").get(0).getAsString()).isEqualTo("Nocturne");
-		assertThat(atlas.getAsJsonObject("chapter").get("heading").getAsString()).isEqualTo("The beginning");
-		var nocturne = books.get(1).getAsJsonObject();
-		assertThat(nocturne.get("related").getAsString()).isEqualTo("Atlas");
-		assertThat(nocturne.has("isbn")).isFalse();
-		assertThat(nocturne.has("chapter")).isFalse();
+		build(repository, consumer, "compile");
+		assertThat(consumer.resolve("target/generated-sources/quassar/GeneratedModel.java"))
+			.content().contains("public class GeneratedModel", "String Atlas", "String Nocturne");
+		assertThat(consumer.resolve("target/classes/GeneratedModel.class")).exists();
 	}
 
 	private Path isolatedRepository() throws Exception {
