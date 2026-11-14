@@ -4,15 +4,15 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 ## Create your DSL and models
 
-Open Quassar Forge and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express. [Open Quassar Forge](https://quassar.io/forge)
+Open [Quassar Forge](https://quassar.io/forge) and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express.
 
-Once your DSL is available, open Quassar Studio and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models. [Open Quassar Studio](https://quassar.io/studio)
+Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models.
 
 ## Use your models from Java
 
-Choose *compilation* to generate source code from M1 before the consumer project compiles. Choose *interpretation* to load M1 and execute its behavior at runtime. Both use Java decorators generated from M2 to load and navigate models. [Generated Model API](docs/generated-model-api.md)
+Choose *compilation* to generate source code from M1 before the consumer project compiles. Choose *interpretation* to load M1 and execute its behavior at runtime. Both use [Java decorators generated from M2](docs/generated-model-api.md) to load and navigate models.
 
-The generated API uses Model Reader to load M1. You can also use Model Reader directly to load and query models through its generic Java API. [Model Reader API](docs/model-reader-api.md)
+The generated API uses Model Reader to load M1. You can also use Model Reader directly to load and query models through the [Model Reader API](docs/model-reader-api.md).
 
 Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
 
@@ -66,7 +66,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
 2. **Generate the plugin starter.** Run `mvn generate-sources`. The Quassar Maven plugin generates the typed model API from M2 and creates an editable Mojo with a `generate` goal if the Java source directory is empty.
 
-3. **Write the code generation templates.** Choose any template engine for your compiler. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, put your templates in `src/main/resources` of the DSL plugin project. This guide assumes Java output, and you can write templates for any other programming language. [Generated Template API](docs/generated-template-api.md) · [Template examples](docs/template-engine-examples.md) · [Template syntax reference](docs/template-engine-syntax.md)
+3. **Write the code generation templates.** Choose any template engine for your compiler. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, put your templates in `src/main/resources` of the DSL plugin project. This guide assumes Java output, and you can write templates for any other programming language. The [Generated Template API](docs/generated-template-api.md) shows how to render an M1 model. Use the [template examples](docs/template-engine-examples.md) and the [syntax reference](docs/template-engine-syntax.md) to write your own templates.
 
 4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by the `model` parameter. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 
@@ -138,7 +138,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 
 3. **Implement and run the interpreter.** Define what each concept does in Java. For example, if a concept declares a sequence of steps, your interpreter reads those steps from M1 and calls the Java operation for each one in order. Run the application to interpret the model at that URL.
 
-For direct template loading and frame customization, see the advanced API. [Template Engine API](docs/template-engine-api.md)
+For direct template loading and frame customization, see the [Template Engine API](docs/template-engine-api.md).
 
 ## Build the SDK from source
 
@@ -148,7 +148,7 @@ Use Java 17 or later and Maven 3.9.9 or later. From the repository root, run:
 mvn clean install
 ```
 
-This runs the tests and installs the SDK modules into your local Maven repository. The Model Reader tests cover nested models, references, and several input formats. [Model Reader test fixtures](model-reader/src/test/resources/tara/README.md)
+This runs the tests and installs the SDK modules into your local Maven repository. The [Model Reader test fixtures](model-reader/src/test/resources/tara/README.md) cover nested models, references, and several input formats.
 
 ## Quassar Maven plugin parameters
 
@@ -162,4 +162,4 @@ Set these parameters inside the Quassar plugin's `<configuration>`.
 | `templateDirectory` | `src/main/resources` | Search for `.itr` files from the resources root. Set a relative path such as `templates` to search from `src/main/resources/templates`. |
 | `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
 
-[MIT License](LICENSE)
+The SDK is distributed under the [MIT License](LICENSE).
