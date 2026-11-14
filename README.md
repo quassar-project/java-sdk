@@ -99,7 +99,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
    | Parameter | Default | Command-line property |
    | --- | --- | --- |
    | `model` | Required M1 download URL | `-Dquassar.model` |
-   | `outputDirectory` | `${project.build.directory}/generated-sources/quassar` | `-Dquassar.output` |
+   | `outputDirectory` | `${project.basedir}/src/main/gen` | `-Dquassar.output` |
 
 ### Interpreter
 

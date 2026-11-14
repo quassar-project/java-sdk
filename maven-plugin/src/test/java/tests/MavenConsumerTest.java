@@ -118,7 +118,7 @@ class MavenConsumerTest {
 			</project>
 			""".formatted(modelFile.toUri()));
 		build(repository, consumer, "compile");
-		assertThat(consumer.resolve("target/generated-sources/quassar/GeneratedModel.java"))
+		assertThat(consumer.resolve("src/main/gen/GeneratedModel.java"))
 			.content().contains("public class GeneratedModel", "String Atlas", "String Nocturne");
 		assertThat(consumer.resolve("target/classes/GeneratedModel.class")).exists();
 	}

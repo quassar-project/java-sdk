@@ -15,7 +15,7 @@ rule type(startermojo) and attribute(model)
 		@Parameter(property = "quassar.model", required = true)
 		private URL model;
 
-		@Parameter(property = "quassar.output", defaultValue = "$${project.build.directory}/generated-sources/quassar", required = true)
+		@Parameter(property = "quassar.output", defaultValue = "$${project.basedir}/src/main/gen", required = true)
 		private File outputDirectory;
 
 		@Parameter(defaultValue = "$${project}", readonly = true, required = true)
