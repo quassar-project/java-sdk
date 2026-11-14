@@ -40,11 +40,11 @@ Quassar is a platform for model-driven engineering (MDE). Define a domain-specif
 4. **Set the metamodel.** In `<model>` inside `<input>`, replace `[code]` with your DSL metamodel code from Quassar.
 5. **Choose how to process models.** Set `<mode>` to `generator` to build a Maven plugin that generates source code from M1 before the consumer project compiles. Set it to `interpreter` to build a Java application that loads M1 and executes its behavior at runtime.
 
-To generate source code from an M1 model, you can write templates that define the target code and use placeholders for values from the model. If you use Quassar Template Engine, write the templates as `.itr` files in your project’s resources. Set `input.templates` to a path relative to the resources root to choose where the plugin looks for them.
+To generate source code from an M1 model, you can write templates that define the target code and use placeholders for values from the model. If you use Quassar Template Engine, write the templates as `.itr` files in your project’s resources. By default, the plugin searches from the project’s resources root. Set `input.templates` to a relative path to limit the search to a subdirectory.
 
 During `generate-sources`, the Quassar plugin generates a Java API for each input it finds and writes the classes under `output.directory` (`src/main/gen` by default). The `output.package` parameter sets their base Java package and defaults to the project's `groupId`.
 
-| Generated API | Input | Java package with `groupId` set to `org.example` |
+| Generated API | Input | `groupId` set to `org.example` |
 | --- | --- | --- |
 | [Generated Model API](docs/generated-model-api.md) | The M2 metamodel supplied through `input.model` | `org.example.model` |
 | [Generated Template API](docs/generated-template-api.md) | The `.itr` files found under `input.templates` | `org.example.templates` |
