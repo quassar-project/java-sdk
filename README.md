@@ -137,16 +137,6 @@ Model (M1) → Your Java interpreter → Runtime behavior
 
 For direct template loading and frame customization, see the [Template Engine API](docs/template-engine-api.md).
 
-## Build the SDK from source
-
-Use Java 17 or later and Maven 3.9.9 or later. From the repository root, run:
-
-```sh
-mvn clean install
-```
-
-This runs the tests and installs the SDK modules into your local Maven repository. The [Model Reader test fixtures](model-reader/src/test/resources/tara/README.md) cover nested models, references, and several input formats.
-
 ## Quassar Maven plugin parameters
 
 The table lists the available parameters. Add only the ones your project needs to the Quassar plugin's `<configuration>`.
