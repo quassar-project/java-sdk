@@ -13,7 +13,10 @@
 				<extensions>true</extensions>
 				<executions><execution><goals><goal>generate</goal></goals></execution></executions>
 				<configuration>
-					<output>example</output>
+					<output>
+						<package>example</package>
+						<directory>src/main/generated-api</directory>
+					</output>
 					<input>
 						<model>${project.baseUri}metamodel/</model>
 						<templates>.</templates>

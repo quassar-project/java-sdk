@@ -4,9 +4,9 @@ Call a generated template class's static `render` method with a model decorator 
 
 ## Generation inputs and output
 
-During `generate-sources`, the Quassar Maven plugin compiles `.itr` files found under `input.templates` into Java classes under `outputDirectory` (`src/main/gen` by default).
+During `generate-sources`, the Quassar Maven plugin compiles `.itr` files found under `input.templates` into Java classes under `output.directory` (`src/main/gen` by default).
 
-The plugin adds the `templates` subpackage to the base package set by `output`, which defaults to the project's `groupId`. With `<output>example</output>`, `workflow.itr` generates `example.templates.WorkflowTemplate` at `src/main/gen/example/templates/WorkflowTemplate.java` by default.
+The plugin adds the `templates` subpackage to the base package set by `output.package`, which defaults to the project's `groupId`. With `output.package = example`, `workflow.itr` generates `example.templates.WorkflowTemplate` at `src/main/gen/example/templates/WorkflowTemplate.java` by default.
 
 ## Place templates under resources
 

@@ -191,8 +191,9 @@ class TranslatorMojoTest {
 	private TranslatorMojo configuredMojo(MavenProject project) throws Exception {
 		TranslatorMojo mojo = new TranslatorMojo();
 		parameter(mojo, "project", project);
-		parameter(mojo, "outputDirectory", directory.resolve("src/main/gen").toFile());
-		parameter(mojo, "output", "library.model");
+		var output = new TranslatorMojo.Output();
+		output.setPackage("library.model");
+		parameter(mojo, "output", output);
 		return mojo;
 	}
 

@@ -27,17 +27,14 @@ import java.util.Optional;
 
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 public final class TranslatorMojo extends AbstractMojo {
-	@Parameter(defaultValue = "${project.groupId}")
-	private String output;
+	@Parameter
+	private Output output = new Output();
 
 	@Parameter
 	private Input input = new Input();
 
 	@Parameter
 	private String mode;
-
-	@Parameter(defaultValue = "${project.basedir}/src/main/gen", required = true)
-	private File outputDirectory;
 
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
 	private MavenProject project;
@@ -68,14 +65,18 @@ public final class TranslatorMojo extends AbstractMojo {
 		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.COMPILER)
 			throw new MojoExecutionException("Configure <input><model> or add .itr templates to " + templatePath);
 
+		String packageName = output.packageName == null ? project.getGroupId() : output.packageName;
+		var outputDirectory = project.getBasedir().toPath()
+			.resolve(output.directory == null ? "src/main/gen" : output.directory.getPath());
+
 		var sourceDirectory = project.getBasedir().toPath().resolve(project.getBuild().getSourceDirectory());
-		var starter = new ProjectStarter(sourceDirectory, output);
+		var starter = new ProjectStarter(sourceDirectory, packageName);
 		boolean createStarter = generationMode != null && !starter.hasJavaSources();
 		List<JavaCode> code = new ArrayList<>();
 		String modelClass = null;
 		Optional<String> modelName = Optional.empty();
 		if (metamodel != null) {
-			String modelPackage = output.isEmpty() ? "model" : output + ".model";
+			String modelPackage = packageName.isEmpty() ? "model" : packageName + ".model";
 			var schema = Metamodels.load(metamodel);
 			modelName = schema.name();
 			var generator = MogramDecoratorGenerator.from(schema).inPackage(modelPackage);
@@ -88,14 +89,14 @@ public final class TranslatorMojo extends AbstractMojo {
 		}
 		List<JavaCode> templates = definitions.isEmpty() ? List.of()
 			: new TemplateGenerator(new ResourceTemplates(TranslatorMojo.class, List.of("template-class")))
-				.generate(output, definitions);
+				.generate(packageName, definitions);
 		code.addAll(templates);
 		if (createStarter) {
 			if (generationMode == Mode.COMPILER) starter.writeMojo(modelName, modelClass, templates);
 			else starter.writeInterpreter(modelClass, templates);
 		}
-		new JavaCodeWriter().write(code, outputDirectory.toPath());
-		project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
+		new JavaCodeWriter().write(code, outputDirectory);
+		project.addCompileSourceRoot(outputDirectory.toAbsolutePath().toString());
 		getLog().info("Generated " + code.size() + " Java classes in " + outputDirectory);
 	}
 
@@ -118,6 +119,19 @@ public final class TranslatorMojo extends AbstractMojo {
 
 		public void setTemplates(String templates) {
 			this.templates = templates;
+		}
+	}
+
+	public static final class Output {
+		private String packageName;
+		private File directory;
+
+		public void setPackage(String packageName) {
+			this.packageName = packageName;
+		}
+
+		public void setDirectory(File directory) {
+			this.directory = directory;
 		}
 	}
 

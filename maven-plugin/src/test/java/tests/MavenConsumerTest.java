@@ -37,6 +37,7 @@ class MavenConsumerTest {
 		Path downstream = project("downstream", "Consumer.java");
 		byte[] sourcePom = Files.readAllBytes(consumer.resolve("pom.xml"));
 		build(repository, consumer, "install");
+		assertThat(consumer.resolve("src/main/generated-api/example/model/LibraryModel.java")).exists();
 		assertThat(consumer.resolve("pom.xml")).hasBinaryContent(sourcePom);
 
 		Path installedPom = repository.resolve("io/quassar/integration/translated-library/1.0.0/translated-library-1.0.0.pom");

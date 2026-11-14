@@ -30,7 +30,10 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 					<input>
 						<model>https://quassar.io/models/[code]</model>
 					</input>
-					<output>example</output>
+					<output>
+						<package>example</package>
+						<directory>${project.basedir}/src/main/gen</directory>
+					</output>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -40,9 +43,9 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 4. **Set the metamodel.** In `<model>` inside `<input>`, replace `[code]` with your DSL metamodel code from Quassar.
 5. **Choose how to process models.** Set `<mode>` to `compiler` to build a Maven plugin that generates source code from M1 before the consumer project compiles. Set it to `interpreter` to build a Java application that loads M1 and executes its behavior at runtime.
 
-During `generate-sources`, the Quassar plugin writes both APIs under `outputDirectory` (`src/main/gen` by default). The `output` parameter sets their base Java package and defaults to the project's `groupId`.
+During `generate-sources`, the Quassar plugin writes both APIs under `output.directory` (`src/main/gen` by default). The `output.package` parameter sets their base Java package and defaults to the project's `groupId`.
 
-| Generated API | Input | Java package with `<output>example</output>` |
+| Generated API | Input | Java package with `output.package = example` |
 | --- | --- | --- |
 | [Generated Model API](docs/generated-model-api.md) | The M2 metamodel supplied through `input.model` | `example.model` |
 | [Generated Template API](docs/generated-template-api.md) | The `.itr` files found under `input.templates` | `example.templates` |
@@ -198,7 +201,7 @@ The table lists the available parameters. Add only the ones your project needs t
 | `mode` | Unset | Use `compiler` to scaffold a DSL Maven plugin, or `interpreter` to scaffold a Java application. Leave it unset to skip starter files. |
 | `input.model` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
 | `input.templates` | `resources root` | Path relative to the project’s resources root, such as `templates`. The Quassar plugin uses it during `generate-sources`. |
-| `output` | `${project.groupId}` | Base package for generated Java classes. Model classes go in `<output>.model` and template classes in `<output>.templates`. |
-| `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
+| `output.package` | `${project.groupId}` | Base package for generated Java classes. Model classes go in `<base package>.model` and template classes in `<base package>.templates`. |
+| `output.directory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
 
 The SDK is distributed under the [MIT License](LICENSE).
