@@ -74,42 +74,42 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
 3. **Write the code generation templates.** Choose any template engine for your compiler. The following example uses the Workflows DSL and the `example` base package from the POM above. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, save `workflow.itr` in the DSL plugin project’s resources and run `mvn generate-sources` again to generate `WorkflowTemplate`. You can write templates for Java or other target languages. The [Generated Template API](docs/generated-template-api.md) shows how to render an M1 model. Use the [template examples](docs/template-engine-examples.md) and the [syntax reference](docs/template-engine-syntax.md) to write your own templates.
 
-4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by the `model` parameter. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
+4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by `input.model`. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 
-   Maven injects the M1 URL from the consumer POM’s `<model>` element in step 6 into the Mojo’s `model` field. Maven also supplies `outputDirectory` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. The snippet shows the three fields already declared in the generated Mojo and the `generateSources()` method to add. It writes one Java file per workflow using the [generated workflow template](docs/generated-template-api.md#example-generate-java-from-a-workflow).
+   Maven injects the M1 URL from the consumer POM’s `<input><model>` configuration in step 6 into the Mojo’s `input.model` field. Maven also supplies `output` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. The snippet uses the fields and nested `Input` class already declared in the generated Mojo. It writes one Java file per workflow using the [generated workflow template](docs/generated-template-api.md#example-generate-java-from-a-workflow).
 
 	```java
-	@Parameter(property = "quassar.model", required = true)
-	private URL model;
+	@Parameter(required = true)
+	private Input input;
 
 	@Parameter(property = "quassar.output", defaultValue = "${project.basedir}/src/main/gen", required = true)
-	private File outputDirectory;
+	private File output;
 
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
 	private MavenProject project;
 
 	private void generateSources() throws IOException {
-		var workflows = WorkflowsModel.load(model);
-		var output = outputDirectory.toPath().toAbsolutePath();
-		Files.createDirectories(output);
+		var workflows = WorkflowsModel.load(input.model);
+		var directory = output.toPath().toAbsolutePath();
+		Files.createDirectories(directory);
 
 		for (var workflow : workflows.workflows()) {
 			var filename = workflow.identifier() + "Workflow.java";
 			String code = WorkflowTemplate.render(workflow);
-			Files.writeString(output.resolve(filename), code);
+			Files.writeString(directory.resolve(filename), code);
 		}
 
-		project.addCompileSourceRoot(output.toString());
+		project.addCompileSourceRoot(directory.toString());
 	}
 	```
 
    In the generated Mojo’s `execute()`, replace the statements inside the existing `try` block with a call to `generateSources()`. Keep the generated exception handling.
 
-   Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.File`, `java.io.IOException`, `java.net.URL`, and `java.nio.file.Files` in the Mojo. Import `MavenProject` from `org.apache.maven.project` and `Parameter` from `org.apache.maven.plugins.annotations`.
+   Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.File`, `java.io.IOException`, and `java.nio.file.Files` in the Mojo. Import `MavenProject` from `org.apache.maven.project` and `Parameter` from `org.apache.maven.plugins.annotations`.
 
 5. **Install your DSL plugin.** Run `mvn install` in the DSL plugin project to install it in your local Maven repository.
 
-6. **Create a Maven project that uses your DSL plugin.** Create a new Maven project for the application that will use the generated code. In its `pom.xml`, add your DSL plugin under `<build><plugins>` using the coordinates from step 1. Set `<model>` to the M1 download URL from Quassar.
+6. **Create a Maven project that uses your DSL plugin.** Create a new Maven project for the application that will use the generated code. In its `pom.xml`, add your DSL plugin under `<build><plugins>` using the coordinates from step 1. Set `<model>` inside `<input>` to the M1 download URL from Quassar.
 
 	```xml
 	<build>
@@ -125,8 +125,10 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 					</execution>
 				</executions>
 				<configuration>
-					<model>https://quassar.io/models/[code]</model>
-					<outputDirectory>${project.basedir}/src/main/gen</outputDirectory>
+					<input>
+						<model>https://quassar.io/models/[code]</model>
+					</input>
+					<output>${project.basedir}/src/main/gen</output>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -135,7 +137,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    Replace `[code]` with the M1 code and run `mvn compile` in the consumer project. Maven runs your DSL plugin before compiling the Java sources.
 
-   Pass the required M1 download URL through `<model>`. Set `<outputDirectory>` to change the default output directory, `src/main/gen`.
+   In your DSL plugin, `<output>` sets the generated sources directory and defaults to `src/main/gen`.
 
 ### Interpreter
 

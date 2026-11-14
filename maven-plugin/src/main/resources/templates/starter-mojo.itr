@@ -12,11 +12,11 @@ rule type(startermojo) and attribute(model)
 
 	@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 	public final class $className~ extends $baseClass~ {
-		@Parameter(property = "quassar.model", required = true)
-		private URL model;
+		@Parameter(required = true)
+		private Input input;
 
 		@Parameter(property = "quassar.output", defaultValue = "$${project.basedir}/src/main/gen", required = true)
-		private File outputDirectory;
+		private File output;
 
 		@Parameter(defaultValue = "$${project}", readonly = true, required = true)
 		private MavenProject project;
@@ -24,12 +24,20 @@ rule type(startermojo) and attribute(model)
 		@Override
 		public void execute() throws MojoExecutionException {
 			try {
-				var loadedModel = $model~.load(model);
-				var output = outputDirectory.toPath().toAbsolutePath();
-				Files.createDirectories(output);<<$NL~				Files.writeString(output.resolve("GeneratedModel.java"), $renderer~.render(loadedModel));>>
-				project.addCompileSourceRoot(output.toString());
+				var loadedModel = $model~.load(input.model);
+				var directory = output.toPath().toAbsolutePath();
+				Files.createDirectories(directory);<<$NL~				Files.writeString(directory.resolve("GeneratedModel.java"), $renderer~.render(loadedModel));>>
+				project.addCompileSourceRoot(directory.toString());
 			} catch (IOException exception) {
-				throw new MojoExecutionException("Could not generate " + outputDirectory, exception);
+				throw new MojoExecutionException("Could not generate " + output, exception);
+			}
+		}
+
+		public static final class Input {
+			private URL model;
+
+			public void setModel(URL model) {
+				this.model = model;
 			}
 		}
 	}$NL

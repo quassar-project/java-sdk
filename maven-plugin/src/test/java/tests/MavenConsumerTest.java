@@ -110,7 +110,10 @@ class MavenConsumerTest {
 								</execution>
 							</executions>
 							<configuration>
-								<model>%s</model>
+								<input>
+									<model>%s</model>
+								</input>
+								<output>${project.basedir}/src/main/generated-workflows</output>
 							</configuration>
 						</plugin>
 					</plugins>
@@ -118,7 +121,7 @@ class MavenConsumerTest {
 			</project>
 			""".formatted(modelFile.toUri()));
 		build(repository, consumer, "compile");
-		assertThat(consumer.resolve("src/main/gen/GeneratedModel.java"))
+		assertThat(consumer.resolve("src/main/generated-workflows/GeneratedModel.java"))
 			.content().contains("public class GeneratedModel", "String Atlas", "String Nocturne");
 		assertThat(consumer.resolve("target/classes/GeneratedModel.class")).exists();
 	}
