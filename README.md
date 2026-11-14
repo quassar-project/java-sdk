@@ -141,11 +141,17 @@ Model (M1) → Your Java interpreter → Runtime behavior
 3. **Register and execute actions.** Map each action identifier to a Java handler. Each handler returns whether it succeeded. If the primary action fails, run its fallbacks in the order declared in M1. The interpreter returns `false` if there are no fallbacks or a fallback fails.
 
 	```java
+	private final Map<String, ActionHandler> handlers;
+
+	public Interpreter(Map<String, ActionHandler> handlers) {
+		this.handlers = Map.copyOf(handlers);
+	}
+
 	interface ActionHandler {
 		boolean execute(String orderId);
 	}
 
-	boolean run(Workflow workflow, String orderId, Map<String, ActionHandler> handlers) {
+	boolean run(Workflow workflow, String orderId) {
 		for (var step : workflow.steps()) {
 			if (!step.enabled()) continue;
 			if (handlers.get(step.action().identifier()).execute(orderId)) continue;
@@ -159,7 +165,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 	}
 	```
 
-   Add the interface and method to `Interpreter.java`. Register a handler for each action used by the model. This example assumes the service methods return a boolean and the caller handles errors when loading M1.
+   Add these members to `Interpreter.java`. Register a handler for each action used by the model. This example assumes the service methods return a boolean and the caller handles errors when loading M1.
 
 	```java
 	var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
@@ -168,7 +174,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 		"QueueForRetry", retryQueue::enqueue,
 		"LogFailure", auditLog::recordConfirmationFailure);
 
-	boolean success = new Interpreter().run(model.workflows().get(0), orderId, handlers);
+	boolean success = new Interpreter(handlers).run(model.workflows().get(0), orderId);
 	```
 
    Replace `[code]` with your M1 code. The sample model contains one workflow, `OrderFulfillment`.
