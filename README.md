@@ -26,11 +26,11 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 					</execution>
 				</executions>
 				<configuration>
-					<output>example</output>
+					<mode>[mode]</mode>
 					<input>
 						<model>https://quassar.io/models/[code]</model>
 					</input>
-					<mode>[mode]</mode>
+					<output>example</output>
 				</configuration>
 			</plugin>
 		</plugins>
