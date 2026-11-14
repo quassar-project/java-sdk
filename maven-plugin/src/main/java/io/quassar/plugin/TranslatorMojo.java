@@ -101,7 +101,7 @@ public final class TranslatorMojo extends AbstractMojo {
 	}
 
 	private Mode generationMode() throws MojoExecutionException {
-		if (mode == null) return Mode.INTERPRETER;
+		if (mode == null) return Mode.NONE;
 		return switch (mode) {
 			case "interpreter" -> Mode.INTERPRETER;
 			case "compiler" -> Mode.COMPILER;

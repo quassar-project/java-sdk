@@ -31,8 +31,7 @@ class TranslatorMojoTest {
 		assertThat(directory.resolve("src/main/gen/library/model/templates/BookSummaryTemplate.java")).exists();
 		assertThat(directory.resolve("target/generated-resources/metta/library/model/templates/BookSummaryTemplate.itr")).doesNotExist();
 		assertThat(directory.resolve("src/main/gen/library/model/model")).doesNotExist();
-		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java"))
-			.content().contains("public final class Interpreter", "public static void main(String[] args)");
+		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).doesNotExist();
 	}
 
 	@Test
@@ -76,6 +75,7 @@ class TranslatorMojoTest {
 	@Test
 	void createsAndCompilesAnEditableJsonTemplateForANewModelProject() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
+		parameter(mojo, "mode", "interpreter");
 		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
 
 		mojo.execute();
@@ -156,6 +156,7 @@ class TranslatorMojoTest {
 		Files.createDirectories(source);
 		Files.writeString(source.resolve("Existing.java"), "package another; class Existing {}");
 		TranslatorMojo mojo = configuredMojo(project());
+		parameter(mojo, "mode", "interpreter");
 		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
 		mojo.execute();
 		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).doesNotExist();

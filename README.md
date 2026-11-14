@@ -8,9 +8,9 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 2. **Create a model.** Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models.
 
-## Use your models from Java
+<a id="use-your-models-from-java"></a>
 
-1. **Add the Quassar Maven plugin.** Add the configuration below to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
+3. **Add the Quassar Maven plugin.** Add the configuration below to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
 
 	```xml
 	<build>
@@ -35,9 +35,8 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 	</build>
 	```
 
-2. **Set the metamodel.** In `<metamodel>`, replace `[code]` with your M2 code from Quassar. The plugin uses M2 to generate the Java API for your DSL.
-3. **Choose how to process models.** Set `<mode>` to `compiler` to start a Maven plugin that generates source code from M1 before the consumer project compiles. Use `interpreter` to start a Java application that loads M1 and executes its behavior at runtime.
-4. **Load a model.** In both modes, pass the URL of the M1 model you want to process to the [Generated Model API](docs/generated-model-api.md). You can also load and query M1 directly through the [Model Reader API](docs/model-reader-api.md).
+4. **Set the metamodel.** In `<metamodel>`, replace `[code]` with your M2 code from Quassar.
+5. **Choose how to process models.** Set `<mode>` to `compiler` to start a Maven plugin that generates source code from M1 before the consumer project compiles. Use `interpreter` to start a Java application that loads M1 and executes its behavior at runtime.
 
 ### Compiler
 
@@ -156,7 +155,7 @@ Set these parameters inside the Quassar plugin's `<configuration>`.
 | --- | --- | --- |
 | `package` | Project `groupId` (`${project.groupId}`) | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
 | `metamodel` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
-| `mode` | `interpreter` | Use `compiler` to scaffold a DSL Maven plugin, `interpreter` to scaffold a Java application, or `none` to skip starter files. |
+| `mode` | Unset | Use `compiler` to scaffold a DSL Maven plugin, `interpreter` to scaffold a Java application, or `none` to skip starter files. Leaving it unset also skips starter files. |
 | `templateDirectory` | `src/main/resources` | Search for `.itr` files from the resources root. Set a relative path such as `templates` to search from `src/main/resources/templates`. |
 | `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
 
