@@ -33,6 +33,18 @@ public final class TranslatorMojo extends AbstractMojo {
 	@Parameter
 	private Input input = new Input();
 
+	@Parameter(alias = "input.model")
+	private URL inputModel;
+
+	@Parameter(alias = "input.templates")
+	private String inputTemplates;
+
+	@Parameter(alias = "output.package")
+	private String outputPackage;
+
+	@Parameter(alias = "output.directory")
+	private File outputDirectory;
+
 	@Parameter
 	private String mode;
 
@@ -56,18 +68,20 @@ public final class TranslatorMojo extends AbstractMojo {
 		Mode generationMode = generationMode();
 		if (generationMode == Mode.GENERATOR && !"maven-plugin".equals(project.getPackaging()))
 			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> when using generator mode");
-		URL metamodel = input.model;
-		String templateDirectory = input.templates;
+		URL metamodel = inputModel == null ? input.model : inputModel;
+		String templateDirectory = inputTemplates == null ? input.templates : inputTemplates;
 		var resources = project.getBasedir().toPath().resolve("src/main/resources");
 		var templatePath = templateDirectory == null ? resources : resources.resolve(templateDirectory);
 		var templateFiles = new TemplateFiles();
 		List<TemplateDefinition> definitions = templateFiles.read(templatePath);
 		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.GENERATOR)
-			throw new MojoExecutionException("Configure <input><model> or add .itr templates to " + templatePath);
+			throw new MojoExecutionException("Configure <input.model> or add .itr templates to " + templatePath);
 
-		String packageName = output.packageName == null ? project.getGroupId() : output.packageName;
-		var outputDirectory = project.getBasedir().toPath()
-			.resolve(output.directory == null ? "src/main/gen" : output.directory.getPath());
+		String packageName = outputPackage == null ? output.packageName : outputPackage;
+		if (packageName == null) packageName = project.getGroupId();
+		File directory = outputDirectory == null ? output.directory : outputDirectory;
+		var generatedSources = project.getBasedir().toPath()
+			.resolve(directory == null ? "src/main/gen" : directory.getPath());
 
 		var sourceDirectory = project.getBasedir().toPath().resolve(project.getBuild().getSourceDirectory());
 		var starter = new ProjectStarter(sourceDirectory, packageName);
@@ -95,9 +109,9 @@ public final class TranslatorMojo extends AbstractMojo {
 			if (generationMode == Mode.GENERATOR) starter.writeMojo(modelName, modelClass, templates);
 			else starter.writeInterpreter(modelClass, templates);
 		}
-		new JavaCodeWriter().write(code, outputDirectory);
-		project.addCompileSourceRoot(outputDirectory.toAbsolutePath().toString());
-		getLog().info("Generated " + code.size() + " Java classes in " + outputDirectory);
+		new JavaCodeWriter().write(code, generatedSources);
+		project.addCompileSourceRoot(generatedSources.toAbsolutePath().toString());
+		getLog().info("Generated " + code.size() + " Java classes in " + generatedSources);
 	}
 
 	private Mode generationMode() throws MojoExecutionException {

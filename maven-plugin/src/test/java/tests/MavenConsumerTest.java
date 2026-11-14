@@ -51,9 +51,9 @@ class MavenConsumerTest {
 			assertThat(jar.getEntry("example/model/LibraryModel.class")).isNotNull();
 			assertThat(jar.getEntry("example/model/DecoratedModel.class")).isNull();
 			assertThat(jar.getEntry("example/Book.class")).isNull();
-			assertThat(jar.getEntry("book-summary.itr")).isNotNull();
+			assertThat(jar.getEntry("templates/book-summary.itr")).isNotNull();
 			assertThat(jar.stream().map(ZipEntry::getName).filter(name -> name.endsWith(".itr")))
-				.containsExactly("book-summary.itr");
+				.containsExactly("templates/book-summary.itr");
 			assertThat(jar.stream().map(ZipEntry::getName)
 				.filter(name -> name.startsWith("example/templates/") && name.endsWith(".class")))
 				.containsExactly("example/templates/BookSummaryTemplate.class");
@@ -165,7 +165,7 @@ class MavenConsumerTest {
 		Files.write(output, resource("/maven/" + name + "/" + javaFile));
 		if (name.equals("consumer")) {
 			String template = "src/main/resources/book-summary.itr";
-			Path file = project.resolve(template);
+			Path file = project.resolve("src/main/resources/templates/book-summary.itr");
 			Files.createDirectories(file.getParent());
 			Files.write(file, resource("/maven/consumer/" + template));
 			Path metamodel = project.resolve("metamodel/library.tara");

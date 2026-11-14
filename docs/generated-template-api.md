@@ -13,9 +13,7 @@ The plugin adds the `templates` subpackage to the base package set by `output.pa
 During `generate-sources`, the Quassar plugin searches from the project’s resources root. Set `input.templates` to a path relative to that root to limit the search to a subdirectory.
 
 ```xml
-<input>
-	<templates>templates</templates>
-</input>
+<input.templates>templates</input.templates>
 ```
 
 Use `solution/templates` for a nested directory. The generated Java class contains the template rules and can render from the JAR without opening a template resource.
