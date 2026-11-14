@@ -38,6 +38,15 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 4. **Set the metamodel.** In `<metamodel>`, replace `[code]` with your DSL metamodel code from Quassar.
 5. **Choose how to process models.** Set `<mode>` to `compiler` to build a Maven plugin that generates source code from M1 before the consumer project compiles. Set it to `interpreter` to build a Java application that loads M1 and executes its behavior at runtime.
 
+During `generate-sources`, the Quassar plugin writes both APIs under `outputDirectory` (`src/main/gen` by default). The `package` parameter sets their base Java package and defaults to the project's `groupId`.
+
+| Generated API | Input | Java package with `<package>example</package>` |
+| --- | --- | --- |
+| [Generated Model API](docs/generated-model-api.md) | The M2 metamodel supplied through `metamodel` | `example.model` |
+| [Generated Template API](docs/generated-template-api.md) | The `.itr` files found under `templateDirectory` | `example.templates` |
+
+Your compiler or interpreter supplies M1 when it loads the model through the Generated Model API.
+
 ### Compiler
 
 If you choose `compiler`, you will build a Maven plugin for your DSL. It takes a model (M1) and writes the generated source code to the consuming project's generated sources directory.
