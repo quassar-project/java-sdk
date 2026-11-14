@@ -17,7 +17,7 @@
 					<input>
 						<model>${project.baseUri}metamodel/</model>
 					</input>
-					<mode>compiler</mode>
+					<mode>generator</mode>
 				</configuration>
 			</plugin>
 		</plugins>

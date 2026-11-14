@@ -54,15 +54,15 @@ public final class TranslatorMojo extends AbstractMojo {
 
 	private void generate() throws IOException, TemplateReadException, MojoExecutionException {
 		Mode generationMode = generationMode();
-		if (generationMode == Mode.COMPILER && !"maven-plugin".equals(project.getPackaging()))
-			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> when using compiler mode");
+		if (generationMode == Mode.GENERATOR && !"maven-plugin".equals(project.getPackaging()))
+			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> when using generator mode");
 		URL metamodel = input.model;
 		String templateDirectory = input.templates;
 		var resources = project.getBasedir().toPath().resolve("src/main/resources");
 		var templatePath = templateDirectory == null ? resources : resources.resolve(templateDirectory);
 		var templateFiles = new TemplateFiles();
 		List<TemplateDefinition> definitions = templateFiles.read(templatePath);
-		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.COMPILER)
+		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.GENERATOR)
 			throw new MojoExecutionException("Configure <input><model> or add .itr templates to " + templatePath);
 
 		String packageName = output.packageName == null ? project.getGroupId() : output.packageName;
@@ -92,7 +92,7 @@ public final class TranslatorMojo extends AbstractMojo {
 				.generate(packageName, definitions);
 		code.addAll(templates);
 		if (createStarter) {
-			if (generationMode == Mode.COMPILER) starter.writeMojo(modelName, modelClass, templates);
+			if (generationMode == Mode.GENERATOR) starter.writeMojo(modelName, modelClass, templates);
 			else starter.writeInterpreter(modelClass, templates);
 		}
 		new JavaCodeWriter().write(code, outputDirectory);
@@ -104,8 +104,8 @@ public final class TranslatorMojo extends AbstractMojo {
 		if (mode == null) return null;
 		return switch (mode) {
 			case "interpreter" -> Mode.INTERPRETER;
-			case "compiler" -> Mode.COMPILER;
-			default -> throw new MojoExecutionException("Unknown mode '" + mode + "'. Use compiler or interpreter.");
+			case "generator" -> Mode.GENERATOR;
+			default -> throw new MojoExecutionException("Unknown mode '" + mode + "'. Use generator or interpreter.");
 		};
 	}
 
@@ -136,6 +136,6 @@ public final class TranslatorMojo extends AbstractMojo {
 	}
 
 	private enum Mode {
-		COMPILER, INTERPRETER
+		GENERATOR, INTERPRETER
 	}
 }

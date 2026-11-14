@@ -1,6 +1,6 @@
 # Quassar Java SDK
 
-Use the Quassar Java SDK to build a compiler or an interpreter for models written in your own domain-specific language (DSL).
+Quassar is a platform for model-driven engineering (MDE). Define a domain-specific language (DSL), create models with it, and use the Quassar Java SDK to build a code generator or an interpreter for those models.
 
 ## Create your DSL and models
 
@@ -41,7 +41,7 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 	```
 
 4. **Set the metamodel.** In `<model>` inside `<input>`, replace `[code]` with your DSL metamodel code from Quassar.
-5. **Choose how to process models.** Set `<mode>` to `compiler` to build a Maven plugin that generates source code from M1 before the consumer project compiles. Set it to `interpreter` to build a Java application that loads M1 and executes its behavior at runtime.
+5. **Choose how to process models.** Set `<mode>` to `generator` to build a Maven plugin that generates source code from M1 before the consumer project compiles. Set it to `interpreter` to build a Java application that loads M1 and executes its behavior at runtime.
 
 To generate source code from an M1 model, you can write templates that define the target code and use placeholders for values from the model. If you use Quassar Template Engine, write the templates as `.itr` files in your project’s resources. Set `input.templates` to a path relative to the resources root to choose where the plugin looks for them.
 
@@ -52,11 +52,11 @@ During `generate-sources`, the Quassar plugin generates a Java API for each inpu
 | [Generated Model API](docs/generated-model-api.md) | The M2 metamodel supplied through `input.model` | `example.model` |
 | [Generated Template API](docs/generated-template-api.md) | The `.itr` files found under `input.templates` | `example.templates` |
 
-Your compiler or interpreter loads M1 through the Generated Model API. For template-based code generation, your compiler then passes model objects to the Generated Template API to produce source code.
+Your code generator or interpreter loads M1 through the Generated Model API. For template-based code generation, your generator then passes model objects to the Generated Template API to produce source code.
 
-### Compiler
+### Code generator
 
-If you choose `compiler`, you will build a Maven plugin for your DSL. It takes a model (M1) and writes the generated source code to the consuming project's generated sources directory.
+If you choose `generator`, you will build a Maven plugin for your DSL. It takes a model (M1) and writes the generated source code to the consuming project's generated sources directory.
 
 ```text
 Model (M1) → Your Maven plugin → Source code in the generated sources directory
@@ -77,7 +77,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
 2. **Generate the plugin starter.** Run `mvn generate-sources`. The Quassar Maven plugin generates the typed model API from M2 and creates an editable Mojo with a `generate` goal if the Java source directory is empty.
 
-3. **Write the code generation templates.** Choose any template engine for your compiler. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, save your `.itr` files in the DSL plugin project’s resources and run `mvn generate-sources` again to generate their Java classes. You can write templates for Java or other target languages. The [Generated Template API](docs/generated-template-api.md) shows how to render an M1 model. Use the [template examples](docs/template-engine-examples.md) and the [syntax reference](docs/template-engine-syntax.md) to write your own templates.
+3. **Write the code generation templates.** Choose any template engine for your generator. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, save your `.itr` files in the DSL plugin project’s resources and run `mvn generate-sources` again to generate their Java classes. You can write templates for Java or other target languages. The [Generated Template API](docs/generated-template-api.md) shows how to render an M1 model. Use the [template examples](docs/template-engine-examples.md) and the [syntax reference](docs/template-engine-syntax.md) to write your own templates.
 
 4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by `input.model`. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 
@@ -202,7 +202,7 @@ The table lists the available parameters. Add only the ones your project needs t
 | --- | --- | --- |
 | `input.model` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
 | `input.templates` | `resources root` | Path relative to the project’s resources root, such as `templates`. The Quassar plugin uses it during `generate-sources`. |
-| `mode` | Unset | Use `compiler` to scaffold a DSL Maven plugin, or `interpreter` to scaffold a Java application. Leave it unset to skip starter files. |
+| `mode` | Unset | Use `generator` to scaffold a DSL Maven plugin, or `interpreter` to scaffold a Java application. Leave it unset to skip starter files. |
 | `output.directory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
 | `output.package` | `${project.groupId}` | Base package for generated Java classes. Model classes go in `<base package>.model` and template classes in `<base package>.templates`. |
 

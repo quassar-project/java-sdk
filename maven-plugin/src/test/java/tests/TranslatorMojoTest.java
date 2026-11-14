@@ -99,7 +99,7 @@ class TranslatorMojoTest {
 		MavenProject project = project();
 		project.getModel().setPackaging("maven-plugin");
 		TranslatorMojo mojo = configuredMojo(project);
-		parameter(mojo, "mode", "compiler");
+		parameter(mojo, "mode", "generator");
 		setModelInput(mojo);
 
 		mojo.execute();
@@ -114,7 +114,7 @@ class TranslatorMojoTest {
 		MavenProject project = project();
 		project.getModel().setPackaging("maven-plugin");
 		TranslatorMojo mojo = configuredMojo(project);
-		parameter(mojo, "mode", "compiler");
+		parameter(mojo, "mode", "generator");
 
 		mojo.execute();
 
@@ -125,7 +125,7 @@ class TranslatorMojoTest {
 	@Test
 	void rejectsMavenPluginModeForJarProjects() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
-		parameter(mojo, "mode", "compiler");
+		parameter(mojo, "mode", "generator");
 
 		assertThatThrownBy(mojo::execute).isInstanceOf(MojoExecutionException.class)
 			.hasMessageContaining("<packaging>maven-plugin</packaging>");
@@ -148,7 +148,7 @@ class TranslatorMojoTest {
 		parameter(mojo, "mode", "none");
 
 		assertThatThrownBy(mojo::execute).isInstanceOf(MojoExecutionException.class)
-			.hasMessageContaining("Unknown mode 'none'").hasMessageContaining("compiler or interpreter");
+			.hasMessageContaining("Unknown mode 'none'").hasMessageContaining("generator or interpreter");
 	}
 
 	@Test
