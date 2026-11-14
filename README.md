@@ -81,7 +81,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    Maven injects the M1 URL from the consumer POM’s `<model>` element inside `<input>` in step 6 into the Mojo’s `input.model` field. Maven also supplies `output` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. Keep the fields and nested `Input` class from the generated Mojo. The snippet shows those fields for context.
 
-   **Workflows example.** Set `input-model` to the download URL of the [Workflows metamodel (M2)](docs/sample-m2-model.md). Save the example’s `workflow.itr` in your project’s resources and run `mvn generate-sources` to obtain `org.workflows.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Example template](docs/generated-template-api.md#example-generate-java-from-a-workflow)
+   **Workflows example.** Set `input-model` to the download URL of the [Workflows metamodel (M2)](docs/sample-m2-model.md). Save the example’s `workflow.itr` in your project’s resources and run `mvn generate-sources` to obtain `org.workflows.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Sample templates](docs/sample-templates.md#workflowitr)
 
 	```java
 	@Parameter(required = true)

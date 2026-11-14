@@ -22,26 +22,7 @@ Use `solution/templates` for a nested directory. The generated Java class contai
 
 This example uses a DSL called Workflows. Its metamodel (M2) defines workflows, steps, and actions. The sample model (M1) contains a workflow named `OrderFulfillment`. Rendering that workflow produces a Java class whose `actions()` method lists all primary actions in model order, including those of disabled steps. [Workflow metamodel](sample-m2-model.md) · [Sample M1 model](sample-m1-model.md)
 
-With the generated classes `org.workflows.model.WorkflowsModel` and `org.workflows.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.render(workflow)`. Here are the rules from `workflow.itr` that the generated template applies.
-
-```itr
-rule type(Workflow)
-	import java.util.List;
-
-	public final class $identifier~Workflow {
-		public List<String> actions() {
-			return List.of($step...[, ]);
-		}
-	}
-
-rule type(Step)
-	$action
-
-rule type(Action)
-	$identifier+JsonString
-```
-
-The workflow rule renders each child `Step`. The step rule follows its `action` reference, and the action rule emits its identifier as a quoted string.
+With the generated classes `org.workflows.model.WorkflowsModel` and `org.workflows.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.render(workflow)`. The generated class applies the rules from the [sample workflow template](sample-templates.md#workflowitr).
 
 Save this program as `GenerateWorkflow.java` and replace `[code]` with the code of your M1 model in Quassar.
 
