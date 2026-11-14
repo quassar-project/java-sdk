@@ -103,7 +103,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
 ### Interpreter
 
-Build a Java application that loads a model (M1) and executes the behavior it describes at runtime.
+If you choose `interpreter`, you will build a Java application for your DSL. It loads a model (M1) and executes the behavior it describes at runtime.
 
 ```text
 Model (M1) → Your Java interpreter → Runtime behavior
