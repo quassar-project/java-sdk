@@ -39,7 +39,7 @@ Quassar is a platform for model-driven engineering (MDE). Define a domain-specif
 
 To generate source code from an M1 model, you can write templates that define the target code and use placeholders for values from the model. If you use Quassar Template Engine, write the templates as `.itr` files in your project’s resources. By default, the plugin searches from the project’s resources root. Set `input-templates` to a relative path to limit the search to a subdirectory.
 
-During `generate-sources`, the Quassar plugin generates a Java API for each input it finds and writes the classes under `output-directory` (`src/main/gen` by default). The `output-package` parameter sets their base Java package and defaults to the project's `groupId`. The table shows the generated packages when the project’s `groupId` is `org.example` and `output-package` is omitted.
+During `generate-sources`, the Quassar plugin generates a Java API from the configured M2 metamodel and any `.itr` files it finds and writes the classes under `output-directory` (`src/main/gen` by default). The `output-package` parameter sets their base Java package and defaults to the project's `groupId`. The table shows the generated packages when the project’s `groupId` is `org.example` and `output-package` is omitted.
 
 | Generated API | Input | Generated Java package |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ If you choose `generator`, you will build a Maven plugin for your DSL. It takes 
 Model (M1) → Your Maven plugin → Source code in the generated sources directory
 ```
 
-1. **Configure the POM.** In the DSL plugin project's `pom.xml`, add `<packaging>maven-plugin</packaging>` directly under `<project>`, alongside `<artifactId>` and `<version>`.
+1. **Configure the POM.** Set `<mode>generator</mode>` in the Quassar plugin configuration above. In the same `pom.xml`, add `<packaging>maven-plugin</packaging>` directly under `<project>`, alongside `<artifactId>` and `<version>`.
 
 	```xml
 	<project>
@@ -77,9 +77,9 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    Use the [template examples](docs/template-engine-examples.md) and [syntax reference](docs/template-engine-syntax.md) to write templates. The [Generated Template API](docs/generated-template-api.md) shows how to render a model with the generated classes.
 
-4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by `input.model`. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
+4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the M1 URL from the consumer POM. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 
-   Maven injects the M1 URL from the consumer POM’s `<input><model>` configuration in step 6 into the Mojo’s `input.model` field. Maven also supplies `output` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. The snippet uses the fields and nested `Input` class already declared in the generated Mojo.
+   Maven injects the M1 URL from the consumer POM’s `<model>` element inside `<input>` in step 6 into the Mojo’s `input.model` field. Maven also supplies `output` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. Keep the fields and nested `Input` class from the generated Mojo. The snippet shows those fields for context.
 
    **Workflows example.** Save the example’s `workflow.itr` in your project’s resources and run `mvn generate-sources` to obtain `org.example.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Example template](docs/generated-template-api.md#example-generate-java-from-a-workflow)
 
@@ -176,7 +176,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 	}
 	```
 
-   Add these members to `Interpreter.java` and import `org.example.model.Workflow` and `java.util.Map`. Register a handler for each action used by the model. This example assumes the service methods return a boolean and the caller handles errors when loading M1.
+   Add these members to `Interpreter.java`, then put the following call in your application’s order-processing code. Use `org.example.model.Workflow`, `org.example.model.WorkflowsModel`, `java.net.URI`, and `java.util.Map` where referenced. Register a handler for each action used by the model. This example assumes the service methods return a boolean and the caller handles errors when loading M1.
 
 	```java
 	var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
@@ -194,7 +194,7 @@ For direct template loading and frame customization, see the [Template Engine AP
 
 ## Quassar Maven plugin parameters
 
-The table lists the available parameters. Only `mode` is required in the Quassar plugin’s `<configuration>`. Use the hyphenated names as XML element names, such as `<input-model>`. If you already use nested `<input>` or `<output>` blocks, they are still supported. A hyphenated setting takes precedence over the matching nested setting.
+The table lists the available parameters. Only `mode` is required in the Quassar plugin’s `<configuration>`. Use these names as XML elements, such as `<input-model>`. Nested `<input>` and `<output>` blocks are also supported. When both forms set the same value, the hyphenated element takes precedence.
 
 | Parameter | Default | Purpose |
 | --- | --- | --- |
