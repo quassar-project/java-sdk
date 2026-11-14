@@ -4,45 +4,40 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 
 ## Create your DSL and models
 
-Open [Quassar Forge](https://quassar.io/forge) and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express.
+1. **Create your DSL.** Open [Quassar Forge](https://quassar.io/forge) and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express.
 
-Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models.
+2. **Create a model.** Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models.
 
 ## Use your models from Java
 
-Add the Quassar Maven plugin to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
+1. **Add the Quassar Maven plugin.** Add the configuration below to your `pom.xml`. Set `maven.compiler.release` to `17` or later and use Maven 3.9.9 or later. With `<extensions>true</extensions>`, the plugin adds `model-reader` and `template-engine` automatically.
 
-```xml
-<build>
-	<plugins>
-		<plugin>
-			<groupId>quassar.io</groupId>
-			<artifactId>maven-plugin</artifactId>
-			<version>1.0.0</version>
-			<extensions>true</extensions>
-			<executions>
-				<execution>
-					<goals><goal>generate</goal></goals>
-				</execution>
-			</executions>
-			<configuration>
-				<package>example</package>
-				<metamodel>https://quassar.io/models/[code]</metamodel>
-				<mode>[mode]</mode>
-			</configuration>
-		</plugin>
-	</plugins>
-</build>
-```
+	```xml
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>quassar.io</groupId>
+				<artifactId>maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<goals><goal>generate</goal></goals>
+					</execution>
+				</executions>
+				<configuration>
+					<package>example</package>
+					<metamodel>https://quassar.io/models/[code]</metamodel>
+					<mode>[mode]</mode>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	```
 
-In `<metamodel>`, replace `[code]` with your M2 code from Quassar. The plugin uses M2 to generate the Java API for your DSL.
-
-Set `<mode>` to one of these values.
-
-- `compiler` creates a Maven plugin starter that takes an M1 model and generates source code before the consumer project compiles.
-- `interpreter` creates a Java application starter that loads an M1 model and executes its behavior at runtime.
-
-In both modes, pass the URL of the M1 model you want to process to the [Generated Model API](docs/generated-model-api.md). You can also load and query M1 directly through the [Model Reader API](docs/model-reader-api.md).
+2. **Set the metamodel.** In `<metamodel>`, replace `[code]` with your M2 code from Quassar. The plugin uses M2 to generate the Java API for your DSL.
+3. **Choose how to process models.** Set `<mode>` to `compiler` to start a Maven plugin that generates source code from M1 before the consumer project compiles. Use `interpreter` to start a Java application that loads M1 and executes its behavior at runtime.
+4. **Load a model.** In both modes, pass the URL of the M1 model you want to process to the [Generated Model API](docs/generated-model-api.md). You can also load and query M1 directly through the [Model Reader API](docs/model-reader-api.md).
 
 ### Compiler
 
