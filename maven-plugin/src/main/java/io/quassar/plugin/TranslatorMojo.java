@@ -71,7 +71,7 @@ public final class TranslatorMojo extends AbstractMojo {
 
 		var sourceDirectory = project.getBasedir().toPath().resolve(project.getBuild().getSourceDirectory());
 		var starter = new ProjectStarter(sourceDirectory, packageName);
-		boolean createStarter = generationMode != Mode.NONE && !starter.hasJavaSources();
+		boolean createStarter = generationMode != null && !starter.hasJavaSources();
 		List<JavaCode> code = new ArrayList<>();
 		String modelClass = null;
 		Optional<String> modelName = Optional.empty();
@@ -101,16 +101,15 @@ public final class TranslatorMojo extends AbstractMojo {
 	}
 
 	private Mode generationMode() throws MojoExecutionException {
-		if (mode == null) return Mode.NONE;
+		if (mode == null) return null;
 		return switch (mode) {
 			case "interpreter" -> Mode.INTERPRETER;
 			case "compiler" -> Mode.COMPILER;
-			case "none" -> Mode.NONE;
-			default -> throw new MojoExecutionException("Unknown mode '" + mode + "'. Use compiler, interpreter or none.");
+			default -> throw new MojoExecutionException("Unknown mode '" + mode + "'. Use compiler or interpreter.");
 		};
 	}
 
 	private enum Mode {
-		COMPILER, INTERPRETER, NONE
+		COMPILER, INTERPRETER
 	}
 }

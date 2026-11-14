@@ -130,9 +130,8 @@ class TranslatorMojoTest {
 	}
 
 	@Test
-	void generatesDecoratorsWithoutScaffoldingWhenDisabled() throws Exception {
+	void generatesDecoratorsWithoutScaffoldingWhenModeIsOmitted() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
-		parameter(mojo, "mode", "none");
 		parameter(mojo, "metamodel", getClass().getResource("/maven/consumer/metamodel/"));
 
 		mojo.execute();
@@ -144,10 +143,10 @@ class TranslatorMojoTest {
 	@Test
 	void reportsSupportedModesForUnknownValues() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
-		parameter(mojo, "mode", "unknown");
+		parameter(mojo, "mode", "none");
 
 		assertThatThrownBy(mojo::execute).isInstanceOf(MojoExecutionException.class)
-			.hasMessageContaining("unknown").hasMessageContaining("compiler, interpreter or none");
+			.hasMessageContaining("Unknown mode 'none'").hasMessageContaining("compiler or interpreter");
 	}
 
 	@Test
