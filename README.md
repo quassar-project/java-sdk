@@ -76,25 +76,22 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
 	private MavenProject project;
 
-	@Override
-	public void execute() throws MojoExecutionException {
-		try {
-			var workflows = WorkflowsModel.load(model);
-			var output = outputDirectory.toPath().toAbsolutePath();
-			Files.createDirectories(output);
+	private void generateSources() throws IOException {
+		var workflows = WorkflowsModel.load(model);
+		var output = outputDirectory.toPath().toAbsolutePath();
+		Files.createDirectories(output);
 
-			for (var workflow : workflows.workflows()) {
-				var filename = workflow.identifier() + "Workflow.java";
-				String code = WorkflowTemplate.render(workflow);
-				Files.writeString(output.resolve(filename), code);
-			}
-
-			project.addCompileSourceRoot(output.toString());
-		} catch (IOException exception) {
-			throw new MojoExecutionException("Could not generate workflow sources", exception);
+		for (var workflow : workflows.workflows()) {
+			var filename = workflow.identifier() + "Workflow.java";
+			String code = WorkflowTemplate.render(workflow);
+			Files.writeString(output.resolve(filename), code);
 		}
+
+		project.addCompileSourceRoot(output.toString());
 	}
 	```
+
+   Call `generateSources()` from the generated Mojo’s `execute()` method, using its existing IOException handling.
 
    Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.IOException`, `java.net.URL`, and `java.nio.file.Files` in the Mojo. Import `MavenProject` from `org.apache.maven.project` and `Parameter` from `org.apache.maven.plugins.annotations`.
 
