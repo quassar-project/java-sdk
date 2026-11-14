@@ -149,7 +149,7 @@ This runs the tests and installs the SDK modules into your local Maven repositor
 
 ## Quassar Maven plugin parameters
 
-Set these parameters inside the Quassar plugin's `<configuration>`.
+The table lists the available parameters. Add only the ones your project needs to the Quassar plugin's `<configuration>`.
 
 | Parameter | Default | Purpose |
 | --- | --- | --- |
