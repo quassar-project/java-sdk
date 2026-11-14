@@ -1,6 +1,6 @@
 # Sample templates
 
-These templates use the Workflows DSL and its sample model. Save each block in a separate `.itr` file in the project’s resources and run `mvn generate-sources` to generate the Java template classes. [Sample metamodel (M2)](sample-m2-model.md) · [Sample M1 model](sample-m1-model.md) · [Generated Template API](generated-template-api.md)
+These templates use the Workflows DSL and its sample model. Save each block in a separate `.itr` file in the project’s resources and run `mvn generate-sources` to generate the Java template classes. [Sample metamodel (M2)](sample-m2-model.md) · [Sample model (M1)](sample-m1-model.md) · [Generated Template API](generated-template-api.md)
 
 ## workflow.itr
 

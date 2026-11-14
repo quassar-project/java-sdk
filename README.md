@@ -153,7 +153,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 ```
 
 1. **Generate the interpreter starter.** Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Interpreter.java` if the Java source directory is empty.
-2. **Load the workflow.** Use `WorkflowsModel` to load the M1 model from Quassar. The sample `OrderFulfillment` workflow confirms the order, reserves stock, and has a disabled warehouse notification step. If `SendConfirmation` fails, the interpreter runs `QueueForRetry` and `LogFailure`. [Sample M1 model](docs/sample-m1-model.md)
+2. **Load the workflow.** Use `WorkflowsModel` to load the M1 model from Quassar. The sample `OrderFulfillment` workflow confirms the order, reserves stock, and has a disabled warehouse notification step. If `SendConfirmation` fails, the interpreter runs `QueueForRetry` and `LogFailure`. [Sample model (M1)](docs/sample-m1-model.md)
 
 3. **Register and execute actions.** Map each action identifier to a Java handler. Each handler returns whether it succeeded. If the primary action fails, run its fallbacks in the order declared in M1. If the primary action fails and has no fallbacks, or if a fallback fails, the interpreter returns `false`.
 

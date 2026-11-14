@@ -26,4 +26,4 @@ Concept Action
 	def string name
 ```
 
-Use the published DSL to create the [sample M1 model](sample-m1-model.md).
+Use the published DSL to create the [sample model (M1)](sample-m1-model.md).

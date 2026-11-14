@@ -1,4 +1,4 @@
-# Sample M1 model
+# Sample model (M1)
 
 Create an M1 model in Quassar Studio using the Workflows DSL. Copy its download URL to load this model from Java. [Open Quassar Studio](https://quassar.io/studio) · [Sample metamodel (M2)](sample-m2-model.md)
 

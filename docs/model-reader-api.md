@@ -16,7 +16,7 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 
 ## Create a model in Quassar
 
-Create the [sample M1 model](sample-m1-model.md) and use its download URL in the Java examples.
+Create the [sample model (M1)](sample-m1-model.md) and use its download URL in the Java examples.
 
 ## Load the model and follow a reference
 
