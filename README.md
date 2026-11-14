@@ -67,11 +67,14 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
 4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by the `model` parameter. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 
-   Maven injects the M1 URL from the consumer POM’s `<model>` element in step 6 into the Mojo’s `model` field. It also supplies `outputDirectory` and `project`. This implementation writes one Java file per workflow using the [generated workflow template](docs/generated-template-api.md#example-generate-java-from-a-workflow).
+   Maven injects the M1 URL from the consumer POM’s `<model>` element in step 6 into the Mojo’s `model` field. Maven also supplies `outputDirectory` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. This implementation writes one Java file per workflow using the [generated workflow template](docs/generated-template-api.md#example-generate-java-from-a-workflow).
 
 	```java
 	@Parameter(property = "quassar.model", required = true)
 	private URL model;
+
+	@Parameter(defaultValue = "${project}", readonly = true, required = true)
+	private MavenProject project;
 
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -92,7 +95,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 	}
 	```
 
-   Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.IOException`, `java.net.URL`, and `java.nio.file.Files` in the Mojo. The `@Parameter` annotation comes from `org.apache.maven.plugins.annotations.Parameter`.
+   Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.IOException`, `java.net.URL`, and `java.nio.file.Files` in the Mojo. Import `MavenProject` from `org.apache.maven.project` and `Parameter` from `org.apache.maven.plugins.annotations`.
 
 5. **Install your DSL plugin.** Run `mvn install` in the DSL plugin project to install it in your local Maven repository.
 
