@@ -207,7 +207,7 @@ The table lists the available parameters. Add only the ones your project needs t
 | `package` | Project `groupId` (`${project.groupId}`) | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
 | `metamodel` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
 | `mode` | Unset | Use `compiler` to scaffold a DSL Maven plugin, or `interpreter` to scaffold a Java application. Leave it unset to skip starter files. |
-| `templateDirectory` | `src/main/resources` | Search for `.itr` files from the resources root. Set a relative path such as `templates` to search from `src/main/resources/templates`. |
+| `templateDirectory` | Unset (resources root) | Directory relative to the project’s `src/main/resources`. For example, `templates` resolves to `src/main/resources/templates`. |
 | `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
 
 The SDK is distributed under the [MIT License](LICENSE).
