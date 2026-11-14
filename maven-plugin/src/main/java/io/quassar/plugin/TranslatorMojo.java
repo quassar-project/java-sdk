@@ -33,16 +33,16 @@ public final class TranslatorMojo extends AbstractMojo {
 	@Parameter
 	private Input input = new Input();
 
-	@Parameter(alias = "input.model")
+	@Parameter(alias = "input-model")
 	private URL inputModel;
 
-	@Parameter(alias = "input.templates")
+	@Parameter(alias = "input-templates")
 	private String inputTemplates;
 
-	@Parameter(alias = "output.package")
+	@Parameter(alias = "output-package")
 	private String outputPackage;
 
-	@Parameter(alias = "output.directory")
+	@Parameter(alias = "output-directory")
 	private File outputDirectory;
 
 	@Parameter
@@ -75,7 +75,7 @@ public final class TranslatorMojo extends AbstractMojo {
 		var templateFiles = new TemplateFiles();
 		List<TemplateDefinition> definitions = templateFiles.read(templatePath);
 		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.GENERATOR)
-			throw new MojoExecutionException("Configure <input.model> or add .itr templates to " + templatePath);
+			throw new MojoExecutionException("Configure <input-model> or add .itr templates to " + templatePath);
 
 		String packageName = outputPackage == null ? output.packageName : outputPackage;
 		if (packageName == null) packageName = project.getGroupId();

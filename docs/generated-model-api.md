@@ -4,9 +4,9 @@ Use the generated Java decorators to load an M1 model, read its properties, and 
 
 ## Generation inputs and output
 
-Set `input.model` to the M2 download URL. During `generate-sources`, the Quassar Maven plugin generates the model API from M2 and writes Java files under `output.directory` (`src/main/gen` by default).
+Set `input-model` to the M2 download URL. During `generate-sources`, the Quassar Maven plugin generates the model API from M2 and writes Java files under `output-directory` (`src/main/gen` by default).
 
-The plugin adds the `model` subpackage to the base package set by `output.package`, which defaults to the project's `groupId`. With the default package and a project `groupId` of `org.example` and the `Workflows` metamodel, the model class is `org.example.model.WorkflowsModel` and its default output path is `src/main/gen/org/example/model/WorkflowsModel.java`. Use it to load M1 when your generator or interpreter runs.
+The plugin adds the `model` subpackage to the base package set by `output-package`, which defaults to the project's `groupId`. With the default package and a project `groupId` of `org.example` and the `Workflows` metamodel, the model class is `org.example.model.WorkflowsModel` and its default output path is `src/main/gen/org/example/model/WorkflowsModel.java`. Use it to load M1 when your generator or interpreter runs.
 
 ## Workflow metamodel
 

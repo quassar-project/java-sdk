@@ -13,10 +13,10 @@
 				<extensions>true</extensions>
 				<executions><execution><goals><goal>generate</goal></goals></execution></executions>
 				<configuration>
-					<input.model>${project.baseUri}metamodel/</input.model>
-					<input.templates>templates</input.templates>
-					<output.directory>src/main/generated-api</output.directory>
-					<output.package>example</output.package>
+					<input-model>${project.baseUri}metamodel/</input-model>
+					<input-templates>templates</input-templates>
+					<output-directory>src/main/generated-api</output-directory>
+					<output-package>example</output-package>
 				</configuration>
 			</plugin>
 			<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version></plugin>
