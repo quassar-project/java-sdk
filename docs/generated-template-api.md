@@ -61,6 +61,6 @@ public final class OrderFulfillmentWorkflow {
 
 ## Write your own templates
 
-Use a rule to select the model concept and write the desired output in the rule body. Insert placeholders for model values and add rules for children or references that need their own output. [Template examples](template-engine-examples.md) · [Template syntax reference](template-engine-syntax.md)
+Use a rule to select the model concept and write the desired output in the rule body. Insert placeholders for model values and add rules for children or references that need their own output. [Template cookbook](template-engine-cookbook.md) · [Template syntax reference](template-engine-syntax.md)
 
 For runtime template loading, custom adapters, or direct frame construction, see the advanced API. [Template Engine API](template-engine-api.md)

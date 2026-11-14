@@ -30,7 +30,7 @@ Use `TemplateEngine.with(...)` to load an `.itr` file at runtime. You can also d
 
 The engine opens and closes files passed as a `Path`. If you pass an `InputStream`, close it in your code after the engine loads the template. Unreadable or malformed templates raise `TemplateReadException`.
 
-This example assumes `workflow.itr` is in the current directory. [Template examples](template-engine-examples.md) · [Template syntax reference](template-engine-syntax.md)
+This example assumes `workflow.itr` is in the current directory. [Template cookbook](template-engine-cookbook.md) · [Template syntax reference](template-engine-syntax.md)
 
 ```java
 import io.quassar.templating.TemplateEngine;
@@ -208,4 +208,4 @@ rule type(Step)
 	$label ($<container>identifier)
 ```
 
-For the sample workflow, the first line is `Confirm order (OrderFulfillment)`. [Read values from the root and a named path](template-engine-examples.md#read-values-from-the-root-and-a-named-path)
+For the sample workflow, the first line is `Confirm order (OrderFulfillment)`. [Read values from the root and a named path](template-engine-cookbook.md#read-values-from-the-root-and-a-named-path)

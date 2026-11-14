@@ -24,7 +24,7 @@ placeholder = TRIGGER, [ TARGET ], ID,
 
 `BEGIN_RULE` is the `rule` keyword. `BEGIN_BODY` marks the line break after the condition and can consume the first indentation tab or four spaces. In a placeholder, `TRIGGER` is `$`, `TARGET` is an optional path in angle brackets, `OPTION` is `+`, and `LIST` is `...`. The lexer reads `SEPARATOR` as the text enclosed in square brackets. Optional expressions use `<<` and `>>`, with `?` between branches.
 
-The sections below use the Workflows sample model. [Sample M1 model](sample-m1-model.md) · [Template examples](template-engine-examples.md)
+The sections below use the Workflows sample model. [Sample M1 model](sample-m1-model.md) · [Template cookbook](template-engine-cookbook.md)
 
 ## Rules
 
@@ -49,7 +49,7 @@ A placeholder tells the engine where to insert a value in the output. Write `$na
 
 For each value in the slot, the engine looks for the first rule that matches that value. When no rule matches, a scalar such as text or a number renders as text, and an object produces no output. A missing slot also produces no output. Use an optional expression for fallback text or a separator to join repeated values. [Optional expressions](#optional-expressions) · [Lists and separators](#lists-and-separators)
 
-A qualified placeholder uses `$<path>slotName` to read a slot from another frame. [Frame context](template-engine-api.md#frame-context) · [Workflow example](template-engine-examples.md#read-values-from-the-root-and-a-named-path)
+A qualified placeholder uses `$<path>slotName` to read a slot from another frame. [Frame context](template-engine-api.md#frame-context) · [Workflow example](template-engine-cookbook.md#read-values-from-the-root-and-a-named-path)
 
 Render the `Confirm` step to follow its action reference. The `Step` rule reads `$action`, and the `Action` rule reads `$name` from the referenced action.
 
@@ -81,11 +81,11 @@ rule type(Step) and attribute(enabled, true)
 	$label: enabled
 ```
 
-See complete examples with fallback rules. [Workflow conditions](template-engine-examples.md#combine-conditions) · [Matching the calling placeholder](template-engine-examples.md#choose-output-based-on-the-calling-slot)
+See complete examples with fallback rules. [Workflow conditions](template-engine-cookbook.md#combine-conditions) · [Matching the calling placeholder](template-engine-cookbook.md#choose-output-based-on-the-calling-slot)
 
 ## Lists and separators
 
-`$slotName...[separator]` renders the values of a slot and inserts the separator between rendered outputs. [Workflow list example](template-engine-examples.md#render-a-list-and-format-each-value)
+`$slotName...[separator]` renders the values of a slot and inserts the separator between rendered outputs. [Workflow list example](template-engine-cookbook.md#render-a-list-and-format-each-value)
 
 | Mark | Meaning |
 | --- | --- |
@@ -115,7 +115,7 @@ rule type(Step)
 	$label: <<$schedule?Run immediately>>
 ```
 
-The sample step has no schedule, so it renders as `Confirm order: Run immediately`. [Workflow fallback example](template-engine-examples.md#optional-values-and-fallback-text)
+The sample step has no schedule, so it renders as `Confirm order: Run immediately`. [Workflow fallback example](template-engine-cookbook.md#optional-values-and-fallback-text)
 
 ## Formatters
 
@@ -149,7 +149,7 @@ Register a formatter by name with `engine.add(name, formatter)` before rendering
 
 ## Join a placeholder to literal text
 
-Use `~` to mark the end of a placeholder when literal text follows immediately. In `$slotName~suffix`, the engine reads `slotName` and appends the literal suffix. [Workflow escaping example](template-engine-examples.md#escape-template-characters)
+Use `~` to mark the end of a placeholder when literal text follows immediately. In `$slotName~suffix`, the engine reads `slotName` and appends the literal suffix. [Workflow escaping example](template-engine-cookbook.md#escape-template-characters)
 
 ```itr
 rule type(Workflow)

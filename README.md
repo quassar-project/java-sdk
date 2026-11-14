@@ -75,7 +75,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    If you use Quassar Template Engine, save your `.itr` files in the DSL plugin project’s resources. Run `mvn generate-sources` again to generate their Java classes.
 
-   Use the [template examples](docs/template-engine-examples.md) and [syntax reference](docs/template-engine-syntax.md) to write templates. The [Generated Template API](docs/generated-template-api.md) shows how to render a model with the generated classes.
+   Use the [template cookbook](docs/template-engine-cookbook.md) and [syntax reference](docs/template-engine-syntax.md) to write templates. The [Generated Template API](docs/generated-template-api.md) shows how to render a model with the generated classes.
 
 4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the M1 URL from the consumer POM. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 

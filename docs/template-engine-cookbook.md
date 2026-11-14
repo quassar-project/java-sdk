@@ -1,6 +1,13 @@
-# Template examples
+# Template cookbook
 
-These examples render the `OrderFulfillment` workflow from the sample M1 model. Its first step, `Confirm`, calls `SendConfirmation` and lists `QueueForRetry` and `LogFailure` as fallback actions. [M1 example](sample-m1-model.md) · [Workflow metamodel](sample-m2-model.md)
+Choose a recipe for the output you want to produce. Each recipe gives you an input from the Workflows sample model, an `.itr` template, and the expected result. [Sample M1 model](sample-m1-model.md) · [Workflow metamodel](sample-m2-model.md)
+
+- **Select output** · [Choose a rule from the data](#choose-a-rule-from-the-data) · [Combine conditions](#combine-conditions) · [Match the calling slot](#choose-output-based-on-the-calling-slot)
+- **Format output** · [Supply fallback text](#optional-values-and-fallback-text) · [Format a list](#render-a-list-and-format-each-value) · [Omit absent JSON fields](#produce-json-with-optional-fields) · [Escape template characters](#escape-template-characters)
+- **Navigate the model** · [Follow a path from the root](#read-values-from-the-root-and-a-named-path) · [Read the containing workflow](#access-the-containing-workflow)
+- **Generate Java** · [Workflow class](#generate-java-from-a-workflow) · [Step configuration](#generate-a-java-step-configuration) · [Action configuration](#generate-a-java-record)
+
+## Prepare the sample input
 
 Save each template in its own `.itr` file under the project’s resources root and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md) · [Sample templates](sample-templates.md)
 
@@ -166,7 +173,17 @@ Notify warehouse (OrderFulfillment)
 
 ## Generate Java from a workflow
 
-The generated API guide shows the workflow template, the call to its generated Java class, and the resulting Java source. [Generate Java from a workflow](generated-template-api.md#example-generate-java-from-a-workflow)
+Render `workflow` to generate a Java class that lists the actions in model order. Save the rules as `workflow.itr` and call `WorkflowTemplate.render(workflow)`. [Sample template](sample-templates.md#workflowitr) · [Save the rendered Java source](generated-template-api.md#example-generate-java-from-a-workflow)
+
+```java
+import java.util.List;
+
+public final class OrderFulfillmentWorkflow {
+	public List<String> actions() {
+		return List.of("SendConfirmation", "ReserveStock", "NotifyWarehouse");
+	}
+}
+```
 
 ## Generate a Java step configuration
 
