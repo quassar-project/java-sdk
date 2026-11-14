@@ -86,6 +86,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 				</executions>
 				<configuration>
 					<model>https://quassar.io/models/[code]</model>
+					<outputDirectory>${project.basedir}/src/main/gen</outputDirectory>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -96,7 +97,7 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
    The generated compiler starter accepts an output directory. With a single template, it writes `GeneratedModel.java` there. Customize the Mojo to choose the filenames and templates for your compiler.
 
-   Pass the required M1 download URL through `<model>` or `-Dquassar.model`. Set `<outputDirectory>` or `-Dquassar.output` to change the default output directory, `src/main/gen`.
+   Pass the required M1 download URL through `<model>`. Set `<outputDirectory>` to change the default output directory, `src/main/gen`.
 
 ### Interpreter
 
