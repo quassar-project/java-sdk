@@ -6,7 +6,7 @@ Quassar is a platform for model-driven engineering (MDE). Define a domain-specif
 
 1. **Create your DSL.** Open [Quassar Forge](https://quassar.io/forge) and select **New DSL**. To create the DSL, define its metamodel (M2) with the concepts, properties, and relationships that models can express.
 
-2. **Create a model.** Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models. The examples below use the [Workflows metamodel (M2)](docs/sample-m2-model.md) and its [sample model (M1)](docs/sample-m1-model.md).
+2. **Create a model.** Once your DSL is available, open [Quassar Studio](https://quassar.io/studio) and select **New Model**, then choose your DSL. Use the concepts defined in M2 to describe a specific case in your domain. The same DSL can support many models.
 
 <a id="use-your-models-from-java"></a>
 
@@ -81,7 +81,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    Maven injects the M1 URL from the consumer POM’s `<model>` element inside `<input>` in step 6 into the Mojo’s `input.model` field. Maven also supplies `output` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. Keep the fields and nested `Input` class from the generated Mojo. The snippet shows those fields for context.
 
-   **Workflows example.** Save the example’s `workflow.itr` in your project’s resources and run `mvn generate-sources` to obtain `org.example.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Example template](docs/generated-template-api.md#example-generate-java-from-a-workflow)
+   **Workflows example.** Set `input-model` to the download URL of the [Workflows metamodel (M2)](docs/sample-m2-model.md). Save the example’s `workflow.itr` in your project’s resources and run `mvn generate-sources` to obtain `org.example.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Example template](docs/generated-template-api.md#example-generate-java-from-a-workflow)
 
 	```java
 	@Parameter(required = true)
