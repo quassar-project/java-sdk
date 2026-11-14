@@ -97,31 +97,26 @@ A missing property returns `Value.Empty`. Typed accessors return an empty string
 
 A missing mogram, an unresolved reference, the parent of a root mogram, and `first()` on an empty query return `Mogram.NULL`. Check the result with `isNull()`.
 
-## Load from another source
+## Load from files, URLs, or text
+
+Use `Models.create` for model text and `Models.load` for local files, folders, ZIP archives, and URLs.
 
 ```java
 import java.nio.file.Path;
 
-var archive = Models.load(Path.of("workflows.zip"));
-var folder = Models.load(Path.of("m1"));
+var fromText = Models.create("Workflow OrderFulfillment");
+var fromFile = Models.load(Path.of("workflows.tara"));
+var fromFolder = Models.load(Path.of("m1"));
+var fromZip = Models.load(Path.of("workflows.zip"));
+var fromUrl = Models.load(URI.create("https://quassar.io/models/[code]"));
 var bundled = Models.load(WorkflowExample.class.getResource("/workflows.tara"));
 ```
 
-A folder or ZIP can contain multiple Tara files and subfolders. The reader loads them into one model so references can cross file boundaries. For typed methods such as `step.label()`, see the [Generated Model API](generated-model-api.md).
+Replace `[code]` with your M1 model code. A folder or ZIP can contain several Tara files. The reader combines them so references can cross file boundaries. For typed accessors such as `step.label()`, see the [Generated Model API](generated-model-api.md).
 
-## Common entry points
+## Load a release
 
-Use `Models.create` to read model text directly and `Models.load` to read files, folders, ZIP archives, and URLs.
-
-```java
-var fromText = Models.create("dsl workflows\nWorkflow OrderFulfillment\n");
-var fromFile = Models.load(Path.of("main.tara"));
-var fromFolder = Models.load(Path.of("workspace"));
-var fromZip = Models.load(Path.of("release.zip"));
-var fromUrl = Models.load(java.net.URI.create("https://quassar.io/releases/commit"));
-```
-
-Use `ModelRelease` when you also need metadata, resources or authenticated downloads:
+Use `ModelRelease` when you also need metadata, resources, or authenticated downloads.
 
 ```java
 var release = io.quassar.reader.ModelRelease.open(Path.of("release.zip"));
@@ -135,7 +130,9 @@ var downloaded = io.quassar.reader.ModelRelease.download(url, token);
 
 Releases are read in memory without extracting files. Model files under `views/` are combined; files under `resources/` remain resources even when their extension is `.tara`. Authenticated downloads do not follow redirects.
 
-Without a metamodel, the reader represents only the supplied values. Pass the DSL definition to resolve defaults:
+## Resolve defaults from M2
+
+Pass the metamodel to resolve defaults alongside the values supplied in M1.
 
 ```java
 var effective = Models.create(modelText, metamodelText);

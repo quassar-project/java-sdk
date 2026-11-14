@@ -2,7 +2,7 @@
 
 These examples render the `OrderFulfillment` workflow from the Model Reader guide. It has a `Confirm` step that calls `SendConfirmation` and lists `QueueForRetry` and `LogFailure` as fallback actions. [M1 example](model-reader-api.md#create-a-model-in-quassar) · [Workflow metamodel](generated-model-api.md#workflow-metamodel)
 
-Save each template in its own `.itr` file under `src/main/resources` and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md)
+Save each template in its own `.itr` file under the project’s resources root and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md)
 
 ```java
 import example.model.WorkflowsModel;
@@ -190,11 +190,11 @@ public record ConfirmConfig() {
 
 ## Generate a Java record
 
-Save this as `step-config.itr` and render `step` with it. The generated record holds the step settings that a Java workflow runner can read through typed accessors.
+Save this as `step-action-config.itr` and call `StepActionConfigTemplate.render(step)`. The generated record holds the step settings that a Java workflow runner can read through typed accessors.
 
 ```itr
 rule type(Step)
-	public record $identifier~Config() {
+	public record $identifier~ActionConfig() {
 		public String actionName() { return $action; }
 		public int timeoutSeconds() { return $timeoutSeconds; }
 	}
@@ -204,7 +204,7 @@ rule type(Action)
 ```
 
 ```java
-public record ConfirmConfig() {
+public record ConfirmActionConfig() {
 	public String actionName() { return "Send confirmation"; }
 	public int timeoutSeconds() { return 30; }
 }

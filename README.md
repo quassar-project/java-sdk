@@ -35,15 +35,15 @@ Use the Quassar Java SDK to build a compiler or an interpreter for models writte
 	</build>
 	```
 
-4. **Set the metamodel.** In `<metamodel>`, replace `[code]` with your M2 code from Quassar.
-5. **Choose how to process models.** Set `<mode>` to `compiler` to start a Maven plugin that generates source code from M1 before the consumer project compiles. Use `interpreter` to start a Java application that loads M1 and executes its behavior at runtime.
+4. **Set the metamodel.** In `<metamodel>`, replace `[code]` with your DSL metamodel code from Quassar.
+5. **Choose how to process models.** Set `<mode>` to `compiler` to build a Maven plugin that generates source code from M1 before the consumer project compiles. Set it to `interpreter` to build a Java application that loads M1 and executes its behavior at runtime.
 
 ### Compiler
 
 If you choose `compiler`, you will build a Maven plugin for your DSL. It takes a model (M1) and writes the generated source code to the consuming project's generated sources directory.
 
 ```text
-Model (M1) → Your DSL's Maven plugin → Source code in the generated sources directory
+Model (M1) → Your Maven plugin → Source code in the generated sources directory
 ```
 
 1. **Configure the POM.** In the DSL plugin project's `pom.xml`, add `<packaging>maven-plugin</packaging>` directly under `<project>`, alongside `<artifactId>` and `<version>`.
@@ -59,19 +59,20 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 	</project>
 	```
 
-   In that same POM, set `<mode>compiler</mode>` inside the Quassar plugin's `<configuration>` in the `<build>` block above.
-
 2. **Generate the plugin starter.** Run `mvn generate-sources`. The Quassar Maven plugin generates the typed model API from M2 and creates an editable Mojo with a `generate` goal if the Java source directory is empty.
 
-3. **Write the code generation templates.** Choose any template engine for your compiler. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, put your templates in `src/main/resources` of the DSL plugin project. This guide assumes Java output, and you can write templates for any other programming language. The [Generated Template API](docs/generated-template-api.md) shows how to render an M1 model. Use the [template examples](docs/template-engine-examples.md) and the [syntax reference](docs/template-engine-syntax.md) to write your own templates.
+3. **Write the code generation templates.** Choose any template engine for your compiler. The following example uses the Workflows DSL and the `example` base package from the POM above. The Quassar SDK includes its own Template Engine, which uses `.itr` files. If you use it, save `workflow.itr` in the DSL plugin project’s resources and run `mvn generate-sources` again to generate `WorkflowTemplate`. You can write templates for Java or other target languages. The [Generated Template API](docs/generated-template-api.md) shows how to render an M1 model. Use the [template examples](docs/template-engine-examples.md) and the [syntax reference](docs/template-engine-syntax.md) to write your own templates.
 
 4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the URL supplied by the `model` parameter. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 
-   Maven injects the M1 URL from the consumer POM’s `<model>` element in step 6 into the Mojo’s `model` field. Maven also supplies `outputDirectory` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. This implementation writes one Java file per workflow using the [generated workflow template](docs/generated-template-api.md#example-generate-java-from-a-workflow).
+   Maven injects the M1 URL from the consumer POM’s `<model>` element in step 6 into the Mojo’s `model` field. Maven also supplies `outputDirectory` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. The snippet shows the three fields already declared in the generated Mojo and the `generateSources()` method to add. It writes one Java file per workflow using the [generated workflow template](docs/generated-template-api.md#example-generate-java-from-a-workflow).
 
 	```java
 	@Parameter(property = "quassar.model", required = true)
 	private URL model;
+
+	@Parameter(property = "quassar.output", defaultValue = "${project.basedir}/src/main/gen", required = true)
+	private File outputDirectory;
 
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
 	private MavenProject project;
@@ -91,9 +92,9 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 	}
 	```
 
-   Call `generateSources()` from the generated Mojo’s `execute()` method, using its existing IOException handling.
+   In the generated Mojo’s `execute()`, replace the statements inside the existing `try` block with a call to `generateSources()`. Keep the generated exception handling.
 
-   Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.IOException`, `java.net.URL`, and `java.nio.file.Files` in the Mojo. Import `MavenProject` from `org.apache.maven.project` and `Parameter` from `org.apache.maven.plugins.annotations`.
+   Import `example.model.WorkflowsModel`, `example.templates.WorkflowTemplate`, `java.io.File`, `java.io.IOException`, `java.net.URL`, and `java.nio.file.Files` in the Mojo. Import `MavenProject` from `org.apache.maven.project` and `Parameter` from `org.apache.maven.plugins.annotations`.
 
 5. **Install your DSL plugin.** Run `mvn install` in the DSL plugin project to install it in your local Maven repository.
 
@@ -123,8 +124,6 @@ Model (M1) → Your DSL's Maven plugin → Source code in the generated sources 
 
    Replace `[code]` with the M1 code and run `mvn compile` in the consumer project. Maven runs your DSL plugin before compiling the Java sources.
 
-   The generated compiler starter accepts an output directory. With a single template, it writes `GeneratedModel.java` there. Customize the Mojo to choose the filenames and templates for your compiler.
-
    Pass the required M1 download URL through `<model>`. Set `<outputDirectory>` to change the default output directory, `src/main/gen`.
 
 ### Interpreter
@@ -138,7 +137,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 1. **Generate the interpreter starter.** Set `<mode>interpreter</mode>` in the Quassar plugin configuration and run `mvn generate-sources`. The plugin generates a typed Java API from M2 and creates an editable `Interpreter.java` if the Java source directory is empty.
 2. **Load the workflow.** Use `WorkflowsModel` to load the M1 model from Quassar. The sample model defines an `OrderFulfillment` workflow with a `Confirm` step that runs `SendConfirmation`. Its fallback actions are `QueueForRetry` and `LogFailure`. [Sample M1 model](docs/model-reader-api.md#create-a-model-in-quassar)
 
-3. **Register and execute actions.** Map each action identifier to a Java handler. Each handler returns whether it succeeded. If the primary action fails, run its fallbacks in the order declared in M1. The interpreter returns `false` if there are no fallbacks or a fallback fails.
+3. **Register and execute actions.** Map each action identifier to a Java handler. Each handler returns whether it succeeded. If the primary action fails, run its fallbacks in the order declared in M1. If the primary action fails and has no fallbacks, or if a fallback fails, the interpreter returns `false`.
 
 	```java
 	private final Map<String, ActionHandler> handlers;
@@ -147,7 +146,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 		this.handlers = Map.copyOf(handlers);
 	}
 
-	interface ActionHandler {
+	public interface ActionHandler {
 		boolean execute(String orderId);
 	}
 
@@ -165,7 +164,7 @@ Model (M1) → Your Java interpreter → Runtime behavior
 	}
 	```
 
-   Add these members to `Interpreter.java`. Register a handler for each action used by the model. This example assumes the service methods return a boolean and the caller handles errors when loading M1.
+   Add these members to `Interpreter.java` and import `example.model.Workflow` and `java.util.Map`. Register a handler for each action used by the model. This example assumes the service methods return a boolean and the caller handles errors when loading M1.
 
 	```java
 	var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
@@ -187,10 +186,10 @@ The table lists the available parameters. Add only the ones your project needs t
 
 | Parameter | Default | Purpose |
 | --- | --- | --- |
-| `package` | Project `groupId` (`${project.groupId}`) | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
+| `package` | `${project.groupId}` | Base package for generated Java classes. Model classes go in `<package>.model` and template classes in `<package>.templates`. |
 | `metamodel` | Unset | Download URL for M2, or a local M2 folder or ZIP URL. Omit it to generate Java classes from templates alone. |
 | `mode` | Unset | Use `compiler` to scaffold a DSL Maven plugin, or `interpreter` to scaffold a Java application. Leave it unset to skip starter files. |
-| `templateDirectory` | Unset (resources root) | Path relative to the project’s resources root, such as `templates`. The Quassar plugin uses it during `generate-sources`. |
+| `templateDirectory` | `resources root` | Path relative to the project’s resources root, such as `templates`. The Quassar plugin uses it during `generate-sources`. |
 | `outputDirectory` | `${project.basedir}/src/main/gen` | Directory where the plugin writes generated Java source files. |
 
 The SDK is distributed under the [MIT License](LICENSE).

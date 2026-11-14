@@ -70,13 +70,3 @@ var fallbackActions = step.fallbackActions();
 Model collection methods return root mograms of the declared type. Child collection methods return direct children of the declared type. References resolve against the loaded model.
 
 For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.asScheduled()` returns its typed view. Read the schedule with `step.asScheduled().schedule()`. When the facet is absent, the view returns `true` from `isNull()`.
-
-## Build and test
-
-From the repository root:
-
-```sh
-mvn -pl maven-plugin -am test
-```
-
-Tests use JUnit 5 and AssertJ with M2 metamodel resources and Java fixtures. They compile and execute generated decorators against model instances, covering facets, references, sequences, positional properties, null objects, model loading and Java name collisions.
