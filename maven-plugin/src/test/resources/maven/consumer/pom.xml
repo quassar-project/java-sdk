@@ -15,6 +15,7 @@
 				<configuration>
 					<input-model>${project.baseUri}metamodel/</input-model>
 					<input-templates>templates</input-templates>
+					<mode>interpreter</mode>
 					<output-directory>src/main/generated-api</output-directory>
 					<output-package>example</output-package>
 				</configuration>

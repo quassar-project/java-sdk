@@ -45,7 +45,7 @@ public final class TranslatorMojo extends AbstractMojo {
 	@Parameter(alias = "output-directory")
 	private File outputDirectory;
 
-	@Parameter
+	@Parameter(required = true)
 	private String mode;
 
 	@Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -74,8 +74,6 @@ public final class TranslatorMojo extends AbstractMojo {
 		var templatePath = templateDirectory == null ? resources : resources.resolve(templateDirectory);
 		var templateFiles = new TemplateFiles();
 		List<TemplateDefinition> definitions = templateFiles.read(templatePath);
-		if (definitions.isEmpty() && metamodel == null && generationMode != Mode.GENERATOR)
-			throw new MojoExecutionException("Configure <input-model> or add .itr templates to " + templatePath);
 
 		String packageName = outputPackage == null ? output.packageName : outputPackage;
 		if (packageName == null) packageName = project.getGroupId();
@@ -85,7 +83,7 @@ public final class TranslatorMojo extends AbstractMojo {
 
 		var sourceDirectory = project.getBasedir().toPath().resolve(project.getBuild().getSourceDirectory());
 		var starter = new ProjectStarter(sourceDirectory, packageName);
-		boolean createStarter = generationMode != null && !starter.hasJavaSources();
+		boolean createStarter = !starter.hasJavaSources();
 		List<JavaCode> code = new ArrayList<>();
 		String modelClass = null;
 		Optional<String> modelName = Optional.empty();
@@ -115,7 +113,8 @@ public final class TranslatorMojo extends AbstractMojo {
 	}
 
 	private Mode generationMode() throws MojoExecutionException {
-		if (mode == null) return null;
+		if (mode == null || mode.isBlank())
+			throw new MojoExecutionException("Configure <mode> as generator or interpreter.");
 		return switch (mode) {
 			case "interpreter" -> Mode.INTERPRETER;
 			case "generator" -> Mode.GENERATOR;

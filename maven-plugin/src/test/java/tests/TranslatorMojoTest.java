@@ -25,13 +25,15 @@ class TranslatorMojoTest {
 		copyTemplate();
 
 		MavenProject project = project();
-		configuredMojo(project).execute();
+		TranslatorMojo mojo = configuredMojo(project);
+		parameter(mojo, "mode", "interpreter");
+		mojo.execute();
 		assertThat(project.getCompileSourceRoots()).contains(directory.resolve("src/main/gen").toString());
 
 		assertThat(directory.resolve("src/main/gen/library/model/templates/BookSummaryTemplate.java")).exists();
 		assertThat(directory.resolve("target/generated-resources/metta/library/model/templates/BookSummaryTemplate.itr")).doesNotExist();
 		assertThat(directory.resolve("src/main/gen/library/model/model")).doesNotExist();
-		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).doesNotExist();
+		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).exists();
 	}
 
 	@Test
@@ -44,6 +46,7 @@ class TranslatorMojoTest {
 		TranslatorMojo mojo = configuredMojo(project());
 		var input = new TranslatorMojo.Input();
 		input.setTemplates("templates");
+		parameter(mojo, "mode", "interpreter");
 		parameter(mojo, "input", input);
 
 		mojo.execute();
@@ -132,14 +135,11 @@ class TranslatorMojoTest {
 	}
 
 	@Test
-	void generatesDecoratorsWithoutScaffoldingWhenModeIsOmitted() throws Exception {
+	void requiresAnExplicitMode() throws Exception {
 		TranslatorMojo mojo = configuredMojo(project());
-		setModelInput(mojo);
 
-		mojo.execute();
-		assertThat(directory.resolve("src/main/gen/library/model/model/LibraryModel.java")).exists();
-		assertThat(directory.resolve("src/main/java")).doesNotExist();
-		assertThat(directory.resolve("src/main/resources/model-json.itr")).doesNotExist();
+		assertThatThrownBy(mojo::execute).isInstanceOf(MojoExecutionException.class)
+			.hasMessageContaining("Configure <mode> as generator or interpreter");
 	}
 
 	@Test

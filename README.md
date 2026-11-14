@@ -194,16 +194,16 @@ For direct template loading and frame customization, see the [Template Engine AP
 
 ## Quassar Maven plugin parameters
 
-The table lists the available parameters. Add only the ones your project needs to the Quassar plugin's `<configuration>`. Use the hyphenated names as XML element names, such as `<input-model>`. If you already use nested `<input>` or `<output>` blocks, they are still supported. A hyphenated setting takes precedence over the matching nested setting.
+The table lists the available parameters. Only `mode` is required in the Quassar plugin’s `<configuration>`. Use the hyphenated names as XML element names, such as `<input-model>`. If you already use nested `<input>` or `<output>` blocks, they are still supported. A hyphenated setting takes precedence over the matching nested setting.
 
 | Parameter | Default | Purpose |
 | --- | --- | --- |
 | `input-model` | Unset | M2 URL or local folder or ZIP URL. |
 | `input-templates` | Resources root | Template path relative to the resources root. |
-| `mode` | Unset | `generator` for a Maven plugin, `interpreter` for a Java app. |
+| `mode` | Required | `generator` for a Maven plugin, `interpreter` for a Java app. |
 | `output-directory` | `src/main/gen` | Directory for generated Java sources. |
 | `output-package` | Project `groupId` | Base package for the `.model` and `.templates` APIs. |
 
-Omit `input-model` to generate from templates alone. Omit `mode` to skip starter files.
+Omit `input-model` to generate from templates alone.
 
 The SDK is distributed under the [MIT License](LICENSE).
