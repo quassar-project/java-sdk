@@ -13,6 +13,7 @@ import io.quassar.reader.model.Mogram;
 import io.quassar.reader.model.Value;
 import io.quassar.javacode.model.JavaCode;
 import io.quassar.metamodel.model.Metamodel;
+import io.quassar.metamodel.model.MetamodelManifest;
 import tests.fixtures.MetamodelFixtures;
 import io.quassar.reader.adapters.TextSource;
 
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -442,6 +444,15 @@ class DecoratorGeneratorTest {
 		MogramDecoratorGenerator library = defaults.modelNamed("LibraryModel");
 		assertThat(defaults.code()).extracting(JavaCode::className).contains("DecoratedModel").doesNotContain("LibraryModel");
 		assertThat(library.code()).extracting(JavaCode::className).contains("LibraryModel").doesNotContain("DecoratedModel");
+	}
+
+	@Test
+	void namesTheFacadeAfterTheMetamodelLocalName() {
+		var manifest = new MetamodelManifest("id", "MONET.VISORA", "1.8.2", "", "", "");
+		var metamodel = new Metamodel(MetamodelFixtures.library().types(), Optional.of(manifest));
+		var generator = MogramDecoratorGenerator.from(metamodel);
+		assertThat(generator.modelClassName()).isEqualTo("VisoraModel");
+		assertThat(generator.code()).extracting(JavaCode::className).contains("VisoraModel");
 	}
 
 	private GeneratedDecorators compile(Model model, Metamodel metamodel) throws Exception {

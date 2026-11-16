@@ -3,6 +3,7 @@ package io.quassar.javacode;
 import io.quassar.javacode.adapters.JavaCodeWriter;
 import io.quassar.javacode.adapters.ResourceTemplates;
 import io.quassar.javacode.domain.DecoratorGenerator;
+import io.quassar.javacode.domain.JavaNames;
 import io.quassar.metamodel.domain.MetamodelResolver;
 import io.quassar.javacode.model.JavaCode;
 import io.quassar.metamodel.model.Metamodel;
@@ -11,12 +12,19 @@ import io.quassar.metamodel.model.MetamodelType;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, String modelName) {
 	public static MogramDecoratorGenerator from(Metamodel metamodel) {
-		String name = metamodel.name().map(value -> value + "Model").orElse("DecoratedModel");
+		String name = metamodel.name().map(MogramDecoratorGenerator::facadeName).orElse("DecoratedModel");
 		return new MogramDecoratorGenerator(metamodel, "generated", name);
+	}
+
+	private static String facadeName(String name) {
+		String localName = name.substring(name.lastIndexOf('.') + 1).strip();
+		if (localName.equals(localName.toUpperCase(Locale.ROOT))) localName = localName.toLowerCase(Locale.ROOT);
+		return JavaNames.className(localName) + "Model";
 	}
 
 	public MogramDecoratorGenerator inPackage(String name) {
