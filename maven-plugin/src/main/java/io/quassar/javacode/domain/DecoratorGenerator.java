@@ -352,10 +352,13 @@ public final class DecoratorGenerator {
 		String value = propertyValue(property);
 		PropertyType type = property.type();
 		if (type.kind() == Kind.REFERENCE) return wrapReference(value, property, classes);
-		if (type.kind() != Kind.SEQUENCE) return value + accessor(type.kind());
+		if (type.kind() != Kind.SEQUENCE)
+			return value + (isInteger(property) ? ".asNumber().intValueExact()" : accessor(type.kind()));
 		String expression = NODE + ".values(" + value + ")";
 		if (type.element() == Kind.REFERENCE)
 			return expression + ".stream().map(value -> " + wrapReference("value", property, classes) + ").toList()";
+		if (isInteger(property))
+			return expression + ".stream().map(item -> item.asNumber().intValueExact()).toList()";
 		String accessor = accessor(type.element());
 		if (accessor.isEmpty()) return expression;
 		return expression + ".stream().map(" + VALUE + "::" + accessor.substring(1, accessor.length() - 2) + ").toList()";
@@ -371,9 +374,17 @@ public final class DecoratorGenerator {
 	private String returnType(PropertyDefinition property, Map<String, String> classes) {
 		PropertyType type = property.type();
 		if (type.kind() == Kind.REFERENCE) return referenceType(property, classes);
+		if (isInteger(property)) return type.kind() == Kind.SEQUENCE ? "java.util.List<java.lang.Integer>" : "int";
 		if (type.kind() != Kind.SEQUENCE) return scalarType(type.kind(), false);
 		String element = type.element() == Kind.REFERENCE ? referenceType(property, classes) : scalarType(type.element(), true);
 		return "java.util.List<" + element + ">";
+	}
+
+	private boolean isInteger(PropertyDefinition property) {
+		String declaration = property.declaredType();
+		int bracket = declaration.indexOf('[');
+		String scalar = bracket < 0 ? declaration : declaration.substring(0, bracket);
+		return scalar.equals("int") || scalar.equals("integer");
 	}
 
 	private String referenceType(PropertyDefinition property, Map<String, String> classes) {

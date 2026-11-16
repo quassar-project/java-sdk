@@ -11,7 +11,7 @@ Preview AdminPreview
 	view = Admin
 
 Toolbar MainToolbar
-	Grouping(enabled = true, label = "By status") StatusGrouping
+	Grouping(enabled = true, label = "By status", limit = 3, thresholds = 2 5) StatusGrouping
 	Command.CollectionCommand.Grouping FullGrouping > label = "Qualified"
 	Command OtherCommand
 

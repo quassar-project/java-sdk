@@ -130,7 +130,7 @@ public final class MetamodelReader {
         boolean multiple = bracket >= 0 && !maximum.equals("1") && !maximum.equals("0");
 		Kind kind = switch (scalar) {
 			case "string", "word", "resource", "date", "time", "datetime" -> Kind.STRING;
-			case "integer", "long", "double", "float", "decimal", "number" -> Kind.NUMBER;
+			case "int", "integer", "long", "double", "float", "decimal", "number" -> Kind.NUMBER;
 			case "boolean" -> Kind.BOOLEAN;
 			default -> Kind.REFERENCE;
 		};

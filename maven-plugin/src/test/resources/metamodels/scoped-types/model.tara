@@ -5,6 +5,8 @@ Concept Command as component
 	sub CollectionCommand
 		sub Grouping
 			def string label
+			def int limit
+			def integer[] thresholds
 
 Concept Toolbar
 	has Command

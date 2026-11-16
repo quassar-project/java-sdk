@@ -52,6 +52,9 @@ class DecoratorGeneratorTest {
 			assertThat(grouping.getClass().getSuperclass().getSimpleName()).isEqualTo("CollectionCommand");
 			assertThat(commands.get(0).getClass().isInstance(grouping)).isTrue();
 			assertThat(call(grouping, "enabled")).isEqualTo(true);
+			assertThat(grouping.getClass().getMethod("limit").getReturnType()).isEqualTo(int.class);
+			assertThat(call(grouping, "limit")).isEqualTo(3);
+			assertThat((List<?>) call(grouping, "thresholds")).isEqualTo(List.of(2, 5));
 			assertThat(call(call(commands.get(1), "asGrouping"), "label")).isEqualTo("Qualified");
 			assertThat(call(commands.get(2), "isGrouping")).isEqualTo(false);
 			assertThat(call(call(commands.get(2), "asGrouping"), "isNull")).isEqualTo(true);
@@ -120,7 +123,7 @@ class DecoratorGeneratorTest {
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
 			Object book = generated.wrap("Book", model.get("FirstBook"));
 			assertThat(call(book, "title")).isEqualTo("First book");
-			assertThat(call(book, "year")).isEqualTo(new BigDecimal("2020"));
+			assertThat(call(book, "year")).isEqualTo(2020);
 		}
 	}
 

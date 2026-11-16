@@ -19,7 +19,8 @@ If you generated the API with an earlier SDK, delete the previously generated `m
 | Metamodel declaration | Java getter |
 | --- | --- |
 | `def string label` | `String` |
-| `def integer timeoutSeconds` | `BigDecimal` |
+| `def integer timeoutSeconds` | `int` |
+| `def integer[] retryDelays` | `List<Integer>` |
 | `def boolean enabled` | `boolean` |
 | `def Action action` | `Action` decorator |
 | `def Action[] fallbackActions` | `List<Action>` |
