@@ -11,6 +11,10 @@
 
     <name>Quassar Java SDK</name>
 
+    <properties>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
     <modules>
         <module>model-reader</module>
         <module>template-engine</module>
