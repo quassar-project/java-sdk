@@ -283,7 +283,11 @@ class DecoratorGeneratorTest {
 		MogramDecoratorGenerator generator = MogramDecoratorGenerator.from(metamodel).inPackage("books");
 		List<JavaCode> code = generator.code();
 		assertThat(generator.code()).isEqualTo(code);
-		assertThat(code).extracting(JavaCode::className).contains("Book", "Chapter", "Author", "Note", "Edition");
+		assertThat(code).extracting(JavaCode::className)
+			.contains("Book", "Chapter", "Author", "Note", "Edition")
+			.doesNotContain("MogramTypes");
+		assertThat(code).filteredOn(source -> source.className().equals("MogramDecorator"))
+			.singleElement().extracting(JavaCode::content).asString().contains("static final class MogramTypes");
 		assertThat(code).allMatch(source -> source.packageName().equals("books"));
 		assertThat(code).allSatisfy(source -> assertThat(source.content())
 			.doesNotContain("io.quassar.templating.annotations", "FRAME_CHILDREN", "FRAME_PROPERTIES",

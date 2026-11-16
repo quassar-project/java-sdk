@@ -98,4 +98,5 @@ rule type(decorator)
 				return java.util.List.of();
 			}
 		}
-	}$NL
+
+	$types~}$NL

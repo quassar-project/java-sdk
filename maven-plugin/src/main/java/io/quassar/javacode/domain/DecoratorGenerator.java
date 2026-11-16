@@ -30,8 +30,8 @@ public final class DecoratorGenerator {
 	private static final String MOGRAM = "io.quassar.reader.model.Mogram";
 	private static final String MODEL = "io.quassar.reader.model.Model";
 	private static final String DECORATOR = "MogramDecorator";
-	private static final String MOGRAM_TYPES = "MogramTypes";
-	private static final Set<String> RESERVED_TYPES = Set.of(DECORATOR, MOGRAM_TYPES, "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
+	private static final String MOGRAM_TYPES = DECORATOR + ".MogramTypes";
+	private static final Set<String> RESERVED_TYPES = Set.of(DECORATOR, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
 	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
@@ -79,8 +79,7 @@ public final class DecoratorGenerator {
 		Map<String, String> classes = new LinkedHashMap<>();
 		for (TypeDefinition type : types) classes.put(type.type(), targets.get(type.type()));
 		List<JavaCode> code = new ArrayList<>();
-		code.add(decoratorBase(packageName, classes));
-		code.add(mogramTypes(packageName, declarations));
+		code.add(decoratorBase(packageName, classes, declarations));
 		code.add(modelDecorator(types, packageName, facadeName, classes));
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
@@ -188,7 +187,7 @@ public final class DecoratorGenerator {
 			+ "\n\t.map(mogram -> new " + decorator + "(mogram, model))\n\t.toList()");
 	}
 
-	private JavaCode mogramTypes(String packageName, List<TypeDefinition> types) {
+	private String mogramTypes(List<TypeDefinition> types) {
 		StringBuilder aliases = new StringBuilder();
 		for (TypeDefinition type : types) {
 			Set<String> names = new HashSet<>();
@@ -196,20 +195,19 @@ public final class DecoratorGenerator {
 			for (Composition child : type.children()) {
 				String simple = simpleName(child.type());
 				if (names.add(simple))
-					aliases.append("\t\t\tcase ").append(literal(type.type() + "." + simple))
+					aliases.append("\t\t\t\tcase ").append(literal(type.type() + "." + simple))
 						.append(" -> ").append(literal(child.type())).append(";\n");
 			}
 		}
-		return new JavaCode(packageName, MOGRAM_TYPES, templates.render("types",
-			Map.of("mogramType", MOGRAM, "modelType", MODEL, "aliases", aliases.toString())));
+		return templates.render("types", Map.of("mogramType", MOGRAM, "modelType", MODEL, "aliases", aliases.toString()));
 	}
 
-	private JavaCode decoratorBase(String packageName, Map<String, String> classes) {
+	private JavaCode decoratorBase(String packageName, Map<String, String> classes, List<TypeDefinition> types) {
 		StringBuilder cases = new StringBuilder();
 		classes.forEach((type, name) -> cases.append(templates.render("factory-case", Map.of("type", literal(type), "name", name))));
 		return new JavaCode(packageName, DECORATOR, templates.render("decorator", Map.of(
 			"mogramType", MOGRAM, "modelType", MODEL,
-			"valueType", VALUE, "cases", cases.toString())));
+			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types))));
 	}
 
 	private String expression(PropertyDefinition property, Map<String, String> classes) {
