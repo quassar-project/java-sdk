@@ -60,14 +60,14 @@ public class ReflectionMapper<T> implements ObjectMapper<T> {
 			}
 		}
 
-		private void execute(Class aClass) throws IllegalAccessException {
+		private void execute(Class<?> aClass) throws IllegalAccessException {
 			while (aClass != null) {
 				processClass(aClass);
 				aClass = aClass.getSuperclass();
 			}
 		}
 
-		private void processClass(Class aClass) throws IllegalAccessException {
+		private void processClass(Class<?> aClass) throws IllegalAccessException {
 			for (Field field : aClass.getDeclaredFields()) {
 				if (!isProcessable(field)) continue;
 				processField(field);
@@ -75,10 +75,15 @@ public class ReflectionMapper<T> implements ObjectMapper<T> {
 		}
 
 		private void processField(Field field) throws IllegalAccessException {
-			boolean accessibility = field.isAccessible();
-			field.setAccessible(true);
-			if (field.get(source) != null) processField(field.getName(), field.get(source));
-			field.setAccessible(accessibility);
+			Object receiver = isStatic(field.getModifiers()) ? null : source;
+			boolean requiresAccess = !field.canAccess(receiver);
+			if (requiresAccess) field.setAccessible(true);
+			try {
+				Object value = field.get(receiver);
+				if (value != null) processField(field.getName(), value);
+			} finally {
+				if (requiresAccess) field.setAccessible(false);
+			}
 		}
 
 		private void processField(String name, Object value) {
@@ -93,7 +98,7 @@ public class ReflectionMapper<T> implements ObjectMapper<T> {
 		}
 
 		private void processList(String name, Object value) {
-			List list = (List) value;
+			List<?> list = (List<?>) value;
 			context.add(name + Count, list.size());
 			for (Object item : list) {
 				context.add(name, item);
@@ -101,7 +106,7 @@ public class ReflectionMapper<T> implements ObjectMapper<T> {
 		}
 
 		private void processMap(String name, Object value) {
-			final Map map = (Map) value;
+			Map<?, ?> map = (Map<?, ?>) value;
 			context.add(name + Count, map.keySet().size());
 			for (Object key : map.keySet())
 				context.add(name, new Item(key, map.get(key)));

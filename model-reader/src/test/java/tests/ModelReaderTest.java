@@ -1,10 +1,7 @@
 package tests;
 
-import io.quassar.reader.Models;
-
 import io.quassar.reader.adapters.TextSource;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import io.quassar.reader.domain.ModelReader;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.model.Mogram;
@@ -13,7 +10,6 @@ import io.quassar.reader.model.Value;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,16 +77,6 @@ class ModelReaderTest {
 		};
 		assertThatThrownBy(() -> new ModelReader().read(input))
 			.isInstanceOf(IOException.class).hasMessage("read failed");
-	}
-
-	@Test
-	@EnabledIfEnvironmentVariable(named = "TARA_MODEL_ZIP", matches = ".+")
-	void readsTheOriginalInventory() throws Exception {
-		Model model = Models.load(Path.of(System.getenv("TARA_MODEL_ZIP")));
-		assertThat(model.mograms()).hasSize(583);
-		assertThat(model.allMograms()).hasSize(11137);
-		assertThat(model.select().type("Entidad").count()).isEqualTo(5);
-		assertThat(model.get("Persona.Juridica").identifier()).isEqualTo("Juridica");
 	}
 
 	private static final class TrackingInputStream extends ByteArrayInputStream {

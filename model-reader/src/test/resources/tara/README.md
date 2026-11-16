@@ -16,3 +16,9 @@ All fixtures use the library domain and literal tabs for nesting.
 - `tab-indentation.tara`: sibling chapters indented with tabs.
 
 The critical edition exercises translated and limited-edition facets, decimal prices, anonymous notes, inline citations, forward references to contributors and publishers, circular related-book references, chapter links across parts, and references to nested editions from a reading list.
+
+Run the integration test for the original inventory separately with its external ZIP.
+
+```sh
+TARA_MODEL_ZIP=/path/to/inventory.zip mvn -pl model-reader -Dtest=InventoryReaderIT test
+```

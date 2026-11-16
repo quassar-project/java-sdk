@@ -15,7 +15,7 @@ def main():
 	maven = str(Path(arguments.maven).resolve())
 	command = [maven, "-B", "-ntp", "-f", str(module / "pom.xml"),
 		f"-Dmaven.repo.local={arguments.repository.resolve()}", f"-Dquassar.test.maven={maven}",
-		"-Dtest=MavenConsumerTest", "test"]
+		"-Dtest=MavenConsumerIT", "test"]
 	if arguments.offline: command.extend(["-o", "-Dquassar.test.maven.offline=true"])
 	subprocess.run(command, check=True)
 
