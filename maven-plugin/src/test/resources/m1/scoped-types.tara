@@ -1,4 +1,4 @@
-View Main is Container(composition=Tabs, modes=One Two) Inherited(label="View label")
+View Main is Container(composition=Tabs, modes=One DirectUpdate) Inherited(label="View label")
 	Commands Controls
 		Grouping GroupByStatus > label = "Group by status"
 	Panel SummaryPanel

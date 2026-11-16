@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -230,7 +229,7 @@ public final class DecoratorGenerator {
 		JavaNames constants = new JavaNames(Set.of());
 		Map<String, String> options = new LinkedHashMap<>();
 		for (String option : property.constraints())
-			options.computeIfAbsent(option, word -> constants.claim(word.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toUpperCase(Locale.ROOT)));
+			options.computeIfAbsent(option, word -> constants.claim(JavaNames.className(word)));
 		String cases = options.entrySet().stream()
 			.map(option -> "\t\t\t\tcase " + literal(option.getKey()) + " -> " + option.getValue() + ";\n")
 			.collect(Collectors.joining());
