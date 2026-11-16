@@ -19,6 +19,10 @@ import io.quassar.reader.adapters.TextSource;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DecoratorGeneratorTest {
 	@TempDir
@@ -488,6 +493,41 @@ class DecoratorGeneratorTest {
 		var generator = MogramDecoratorGenerator.from(metamodel);
 		assertThat(generator.modelClassName()).isEqualTo("VisoraModel");
 		assertThat(generator.code()).extracting(JavaCode::className).contains("VisoraModel");
+	}
+
+	@Test
+	void generatedLoadsRequireTheDslAndVersionUsedForGeneration() throws Exception {
+		var manifest = new MetamodelManifest("id", "MONET.VISORA", "1.8.2", "", "quassar:metta:1.0.0", "");
+		var metamodel = new Metamodel(MetamodelFixtures.library().types(), Optional.of(manifest));
+		Path release = Files.createDirectory(directory.resolve("m1"));
+		Files.writeString(release.resolve("books.tara"), "Book Atlas\n");
+		Path metadata = release.resolve("manifest.json");
+		Files.writeString(metadata, "{\"dsl\":\"monet:visora:1.8.2\"}");
+		try (GeneratedDecorators generated = compile(model("observations.tara"), metamodel)) {
+			var facade = generated.modelDecorator().getClass();
+			var load = facade.getMethod("load", Path.class);
+			assertThat((List<?>) call(load.invoke(null, release), "books")).hasSize(1);
+			Path zip = directory.resolve("m1.zip");
+			try (var archive = new java.util.zip.ZipOutputStream(Files.newOutputStream(zip))) {
+				for (Path file : List.of(release.resolve("books.tara"), metadata)) {
+					archive.putNextEntry(new java.util.zip.ZipEntry(file.getFileName().toString()));
+					Files.copy(file, archive);
+					archive.closeEntry();
+				}
+			}
+			assertThat((List<?>) call(facade.getMethod("load", URL.class).invoke(null, zip.toUri().toURL()), "books")).hasSize(1);
+			assertThat((List<?>) call(facade.getMethod("load", URI.class).invoke(null, release.toUri()), "books")).hasSize(1);
+			for (String mismatch : List.of("monet:orfeo:1.8.2", "monet:visora:1.8.3")) {
+				Files.writeString(metadata, "{\"dsl\":\"" + mismatch + "\"}");
+				assertThatThrownBy(() -> load.invoke(null, release))
+					.isInstanceOf(InvocationTargetException.class)
+					.cause().isInstanceOf(IOException.class).hasMessageContaining("monet:visora:1.8.2", mismatch);
+			}
+			Files.delete(metadata);
+			assertThatThrownBy(() -> load.invoke(null, release))
+				.isInstanceOf(InvocationTargetException.class)
+				.cause().isInstanceOf(IOException.class).hasMessageContaining("monet:visora:1.8.2", "manifest.json");
+		}
 	}
 
 	private GeneratedDecorators compile(Model model, Metamodel metamodel) throws Exception {

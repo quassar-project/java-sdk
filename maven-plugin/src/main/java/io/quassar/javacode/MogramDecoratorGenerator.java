@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, String modelName) {
@@ -49,7 +50,14 @@ public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, 
 			.filter(type -> type.declaration() == MetamodelType.Declaration.SUB)
 			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::parent));
 		return new DecoratorGenerator(templates).generate(resolver.resolve(metamodel),
-			resolver.resolveFacets(metamodel), enclosingTypes, subtypeParents, packageName, modelName);
+			resolver.resolveFacets(metamodel), enclosingTypes, subtypeParents, packageName, modelName, dsl());
+	}
+
+	private Optional<String> dsl() {
+		return metamodel.manifest()
+			.filter(manifest -> manifest.name() != null && !manifest.name().isBlank()
+				&& manifest.version() != null && !manifest.version().isBlank())
+			.map(manifest -> manifest.name().strip().toLowerCase(Locale.ROOT).replace('.', ':') + ":" + manifest.version().strip());
 	}
 
 	public List<Path> writeTo(Path directory) throws IOException {

@@ -51,6 +51,8 @@ var fallbackActions = step.fallbackActions();
 
 `WorkflowsModel.load(...)` accepts `Path`, `URL` and `URI`, and declares `IOException`. It loads model instances using `model-reader`. The M2 metamodel supplies the declarations used to generate the Java API.
 
+When the M2 manifest supplies a name and version, the generated API stores its expected DSL coordinate. For example, `MONET.VISORA` version `1.8.2` produces `monet:visora:1.8.2`. The `load(...)` methods compare it with the `dsl` field in the M1 `manifest.json` or with the `dsl` header for a standalone Tara file. A missing or different coordinate raises `IOException`. To enable this check when generating from a local M2, include its manifest with the DSL name and version.
+
 Model collection methods return root mograms of the declared type. Child collection methods return direct children of the declared type. References resolve against the loaded model.
 
 For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.asScheduled()` returns its typed view. Read the schedule with `step.asScheduled().schedule()`. When the facet is absent, the view returns `true` from `isNull()`.

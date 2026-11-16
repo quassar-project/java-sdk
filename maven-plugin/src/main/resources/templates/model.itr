@@ -1,6 +1,6 @@
 rule type(model)
 	public final class $name~ extends io.quassar.templating.ports.FrameSource {
-		private final $modelType~ model;
+	$dsl~	private final $modelType~ model;
 
 		public $name~($modelType~ model) {
 			this.model = model;

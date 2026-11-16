@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,7 +38,7 @@ public final class DecoratorGenerator {
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
 	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,
-			Map<String, String> enclosingTypes, Map<String, String> subtypeParents, String packageName, String modelName) {
+			Map<String, String> enclosingTypes, Map<String, String> subtypeParents, String packageName, String modelName, Optional<String> dsl) {
 		JavaNames names = new JavaNames(RESERVED_TYPES);
 		String facadeName = names.claim(modelClassName(modelName));
 		Set<String> exposedFacets = new HashSet<>(enclosingTypes.keySet());
@@ -83,7 +84,7 @@ public final class DecoratorGenerator {
 		Set<String> facetTypes = facets.stream().map(TypeDefinition::type).collect(Collectors.toSet());
 		List<JavaCode> code = new ArrayList<>();
 		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes));
-		code.add(modelDecorator(types, packageName, facadeName, classes));
+		code.add(modelDecorator(types, packageName, facadeName, classes, dsl));
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
 			code.add(new JavaCode(packageName, classNames.get(type.type()),
@@ -117,10 +118,11 @@ public final class DecoratorGenerator {
 	}
 
 	private JavaCode modelDecorator(List<TypeDefinition> types, String packageName, String name,
-			Map<String, String> classes) {
+			Map<String, String> classes, Optional<String> dsl) {
 		StringBuilder source = new StringBuilder();
+		String load = dsl.isPresent() ? "loadForDsl(source, DSL)" : "load(source)";
 		for (String sourceType : List.of("java.nio.file.Path", "java.net.URL", "java.net.URI"))
-			source.append(loadMethod(name, sourceType));
+			source.append(templates.render("load", Map.of("name", name, "sourceType", sourceType, "load", load)));
 		JavaNames methods = new JavaNames(RESERVED_METHODS);
 		for (TypeDefinition type : types) {
 			if (!type.root()) continue;
@@ -133,11 +135,8 @@ public final class DecoratorGenerator {
 			else source.append(collectionMethod(decorator, getter, "model.roots()" + filter + ".stream()"));
 		}
 		return new JavaCode(packageName, name, templates.render("model", Map.of(
-			"name", name, "modelType", MODEL, "methods", source.toString())));
-	}
-
-	private String loadMethod(String modelName, String sourceType) {
-		return templates.render("load", Map.of("name", modelName, "sourceType", sourceType));
+			"name", name, "modelType", MODEL, "methods", source.toString(),
+			"dsl", dsl.map(value -> "\tprivate static final java.lang.String DSL = " + literal(value) + ";\n").orElse(""))));
 	}
 
 	private String render(TypeDefinition type, Map<String, String> classNames, Map<String, String> classes,

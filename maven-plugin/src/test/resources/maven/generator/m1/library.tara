@@ -1,3 +1,5 @@
+dsl library:1.0.0
+
 Book(year = 2024, available = false) Atlas is Printed(isbn = "123")
 	title = "Atlas \"illustrated\""
 	related = Nocturne

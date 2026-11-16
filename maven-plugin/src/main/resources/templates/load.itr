@@ -1,5 +1,5 @@
 rule type(load)
 
 		public static $name~ load($sourceType~ source) throws java.io.IOException {
-			return new $name~(io.quassar.reader.Models.load(source));
+			return new $name~(io.quassar.reader.Models.$load~);
 		}$NL
