@@ -1,10 +1,10 @@
-View Main is Projection
+View Main is Projection Inherited(label="View label")
 	Commands Controls
 		Grouping GroupByStatus > label = "Group by status"
 
 Widget Summary
 	view = Main
 
-Dashboard Admin is Projection
+Dashboard Admin is Projection Inherited(caption="Dashboard caption")
 Preview AdminPreview
 	view = Admin

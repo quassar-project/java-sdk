@@ -52,8 +52,7 @@ public final class DecoratorGenerator {
 		Map<String, String> classNames = new LinkedHashMap<>();
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
-			String name = exposedFacets.contains(type.type()) && !types.contains(type) ? simpleName(type.type()) : type.type();
-			classNames.put(type.type(), names.claim(JavaNames.className(name)));
+			classNames.put(type.type(), names.claim(JavaNames.className(type.type())));
 		}
 		Map<String, List<TypeDefinition>> nested = decorators.stream()
 			.filter(type -> enclosingTypes.containsKey(type.type()))

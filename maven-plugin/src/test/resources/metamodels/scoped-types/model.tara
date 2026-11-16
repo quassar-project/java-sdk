@@ -6,6 +6,8 @@ Concept Command as component
 			def string label
 
 Concept View
+	facet Inherited
+		def string label
 	facet ViewType
 		sub Projection
 			Concept:Single Commands
@@ -17,6 +19,8 @@ Concept Widget
 	def View.Projection view
 
 Concept Dashboard
+	facet Inherited
+		def string caption
 	facet Display
 		sub Projection
 

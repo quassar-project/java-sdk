@@ -34,13 +34,19 @@ class DecoratorGeneratorTest {
 		Metamodel metamodel = Metamodels.load(Path.of(getClass().getResource("/metamodels/scoped-types/").toURI()));
 		Model model = model("scoped-types.tara");
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
+			Object inheritedView = call(generated.wrap("View", model.get("Main")), "asInherited");
+			Object inheritedDashboard = call(generated.wrap("Dashboard", model.get("Admin")), "asInherited");
+			assertThat(inheritedView.getClass().getCanonicalName()).isEqualTo("test.generated.View.Inherited");
+			assertThat(inheritedDashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Inherited");
+			assertThat(call(inheritedView, "label")).isEqualTo("View label");
+			assertThat(call(inheritedDashboard, "caption")).isEqualTo("Dashboard caption");
 			Object widget = generated.wrap("Widget", model.get("Summary"));
 			Object target = call(widget, "view");
-			assertThat(target.getClass().getCanonicalName()).isEqualTo("test.generated.ViewType.Projection");
+			assertThat(target.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection");
 			assertThat(call(target, "identifier")).isEqualTo("Main");
 			Object preview = generated.wrap("Preview", model.get("AdminPreview"));
 			Object dashboard = call(preview, "view");
-			assertThat(dashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Display.Projection");
+			assertThat(dashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Display.Projection");
 			assertThat(call(dashboard, "identifier")).isEqualTo("Admin");
 			Object commands = call(target, "commands");
 			Object grouping = call(commands, "grouping");

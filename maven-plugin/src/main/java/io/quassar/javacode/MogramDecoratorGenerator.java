@@ -35,7 +35,7 @@ public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, 
 		var templates = new ResourceTemplates(MogramDecoratorGenerator.class, List.of("model", "mogram", "method", "load", "factory-case", "decorator", "types"));
 		var resolver = new MetamodelResolver();
 		var enclosingTypes = metamodel.types().stream()
-			.filter(type -> type.declaration() == MetamodelType.Declaration.SUB)
+			.filter(type -> !type.scope().isEmpty() && (type.isFacet() || type.declaration() == MetamodelType.Declaration.SUB))
 			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::scope));
 		return new DecoratorGenerator(templates).generate(resolver.resolve(metamodel),
 			resolver.resolveFacets(metamodel), enclosingTypes, packageName, modelName);
