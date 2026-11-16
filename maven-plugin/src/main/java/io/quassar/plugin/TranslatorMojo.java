@@ -55,7 +55,7 @@ public final class TranslatorMojo extends AbstractMojo {
 	public void execute() throws MojoExecutionException {
 		MavenDependencies dependencies = new MavenDependencies();
 		if (!dependencies.isConfigured(project))
-			throw new MojoExecutionException("Enable <extensions>true</extensions> on quassar.io:maven-plugin to add the required dependencies automatically");
+			throw new MojoExecutionException("Enable <extensions>true</extensions> on io.quassar:maven-plugin to add the required dependencies automatically");
 		try {
 			generate();
 			dependencies.writePom(project);

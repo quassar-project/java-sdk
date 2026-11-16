@@ -10,7 +10,7 @@ public final class TranslatorLifecycle extends AbstractMavenLifecycleParticipant
 	@Override
 	public void afterProjectsRead(MavenSession session) {
 		for (MavenProject project : session.getProjects()) {
-			Plugin plugin = project.getPlugin("quassar.io:maven-plugin");
+			Plugin plugin = project.getPlugin("io.quassar:maven-plugin");
 			if (plugin != null && plugin.isExtensions())
 				new MavenDependencies().addTo(project, plugin.getVersion());
 		}

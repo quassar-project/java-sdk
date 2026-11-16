@@ -7,7 +7,7 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>quassar.io</groupId>
+				<groupId>io.quassar</groupId>
 				<artifactId>maven-plugin</artifactId>
 				<version>1.0.0</version>
 				<extensions>true</extensions>

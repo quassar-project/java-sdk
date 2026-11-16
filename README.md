@@ -16,7 +16,7 @@ Quassar is a platform for model-driven engineering (MDE). Define a domain-specif
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>quassar.io</groupId>
+				<groupId>io.quassar</groupId>
 				<artifactId>maven-plugin</artifactId>
 				<version>1.0.0</version>
 				<extensions>true</extensions>
