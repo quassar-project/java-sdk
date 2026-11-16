@@ -1,0 +1,38 @@
+dsl metta
+
+Concept:R1 SmartContract
+	def integer id
+	def date startDate
+	def date endDate
+	def Part[2] parts
+	def Clauses[] clauses
+
+constraint R1:: startDate < endDate
+    message = "La fecha de inicio debe ser anterior a la de finalización"
+
+Concept Part
+    def integer id
+	def string name
+    def word:{Buyer Seller Lessor Lessee Provider Client} rol
+
+Concept Clauses
+    def string title
+	def string description
+	def Responsibility[] responsibilities
+	def Clauses[] subclauses
+
+// Quiero poner una restricción para lo siguiente: No se permite que una cláusula contenga simultáneamente acciones incompatibles como Terminate y Renew. No se como abordarlo.
+
+
+Concept Responsibility
+    def word:{Pay Deliver Notify Transfer Terminate} action
+	def Part part
+	def string endDate
+	def Penalty[] penalty
+
+constraint R2:: endDate matches "^dddd-dd-dd" or endDate matches "^d*"
+
+Concept Penalty
+    def double amount
+	def string description
+	

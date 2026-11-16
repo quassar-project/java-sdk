@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#selection Item
+// Java: Entry#alternatives java.util.List<Item>
+Concept Entry > def Item selection; def Item[] alternatives

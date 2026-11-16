@@ -1,0 +1,8 @@
+dsl metta
+
+Concept:Named Dictionary
+	def string language
+
+	Concept Translation
+		def string value
+		def string translated

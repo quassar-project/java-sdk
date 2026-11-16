@@ -1,0 +1,128 @@
+dsl metta
+
+Concept:Named Service
+    has:Named Schema
+    has:Named Exception
+
+    facet REST
+        def string swagger = "3.1.0"
+		def string title
+        def string host
+        def string port
+        def string basePath = "/api"
+        def long maxResourceSize = 100
+        def boolean generateDocs = false
+        def word[]:{http https ws wss} protocols = https
+        Concept:{0..1} Authentication
+            facet WithCertificate
+                def string store
+                def string storePassword
+                Concept AllowedUsers
+                    def string[] certificate
+            facet Basic
+            facet Bearer
+            facet Custom
+        Concept:{0..1} Info
+            def string description = ""
+            def string termsOfService = ""
+            Concept:{0..1}:Named Contact
+                def string url = ""
+                def string email = ""
+            Concept:{0..1}:Named License
+                def string url = ""
+        Concept:Named Tag
+            def string description = ""
+            Concept Document
+                def string description = ""
+                def string url
+    	Concept:Named Resource
+            def string path
+			has Parameter
+            Concept Operation
+                def string[] tags = empty
+                def string summary = ""
+                def string description = ""
+                def string externalDocumentationPath = empty
+                def boolean deprecated = false
+                sub Get
+                sub Post
+                sub Put
+                sub Delete
+                sub Head
+                sub Options
+                sub Patch
+                has Parameter
+                has:{0..1} Response
+                def Exception[] exceptionRefs = empty
+                has Exception
+            facet Public
+        Concept:Named Notification
+            def string path
+            has Parameter
+
+Concept Data as generalization
+	facet List
+	facet Set
+	facet Type
+		def string type as private
+		sub Real
+			def double defaultValue = empty
+			def string type = "Double" as private
+		sub Integer
+			def integer defaultValue = empty
+			def string type = "Integer" as private
+		sub LongInteger
+			def long defaultValue = empty
+			def string type = "Long" as private
+		sub Bool
+			def boolean defaultValue = empty
+			def string type = "Boolean" as private
+		sub Text
+			def string defaultValue = empty
+			def string type = "String" as private
+		sub Date
+            def string format = "dd/MM/yyyy"
+            def string type = "java.util.Date" as private
+        sub DateTime
+            def string format = "dd/MM/yyyy HH:mm:ss"
+            def string type = "java.time.Instant" as private
+        sub Word
+			def string[] values
+            def string type = "java.lang.Enum" as private
+        sub File
+			def word:{body path form header query} in = form
+            def string type = "io.intino.alexandria.Resource" as private
+        sub Object
+            def Schema schema
+			def string type = "schema" as private
+		sub Map
+            Concept:{1..1} Key extends Data
+            Concept:{1..1} Value extends Data
+			def string type = "java.util.Map" as private
+		sub MultiPart
+            def string type = "io.intino.alexandria.rest.Multipart" as private
+
+Concept:Named Parameter extends Data as component
+	def boolean isRequired = false
+	def string description = ""
+	def word:{body path form header query} in
+
+Concept Schema
+    def boolean isRequired = false
+    def boolean multiple = true
+    Concept:Named Attribute extends Data
+        def boolean isRequired = true
+    has Schema
+    facet ExtensionOf
+        def Schema parent
+
+Concept Exception extends Data
+    def word:{BadRequest Unauthorized Forbidden NotFound Conflict Locked NotImplemented ServiceUnavailable} code
+    def string description = ""
+
+Concept Response extends Data as component
+    def integer code = 200
+    def string description = ""
+    def word:{html xml text json} format = html
+
+Concept Redirect extends Response

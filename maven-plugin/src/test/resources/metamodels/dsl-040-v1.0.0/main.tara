@@ -1,0 +1,45 @@
+dsl metta
+
+Concept:R1 Contract
+	def string id
+	def date from
+	def date to
+	Concept:{2..*} Part
+		def string name
+		def string id
+		def word:{Buyer Seller Lessor Lessee Provider Client} role
+	Concept:{0..*}:R2:R4 Clause
+		def string title
+		def string description
+		Concept:{0..*}:R3 Obligation
+			def Part part
+			def date absoluteLimit
+			def integer:{days} relativeLimit
+			sub Pay
+			sub Deliver
+			sub Notify
+			sub Transfer
+			sub Terminate
+			sub Renew
+		Concept:{0..*} Penalty
+			def double:{€} amount
+			def string description
+		facet Conditional
+			def string expression
+			sub ExternalEvent
+			sub SpecificDate
+		facet Recurrent
+			def integer:{months} interval
+		has:{0..*} Clause
+
+constraint R1:: from < to
+	message = "'from' must be before 'to'"
+
+constraint R2:: count(all(Obligation, o -> o is "Terminate")) == 0 or count(all(Obligation, o -> o is "Renew")) == 0
+	message = "A 'renew' obligation cannot coexist with a 'terminate' obligation"
+
+constraint R3:: (absoluteLimit is empty and relativeLimit is not empty) or (absoluteLimit is not empty and relativeLimit is empty)
+	message = "There must be a single defined limit"
+
+constraint R4:: count(Penalty) == 0 or count(Obligation) > 0
+	message = "If you want to define penalties, there must be obligations"

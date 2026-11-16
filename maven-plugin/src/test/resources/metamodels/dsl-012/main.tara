@@ -1,0 +1,41 @@
+dsl metta
+
+// Sin terminar, de momento: 1h
+
+Concept SmartContract
+	def string id // debe ser unico
+	def time start_date
+	def time end_date
+	has:{2..*} Relative
+	has:{1..*} Section
+
+Concept Relative as component // parte implicada
+	def string name
+	def string id // debe ser unico
+	def word:{Buyer Seller Lessor Lessee Provider Client} role
+	
+Concept Section as component // clausulas
+	def string title
+	def string description
+	Concept:{0..*}:R1:R2 Obligation
+		def string title
+		def string description
+		def word:{Pay Deliver Notify Transfer Terminate Renew} action
+		def Relative relative
+		def word:{Absolute DayCount} date_mode
+		def time limit_date
+		def integer limit_days
+
+	Concept:{0..*} Penalty
+		def string description
+		def double amount
+
+constraint R1 :: date_mode != "Absolute" or limit_date is not empty
+	message = "Debe establecer la fecha limite"
+
+constraint R2 :: date_mode != "DayCount" or limit_days is not empty
+	message = "Debe establecer la cantidad limite"
+
+
+
+	

@@ -1,0 +1,8 @@
+dsl metta
+
+// Java: DecoratedModel#categories java.util.List<Category>
+// Java: DecoratedModel#boxes java.util.List<Box>
+// Java: DecoratedModel#batches java.util.List<Batch>
+Concept Category
+Concept Box
+Concept Batch

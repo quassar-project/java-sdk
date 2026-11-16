@@ -1,0 +1,4 @@
+dsl metta
+
+// Java: Entry#weight java.math.BigDecimal
+Concept Entry > def double:{0..50 kg} weight = 1.25 kg

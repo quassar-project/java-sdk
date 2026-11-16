@@ -1,0 +1,67 @@
+dsl metta
+
+Concept Data as generalization
+    facet List
+    facet Set
+    facet Type
+        def string type
+        sub Real
+            def double defaultValue = empty
+            def string type = "Double"
+        sub Integer
+            def integer defaultValue = empty
+            def string type = "Integer"
+        sub LongInteger
+            def long defaultValue = empty
+            def string type = "Long"
+        sub Bool
+            def boolean defaultValue = empty
+            def string type = "Boolean"
+        sub Text
+            def string defaultValue = empty
+            def string type = "String"
+        sub Date
+            def string format = "dd/MM/yyyy"
+            def string type = "java.util.Date"
+        sub DateTime
+            def string format = "dd/MM/yyyy HH:mm:ss"
+            def string type = "java.time.Instant"
+        sub Word
+            def string type = "java.lang.Enum"
+            def string[] values
+        sub File
+            def string type = "io.intino.alexandria.Resource"
+            def word:{body path form header query} location = form
+        sub Object
+			def string type = "schema"
+            def Schema schema
+        sub Map
+            def string type = "java.util.Map"
+            Concept:{1..1}:RequiresAspect Key extends Data
+            Concept:{1..1}:RequiresAspect Value extends Data
+        sub MultiPart
+            def string type = "io.intino.alexandria.rest.Multipart"
+
+Concept:Named Parameter extends Data as component
+    def boolean isRequired = false
+
+Concept Schema
+    def boolean isRequired = false
+    def boolean multiple = true
+    Concept:Named:RequiresAspect Attribute extends Data
+        def boolean isRequired = true
+    has Schema
+    facet ExtensionOf
+        def Schema parent
+
+Concept Exception extends Data
+    def integer code
+    def string description = ""
+
+Concept Response extends Data as component
+    def integer code = 200
+    def string description = ""
+    def word:{html xml text json} format = html
+
+Concept Redirect extends Response
+

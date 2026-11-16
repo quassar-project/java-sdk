@@ -1,0 +1,256 @@
+dsl metta
+
+
+// ==============================
+// TESAUROS. DATOS REFERENCIALES
+// ==============================
+// Catálogo jerárquico de términos utilizado para clasificar, tipificar o normalizar conceptos del dominio.
+
+Concept Tesauro
+	def string nombre
+	def string descripcion
+	Concept Termino
+		def string nombre
+		def string descripcion = empty
+		has Termino
+	has Nota
+
+
+// ==============================
+// ENTIDADES. DATOS MAESTROS
+// ==============================
+// Las entidades describen objetos, personas, lugares, activos o conceptos identificables y relativamente estables.
+
+Concept Entidad
+	def string descripcion
+	def string nombreColeccion = empty
+	has Atributo
+	has Faceta
+	has Tesauro
+	has Nota
+
+
+// ==============================
+// EVENTOS. DATOS TRANSACCIONALES
+// ==============================
+// Representación de hechos, cambios, observaciones o actuaciones que ocurren sobre entidades, personas, activos o el territorio.
+
+Concept Evento
+	def string descripcion
+	def string nombreColeccion = empty
+	has Atributo
+	has Faceta
+	has Tesauro
+	has Nota
+
+
+// ==============================
+// INDICADORES. DATOS ANALITICOS
+// ==============================
+
+Concept Indicador as component
+	def string nombre
+	def string descripcion = empty
+	def string codigo = empty
+	def Eje eje
+	def Objetivo[] objetivos
+	Concept Filtro
+		def string formula
+		def string descripcion = empty
+	Concept:Required Calculo
+		def string formula
+	Concept Dimension
+		def string nombre
+		def string descripcion = empty
+		def string codigo = empty
+		facet Naturaleza
+			sub Temporal
+				def word:{Año AñoMes AñoMesDia Mes Dia} resolucion
+			sub Referencial
+				def Tesauro tesauro
+			sub Maestra
+				def Entidad entidad
+				def Faceta faceta = empty
+			sub Binario
+			sub Discretizada
+				def integer[] cortes
+		Concept Segmentacion
+			def string nombre
+			def string descripcion
+			def string codigo = empty
+			facet Naturaleza
+				sub Especifico
+					def string valor
+
+
+// ==============================
+// EJES ESTRATEGICOS
+// ==============================
+
+Concept Eje
+	def string nombre = empty
+	def string descripcion
+	has Nota
+
+Concept Objetivo
+	def string descripcion
+	has Objetivo
+	has Nota
+
+
+
+
+Concept Coleccion
+	Concept Filtro
+		def string descripcion
+	facet Estructural
+		def Entidad entidad
+		def Faceta faceta = empty
+	facet Transaccional
+		def Evento evento
+		def Faceta faceta = empty
+	has Indicador
+
+
+
+
+// ==============================
+// FUENTES
+// ==============================
+// Origen de información utilizado para alimentar eventos, entidades, métricas o análisis.
+
+
+Concept Fuente
+	def string nombre = empty
+	def string descripcion = empty
+	has Nota
+
+	Concept Soporte
+		def string nombre = empty
+		def string descripcion = empty
+		has Nota
+
+		Concept Vista
+			def string descripcion = empty
+			def boolean operativa = true
+			has Nota
+
+			facet Estructural
+				def Entidad entidad
+				def Faceta faceta = empty
+
+			facet Transaccional
+				def Evento evento
+				def Faceta faceta = empty
+
+			Concept:Single Carga
+				def word:{SQL API} tipo
+				def string recurso = empty
+
+				Concept:Single Consulta
+					def string expresion
+					def string descripcion = empty
+					has Nota
+
+				Concept Campo
+					def string nombre
+					def string selector = empty
+
+				Concept Parametro
+					def string nombre
+					def string valor
+
+			Concept:Single Importacion
+
+				Concept:Single Identidad
+					def string[] campos
+
+					Concept Alternativa
+						def string[] campos
+
+				Concept Marca
+					def Atributo atributo
+
+					facet Origen
+						sub Campo
+							def string nombre
+						sub Constante
+							def string valor
+						sub Expresion
+							def string formula
+
+					Concept Transformacion
+						def string funcion
+
+					Concept Inferencia
+						def string funcion
+						def Vista vista
+
+				Concept MarcaCompuesta
+					def Atributo atributo
+
+					Concept:Single Clave
+						facet Origen
+							sub Constante
+								def string valor
+							sub Campo
+								def string nombre
+							sub Expresion
+								def string formula
+
+					Concept:Single PresenteSi
+						facet Condicion
+							sub Campo
+								def string nombre
+							sub Expresion
+								def string formula
+
+					Concept Marca
+						def Atributo atributo
+
+						facet Origen
+							sub Campo
+								def string nombre
+							sub Constante
+								def string valor
+							sub Expresion
+								def string formula
+
+						Concept Transformacion
+							def string funcion
+
+						Concept Inferencia
+							def string funcion
+							def Vista vista
+
+			Concept Extension
+				def Faceta faceta
+
+
+
+// ==============================
+// REGLAS DE CALIDAD
+// ==============================
+
+Concept Calidad
+	def Atributo atributo
+
+	Concept:Single Sintactico as generalization
+		sub Unico
+		sub Requerido
+			def string[] valoresFaltantes = empty
+			sub Condicional > def string condicion
+		sub NoVacio
+		sub Formato > def string patron
+		sub Longitud > def integer min; def integer max
+		sub Normalizacion > def word[]:{NombrePropio Minusculas Mayusculas SinEspaciosInternos SinEspaciosIniciales SinEspaciosFinales SinMultiplesEspaciosInternos SinCaracteresRepetidos SinEmoji SinCaracteresDeControl SinEspacios SinCaracteresEspeciales SinNumericos SinCerosIniciales} criterios
+		sub Precision > def integer decimales
+		sub Min > def double valor
+		sub Max > def double valor
+
+	Concept:Single Semantico as generalization
+		sub Dentro > def string geometria
+
+	Concept:Single Pragmatico as generalization
+		sub AnteriorQue > def date fecha = empty
+		sub PosteriorQue > def date fecha = empty

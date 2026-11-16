@@ -1,0 +1,47 @@
+dsl metta
+
+Concept:Contract_R1 Contract
+	def integer id
+	def date startDate
+	def date endDate
+	has:{2..*} Part
+
+Concept Part
+	def integer id
+	def string name
+	def word:{Buyer Seller Lessor Lessee Provider Client} role
+
+Concept Clause
+	def string title
+	def string description
+	has:{0..*} Clause
+	has:{0..*} Obligation
+	has:{0..*} Penalty
+	Concept activation
+		facet Type
+			sub Always
+			sub OnDate
+				def date activationDate
+			sub OnCondition
+				def string condition
+			sub recurrent
+				def integer months
+
+Concept Obligation
+	def word:{Pay Deliver Notify Transfer Terminate Renew} action 
+	def Part responsible
+	Concept expire
+		facet Type
+			sub Absolute
+				def date expireDate
+
+			sub Relative
+				def integer expireDays
+
+Concept Penalty
+	def string description
+	def integer amount
+	has:{1..*} Obligation
+
+constraint Contract_R1:: startDate < endDate
+	message = "End date must be after start date"

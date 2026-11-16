@@ -1,0 +1,117 @@
+dsl metta
+
+Concept:Named Report
+	def string subjectType
+	def string label
+	def resource template
+	def string description = empty
+	def string locale = empty
+	def string group = empty
+	def word[]:{Day Week Month Quarter Year} scales = Day
+	def Storyboard[] storyboards = empty
+
+	Concept:{1..1} Generation
+		facet Frequency
+			sub Realtime
+			sub Periodical
+				def string cronExpression
+
+	facet Singleton
+	facet AllLedgersRequired
+
+	Concept:Named Insight
+		def string label = empty
+		def Cube cube
+		def Indicator[] indicators = empty
+		def word:{All None Main Root MainAndRoot Leaves AllButLeaves AllButRoot AllButMain RootWithGrandchildren} visibility = All
+
+		facet Ordered
+			def word:{Natural Alphabetically Descending Ascending} order = Descending
+			def Indicator orderBy = empty
+
+		facet Sliced
+			def string[] slices
+
+		facet Labeled
+			Concept Label
+				def string old
+				def string new
+
+		facet Formatted
+			Concept Format
+				def Indicator[] indicators
+				def string pattern
+
+		sub Gauge
+		sub Json
+		sub Microsite
+
+		sub Limitable
+			def integer maxItems = -1
+
+			sub Pie
+			sub Table
+			sub TableBar
+				Concept:{1..1} Bars
+					def Indicator[] indicators
+
+		sub List
+			Concept Item
+				def Attribute attribute
+				def string prefix = empty
+
+		sub Columnar
+			def boolean showDataLabels = false
+			def boolean showZeros = false
+			has:{0..*} PlotLine
+
+			sub Column
+			sub StackedColumn
+
+		sub ViewCharts
+			Concept:{0..1} Selector
+				def Attribute.Category attribute
+
+			Concept:{1..1} Temporality
+				def Period range
+				def Period step
+				def word:{Whole Last} rangeType = Whole
+
+			sub TableView
+			sub HeatmapView
+
+			sub TimelineChart
+				def boolean showDataLabels = false
+				has:{0..*} PlotLine
+
+				sub LineView
+				sub ColumnView
+				sub ColumnSwapView
+
+			facet Filtered
+				has Slice
+
+Concept:Named Storyboard
+	def string id
+	def string label
+	def Ledger ledger
+
+	Concept Measure
+		def Indicator indicator
+		def string label
+
+	Concept Dimension
+		def Attribute.Category attribute
+		def string label
+
+	facet Translatable
+		def Dictionary[] dictionaries
+
+Concept PlotLine as component
+	def double value
+	def string label = ""
+	def string color = "green"
+
+Concept:Named Period
+	def word:{Day Week Month Quarter Year} unit
+	def integer amount = 1

@@ -1,0 +1,70 @@
+dsl metta
+
+Concept:R1 Contract
+	def integer id
+	def time start
+	def time end
+	has:{2..*} Party
+	has:{1..*} Clause
+
+
+Concept Party
+	def string name
+	def integer id
+	facet Role
+		sub Buyer
+		sub Seller
+		sub Lessor
+		sub Lessee
+		sub Provider
+		sub Client
+
+	
+Concept:R2:R3:R4 Clause as component
+	def string title
+	def string description
+	def boolean isConditional
+	def Obligation[] obligations
+	def Penalty[] penalties
+	def Condition[] conditions
+	has:{0..*} Clause
+
+
+Concept Obligation as component
+	def integer id
+	has:{1..*} Party
+	def time deadline
+	facet action
+		sub Pay
+		sub Deliver
+		sub Notify
+		sub Transfer
+		sub Terminate
+		sub Renew
+
+
+Concept Penalty as component
+	def integer obligationId
+	def integer amount
+	def string description
+
+
+Concept Condition as component
+	def string condition
+
+
+
+constraint R1 :: start < end
+	message = "The starting date must be earlier than the ending one"
+
+
+constraint R2 :: count(all(penalties, p -> p.obligationId in map(obligations, o -> o.id))) == count(penalties)
+	message = "Each penalty must reference an existing obligation in the clause"
+
+
+constraint R3 :: (isConditional == true and count(conditions) > 0) or (isConditional == false and count(conditions) == 0)
+	message = "Conditional clauses must have at least one condition. Non-conditional clauses may have none."
+
+
+constraint R4 :: not ("Terminate" in map(obligations, o -> o.action) and "Renew" in map(obligations, o -> o.action))
+	message = "A clause cannot include both Terminate and Renew obligations"

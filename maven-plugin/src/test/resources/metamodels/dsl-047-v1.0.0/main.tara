@@ -1,0 +1,27 @@
+dsl metta
+
+Concept Template
+	Concept:{1..*} Model
+		def string name
+		def string category
+
+	Concept:{1..1} Sentences
+		def resource content
+
+	Concept SubstituteSet
+		def string name
+		has:{1..*} Substitute
+
+	has:{1..*} Substitute
+
+
+Concept:R4 Substitute
+	def string mark
+	def string[] candidates = empty
+	def string pattern = empty
+	def integer size = empty
+	def boolean ner = true
+
+
+constraint R4::(count(candidates) > 0 and pattern is empty and size is empty) or (count(candidates) == 0 and (pattern is not empty or size is not empty))
+	message = "Use either candidates or pattern/size, but never both."

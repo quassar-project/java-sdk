@@ -1,0 +1,1410 @@
+Concept Transformation as component
+	def double probability = 1.0
+	def integer copies = 1
+
+	sub TextTransformation
+		sub CharacterNoise
+			def double rate = 0.05
+			facet Type
+				sub Swap
+				sub Insert
+					def string alphabet = empty
+				sub Delete
+					def string alphabet = empty
+				sub Replace
+					def string alphabet = empty
+
+		sub KeyboardTypo
+			def double rate = 0.05
+			facet Type
+				sub Qwerty
+				sub Azerty
+				sub Qwertz
+				sub Dvorak
+
+		sub VisualSimilarityReplacement
+			def double rate = 0.05
+
+		sub CaseVariation
+			def double rate = 0.05
+			facet Type
+				sub Lowercase
+				sub Uppercase
+				sub Titlecase
+				sub Swapcase
+				sub Random
+
+		sub AccentRemoval
+			def double rate = 0.05
+
+		sub PunctuationNoise
+			def double rate = 0.05
+			facet Type
+				sub Insert
+				sub Delete
+				sub Replace
+				sub Mixed
+
+		sub WhitespaceNoise
+			def double rate = 0.05
+			facet Type
+				sub Insert
+				sub Delete
+				sub Duplicate
+
+		sub TokenMasking
+			def double rate = 0.15
+			def string mask = "[MASK]"
+
+		sub StopwordRemoval
+			def double rate = 1.0
+			def string language = empty
+
+		sub NumberReplacement
+			def double rate = 0.20
+			def double maxRelativeChange = 0.25
+
+		sub WordOrderPerturbation
+			def integer window = 3
+			def double rate = 0.10
+
+		sub SentenceNoise
+			def double rate = 0.10
+			def string delimiter = "."
+			def integer maxSentences = 2
+			facet Type
+				sub Delete
+				sub Duplicate
+				sub Split
+				sub Merge
+				sub Shuffle
+
+		sub ParagraphNoise
+			def double rate = 0.10
+			def string delimiter = "\\n\\n"
+			def integer maxParagraphs = 2
+			facet Type
+				sub Delete
+				sub Duplicate
+				sub Split
+				sub Merge
+				sub Shuffle
+
+		sub ContextCrop
+			def integer maxTokens
+			def word:{start center end random} position = random
+
+		sub TextTruncation
+			def integer maxTokens
+			def word:{left right random} side = right
+
+
+	sub ImageTransformation
+		sub Resize
+			def boolean preserveAspectRatio = true
+			facet Type
+				sub Standard
+					def integer width
+					def integer height
+				sub Random
+					def integer minHeight
+					def integer maxHeight
+					def integer minWidth
+					def integer maxWidth
+
+		sub Scale
+			facet Type
+				sub Standard
+					def double scale = 0.8
+				sub Random
+					def double minScale = 0.6
+					def double maxScale = 1.4
+
+		sub Crop
+			facet Type
+				sub Standard
+					def double widthRatio = 0.80
+					def double heightRatio = 0.80
+				sub Random
+					def double minWidthRatio = 0.60
+					def double maxWidthRatio = 0.60
+					def double minHeightRatio = 1.40
+					def double maxHeightRatio = 0.40
+
+		sub Pad
+			def integer top = 0
+			def integer bottom = 0
+			def integer left = 0
+			def integer right = 0
+			def integer fill = 0
+
+		sub Rotate
+			def boolean expand = false
+			facet Type
+				sub Standard
+					def double degrees = 15.0
+				sub Random
+					def double minDegrees = -15.0
+					def double maxDegrees = 15.0
+
+		sub HorizontalFlip
+		sub VerticalFlip
+
+		sub Translate
+			facet Type
+				sub Standard
+					def double xRatio = 0.10
+					def double yRatio = 0.10
+				sub Random
+					def double minXRatio = -0.10
+					def double maxXRatio = 0.10
+					def double minYRatio = -0.10
+					def double maxYRatio = 0.10
+
+		sub Shear
+			facet Type
+				sub Standard
+					def double degrees = 10.0
+				sub Random
+					def double minDegrees = -10.0
+					def double maxDegrees = 10.0
+
+		sub AffineTransform
+			facet Type
+				sub Standard
+					def double rotation = 15.0
+					def double scaleDelta = 0.20
+					def double translationRatio = 0.10
+				sub Random
+					def double maxRotation = 15.0
+					def double maxScaleDelta = 0.20
+					def double maxTranslationRatio = 0.10
+
+		sub PerspectiveTransform
+			facet Type
+				sub Standard
+					def double distortion = 0.20
+				sub Random
+					def double minDistortion = 0.0
+					def double maxDistortion = 0.20
+
+		sub ElasticDeformation
+			facet Type
+				sub Standard
+					def double alpha = 1.0
+					def double sigma = 50.0
+				sub Random
+					def double minAlpha = 0.0
+					def double maxAlpha = 1.0
+					def double minSigma = 25.0
+					def double maxSigma = 50.0
+
+		sub OpticalDistortion
+			facet Type
+				sub Standard
+					def double distortion = 0.20
+					def double shift = 0.05
+				sub Random
+					def double minDistortion = 0.0
+					def double maxDistortion = 0.20
+					def double minShift = -0.05
+					def double maxShift = 0.05
+
+		sub Brightness
+			facet Type
+				sub Standard
+					def double delta = 0.20
+				sub Random
+					def double minDelta = -0.20
+					def double maxDelta = 0.20
+
+		sub Contrast
+			facet Type
+				sub Standard
+					def double factor = 1.20
+				sub Random
+					def double minFactor = 0.80
+					def double maxFactor = 1.20
+
+		sub Saturation
+			facet Type
+				sub Standard
+					def double factor = 1.20
+				sub Random
+					def double minFactor = 0.80
+					def double maxFactor = 1.20
+
+		sub Hue
+			facet Type
+				sub Standard
+					def double delta = 0.10
+				sub Random
+					def double minDelta = -0.10
+					def double maxDelta = 0.10
+
+		sub GammaCorrection
+			facet Type
+				sub Standard
+					def double gamma = 1.20
+				sub Random
+					def double minGamma = 0.80
+					def double maxGamma = 1.20
+
+		sub Grayscale
+
+		sub Sepia
+			facet Type
+				sub Standard
+					def double intensity = 1.0
+				sub Random
+					def double minIntensity = 0.0
+					def double maxIntensity = 1.0
+
+		sub ColorTemperature
+			facet Type
+				sub Standard
+					def integer kelvinShift = 2000
+				sub Random
+					def integer minKelvinShift = -2000
+					def integer maxKelvinShift = 2000
+
+		sub WhiteBalance
+			facet Type
+				sub Standard
+					def double intensity = 0.20
+				sub Random
+					def double minIntensity = -0.20
+					def double maxIntensity = 0.20
+
+		sub ChannelShuffle
+
+		sub ChannelMasking
+			def integer channels = 1
+
+		sub ChromaticAberration
+			def double strength = 0.05
+
+		sub Invert
+
+		sub Solarize
+			facet Type
+				sub Standard
+					def integer threshold = 128
+				sub Random
+					def integer minThreshold = 0
+					def integer maxThreshold = 255
+
+		sub Posterize
+			facet Type
+				sub Standard
+					def integer bits = 4
+				sub Random
+					def integer minBits = 2
+					def integer maxBits = 8
+
+		sub HistogramEqualization
+
+		sub AdaptiveHistogramEqualization
+			facet Type
+				sub Standard
+					def double clipLimit = 2.0
+					def integer gridSize = 8
+				sub Random
+					def double minClipLimit = 1.0
+					def double maxClipLimit = 4.0
+					def integer minGridSize = 4
+					def integer maxGridSize = 16
+
+		sub AutoContrast
+			def double cutoff = 0.0
+
+		sub GaussianNoise
+			facet Type
+				sub Standard
+					def double sigma = 0.05
+				sub Random
+					def double minSigma = 0.0
+					def double maxSigma = 0.05
+
+		sub SpeckleNoise
+			facet Type
+				sub Standard
+					def double variance = 0.05
+				sub Random
+					def double minVariance = 0.0
+					def double maxVariance = 0.05
+
+		sub SaltPepperNoise
+			facet Type
+				sub Standard
+					def double amount = 0.01
+				sub Random
+					def double minAmount = 0.0
+					def double maxAmount = 0.01
+
+		sub PoissonNoise
+			facet Type
+				sub Standard
+					def double scale = 1.0
+				sub Random
+					def double minScale = 0.0
+					def double maxScale = 1.0
+
+		sub ISOShotNoise
+			facet Type
+				sub Standard
+					def double intensity = 0.20
+				sub Random
+					def double minIntensity = 0.0
+					def double maxIntensity = 0.20
+
+		sub GaussianBlur
+			facet Type
+				sub Standard
+					def integer kernelSize = 3
+					def double sigma = 1.0
+				sub Random
+					def integer minKernelSize = 3
+					def integer maxKernelSize = 7
+					def double minSigma = 0.0
+					def double maxSigma = 1.0
+
+		sub MotionBlur
+			facet Type
+				sub Standard
+					def integer kernelSize = 5
+					def double angle = 180.0
+				sub Random
+					def integer minKernelSize = 3
+					def integer maxKernelSize = 9
+					def double minAngle = 0.0
+					def double maxAngle = 180.0
+
+		sub MedianBlur
+			facet Type
+				sub Standard
+					def integer kernelSize = 3
+				sub Random
+					def integer minKernelSize = 3
+					def integer maxKernelSize = 7
+
+		sub DefocusBlur
+			facet Type
+				sub Standard
+					def integer radius = 3
+				sub Random
+					def integer minRadius = 1
+					def integer maxRadius = 5
+
+		sub ZoomBlur
+			facet Type
+				sub Standard
+					def double zoom = 1.20
+				sub Random
+					def double minZoom = 1.0
+					def double maxZoom = 1.20
+
+		sub GlassBlur
+			facet Type
+				sub Standard
+					def double sigma = 0.70
+					def integer iterations = 2
+				sub Random
+					def double minSigma = 0.0
+					def double maxSigma = 0.70
+					def integer minIterations = 1
+					def integer maxIterations = 3
+
+		sub Sharpen
+			facet Type
+				sub Standard
+					def double amount = 0.50
+				sub Random
+					def double minAmount = 0.0
+					def double maxAmount = 0.50
+
+		sub Emboss
+			facet Type
+				sub Standard
+					def double strength = 0.50
+				sub Random
+					def double minStrength = 0.0
+					def double maxStrength = 0.50
+
+		sub EdgeEnhancement
+			facet Type
+				sub Standard
+					def double strength = 0.50
+				sub Random
+					def double minStrength = 0.0
+					def double maxStrength = 0.50
+
+		sub Pixelate
+			facet Type
+				sub Standard
+					def double scale = 0.20
+				sub Random
+					def double minScale = 0.10
+					def double maxScale = 0.50
+
+		sub JPEGCompression
+			facet Type
+				sub Standard
+					def integer quality = 75
+				sub Random
+					def integer minQuality = 40
+					def integer maxQuality = 95
+
+		sub WebPCompression
+			facet Type
+				sub Standard
+					def integer quality = 75
+				sub Random
+					def integer minQuality = 40
+					def integer maxQuality = 95
+
+		sub DownsampleUpsample
+			def word:{nearest bilinear bicubic lanczos} interpolation = bilinear
+			facet Type
+				sub Standard
+					def double scale = 0.50
+				sub Random
+					def double minScale = 0.25
+					def double maxScale = 0.75
+
+		sub Cutout
+			facet Type
+				sub Standard
+					def integer holes = 1
+					def double widthRatio = 0.20
+					def double heightRatio = 0.20
+				sub Random
+					def integer minHoles = 1
+					def integer maxHoles = 8
+					def double minWidthRatio = 0.0
+					def double maxWidthRatio = 0.20
+					def double minHeightRatio = 0.0
+					def double maxHeightRatio = 0.20
+
+		sub RandomErasing
+			facet Type
+				sub Standard
+					def double area = 0.10
+				sub Random
+					def double minArea = 0.02
+					def double maxArea = 0.30
+
+		sub GridMask
+			facet Type
+				sub Standard
+					def double ratio = 0.50
+					def integer gridSize = 16
+				sub Random
+					def double minRatio = 0.0
+					def double maxRatio = 0.50
+					def integer minGridSize = 8
+					def integer maxGridSize = 32
+
+		sub CoarseMasking
+			facet Type
+				sub Standard
+					def integer holes = 8
+					def double sizeRatio = 0.10
+				sub Random
+					def integer minHoles = 1
+					def integer maxHoles = 8
+					def double minSizeRatio = 0.0
+					def double maxSizeRatio = 0.10
+
+		sub MixUp
+			facet Type
+				sub Standard
+					def double alpha = 0.20
+				sub Random
+					def double minAlpha = 0.0
+					def double maxAlpha = 0.20
+
+		sub CutMix
+			facet Type
+				sub Standard
+					def double alpha = 1.0
+				sub Random
+					def double minAlpha = 0.0
+					def double maxAlpha = 1.0
+
+		sub FMix
+			facet Type
+				sub Standard
+					def double alpha = 1.0
+					def double decayPower = 3.0
+				sub Random
+					def double minAlpha = 0.0
+					def double maxAlpha = 1.0
+					def double minDecayPower = 1.0
+					def double maxDecayPower = 3.0
+
+		sub Mosaic
+			facet Type
+				sub Standard
+					def integer rows = 2
+					def integer columns = 2
+				sub Random
+					def integer minRows = 2
+					def integer maxRows = 4
+					def integer minColumns = 2
+					def integer maxColumns = 4
+
+		sub CopyPaste
+			def boolean blendEdges = true
+			facet Type
+				sub Standard
+					def integer entities = 5
+				sub Random
+					def integer minEntities = 1
+					def integer maxEntities = 5
+
+		sub EntityOcclusion
+			facet Type
+				sub Standard
+					def double areaRatio = 0.30
+					def integer entities = 3
+				sub Random
+					def double minAreaRatio = 0.0
+					def double maxAreaRatio = 0.30
+					def integer minEntities = 1
+					def integer maxEntities = 3
+
+		sub Fog
+			facet Type
+				sub Standard
+					def double intensity = 0.30
+				sub Random
+					def double minIntensity = 0.0
+					def double maxIntensity = 0.30
+
+		sub Rain
+			facet Type
+				sub Standard
+					def double intensity = 0.30
+					def double slant = 0.0
+				sub Random
+					def double minIntensity = 0.0
+					def double maxIntensity = 0.30
+					def double minSlant = -0.20
+					def double maxSlant = 0.20
+
+		sub Snow
+			facet Type
+				sub Standard
+					def double intensity = 0.30
+				sub Random
+					def double minIntensity = 0.0
+					def double maxIntensity = 0.30
+
+		sub Shadow
+			facet Type
+				sub Standard
+					def integer count = 1
+					def double opacity = 0.50
+				sub Random
+					def integer minCount = 1
+					def integer maxCount = 3
+					def double minOpacity = 0.0
+					def double maxOpacity = 0.50
+
+		sub SunFlare
+			facet Type
+				sub Standard
+					def double intensity = 0.50
+				sub Random
+					def double minIntensity = 0.0
+					def double maxIntensity = 0.50
+
+		sub LensFlare
+			facet Type
+				sub Standard
+					def integer count = 1
+					def double intensity = 0.50
+				sub Random
+					def integer minCount = 1
+					def integer maxCount = 3
+					def double minIntensity = 0.0
+					def double maxIntensity = 0.50
+
+		sub Vignette
+			facet Type
+				sub Standard
+					def double strength = 0.30
+				sub Random
+					def double minStrength = 0.0
+					def double maxStrength = 0.30
+
+		sub BoundingBoxJitter
+			facet Type
+				sub Standard
+					def double translationRatio = 0.05
+					def double scaleRatio = 0.05
+				sub Random
+					def double maxTranslationRatio = 0.05
+					def double maxScaleRatio = 0.05
+
+		sub KeypointJitter
+			facet Type
+				sub Standard
+					def double sigma = 2.0
+				sub Random
+					def double minSigma = 0.0
+					def double maxSigma = 2.0
+
+		sub MaskErosion
+			facet Type
+				sub Standard
+					def integer kernelSize = 3
+					def integer iterations = 1
+				sub Random
+					def integer minKernelSize = 3
+					def integer maxKernelSize = 7
+					def integer minIterations = 1
+					def integer maxIterations = 3
+
+		sub MaskDilation
+			facet Type
+				sub Standard
+					def integer kernelSize = 3
+					def integer iterations = 1
+				sub Random
+					def integer minKernelSize = 3
+					def integer maxKernelSize = 7
+					def integer minIterations = 1
+					def integer maxIterations = 3
+
+		sub MaskBoundaryNoise
+			facet Type
+				sub Standard
+					def integer offset = 3
+				sub Random
+					def integer minOffset = 0
+					def integer maxOffset = 3
+					
+	sub AudioTransformation
+		sub Gain
+			facet Type
+				sub Random
+					def double minDb = -6.0
+					def double maxDb = 6.0
+				sub Standard
+					def double db = 3.0
+
+		sub LoudnessNormalization
+			facet Type
+				sub Random
+					def double minLUFS = -21.00
+					def double maxLUFS = -26.00
+				sub Standard
+					def double targetLUFS = -23.0
+
+		sub Clipping
+			facet Type
+				sub Random
+					def double minThreshold = 0.70
+					def double maxThreshold = 0.90
+				sub Standard
+					def double threshold = 0.80
+
+		sub DynamicRangeCompression
+			def double ratio = 4.0
+			facet Type
+				sub Random
+					def double minThresholdDb = -19.0
+					def double maxthresholdDb = -21.0
+				sub Standard
+					def double thresholdDb = -20.0
+
+		sub Limiter
+			facet Type
+				sub Random
+					def double minThresholdDb = -0.9
+					def double maxthresholdDb = -1.1
+				sub Standard
+					def double thresholdDb = -1.0
+
+		sub Distortion
+			def double drive = 0.20
+			facet Type
+				sub Random
+					def double minDrive = 0.10
+					def double maxDrive = 0.30
+				sub Standard
+					def double drive = 0.20
+
+		sub GaussianNoise
+			facet Type
+				sub Random
+					def double minSNR = 10.0
+					def double maxSNR = 30.0
+				sub Standard
+					def double snr = 10.0
+
+		sub BackgroundNoise
+			def resource content = empty
+			facet Type
+				sub Random
+					def double minSNR = 5.0
+					def double maxSNR = 25.0
+				sub Standard
+					def double snr = 15.0
+
+		sub ImpulseNoise
+			def double rate = 0.01
+			facet Type
+				sub Random
+					def double minSNR = 5.0
+					def double maxSNR = 25.0
+				sub Standard
+					def double snr = 15.0
+
+		sub ColoredNoise
+			def word:{white pink brown blue violet random} color = random
+			facet Type
+				sub Random
+					def double minSNR = 10.0
+					def double maxSNR = 30.0
+				sub Standard
+					def double snr = 15.0
+
+				sub HumNoise
+
+		sub ClickNoise
+			facet Type
+				sub Random
+					def double minRate = 0.001
+					def double maxRate = 0.05
+				sub Standard
+					def double rate = 0.01
+
+		sub TimeShift
+			def boolean wrap = false
+			facet Type
+				sub Random
+					def double minSeconds = -1.0
+					def double maxSeconds = 1.0
+				sub Standard
+					def double seconds = 0.50
+
+		sub RandomCrop
+			facet Type
+				sub Random
+					def double minDurationSeconds = 0.5
+					def double maxDurationSeconds = 5.0
+				sub Standard
+					def double durationSeconds = 2.0
+
+		sub Pad
+			def word:{start end both random} position = random
+			facet Type
+				sub Random
+					def double minDurationSeconds = 0.5
+					def double maxDurationSeconds = 5.0
+				sub Standard
+					def double durationSeconds = 2.0
+
+		sub TrimSilence
+			facet Type
+				sub Random
+					def double minThresholdDb = -60.0
+					def double maxThresholdDb = -20.0
+				sub Standard
+					def double thresholdDb = -40.0
+
+		sub SilenceInsertion
+			def integer count = 1
+			facet Type
+				sub Random
+					def double minDurationSeconds = 0.10
+					def double maxDurationSeconds = 1.00
+				sub Standard
+					def double durationSeconds = 0.50
+
+		sub TimeMasking
+			def integer masks = 1
+			facet Type
+				sub Random
+					def double minDurationSeconds = 0.10
+					def double maxDurationSeconds = 1.00
+				sub Standard
+					def double durationSeconds = 0.50
+
+		sub FrequencyMasking
+			def integer masks = 1
+			facet Type
+				sub Random
+					def double minBandwidthHertz = 200.0
+					def double maxBandwidthHertz = 2000.0
+				sub Standard
+					def double bandwidthHertz = 1000.0
+
+		sub Reverberation
+			facet Type
+				sub Random
+					def double minRoomSize = 0.10
+					def double maxRoomSize = 0.90
+					def double minWetLevel = 0.10
+					def double maxWetLevel = 0.60
+				sub Standard
+					def double roomSize = 0.50
+					def double wetLevel = 0.30
+
+		sub Echo
+			facet Type
+				sub Random
+					def double minDelaySeconds = 0.05
+					def double maxDelaySeconds = 0.50
+					def double minDecay = 0.20
+					def double maxDecay = 0.80
+				sub Standard
+					def double delaySeconds = 0.20
+					def double decay = 0.50
+
+		sub LowPassFilter
+			facet Type
+				sub Random
+					def double minCutoffHertz = 1000.0
+					def double maxCutoffHertz = 8000.0
+				sub Standard
+					def double cutoffHertz = 4000.0
+
+		sub HighPassFilter
+			facet Type
+				sub Random
+					def double minCutoffHertz = 50.0
+					def double maxCutoffHertz = 1000.0
+				sub Standard
+					def double cutoffHertz = 200.0
+
+		sub BandPassFilter
+			facet Type
+				sub Random
+					def double minLowCutoffHertz = 100.0
+					def double maxLowCutoffHertz = 1000.0
+					def double minHighCutoffHertz = 2000.0
+					def double maxHighCutoffHertz = 8000.0
+				sub Standard
+					def double lowCutoffHertz = 300.0
+					def double highCutoffHertz = 3400.0
+
+		sub BandStopFilter
+			facet Type
+				sub Random
+					def double minLowCutoffHertz = 100.0
+					def double maxLowCutoffHertz = 1000.0
+					def double minHighCutoffHertz = 2000.0
+					def double maxHighCutoffHertz = 8000.0
+				sub Standard
+					def double lowCutoffHertz = 300.0
+					def double highCutoffHertz = 3400.0
+
+		sub BandwidthLimitation
+			facet Type
+				sub Random
+					def double minLowHertz = 100.0
+					def double maxLowHertz = 1000.0
+					def double minHighHertz = 2000.0
+					def double maxHighHertz = 8000.0
+				sub Standard
+					def double minHertz = 300.0
+					def double maxHertz = 3400.0
+		
+	sub VideoTransformation
+		sub Resize
+			def boolean preserveAspectRatio = true
+			facet Type
+				sub Standard
+					def integer width
+					def integer height
+				sub Random
+					def integer minWidth
+					def integer maxWidth
+					def integer minHeight
+					def integer maxHeight
+
+		sub Scale
+			facet Type
+				sub Standard
+					def double scale = 1.0
+				sub Random
+					def double minScale = 0.80
+					def double maxScale = 1.20
+
+		sub Crop
+			facet Type
+				sub Standard
+					def double widthRatio = 0.80
+					def double heightRatio = 0.80
+				sub Random
+					def double widthRatio = 0.80
+					def double heightRatio = 0.80
+
+		sub Pad
+			def integer top = 0
+			def integer bottom = 0
+			def integer left = 0
+			def integer right = 0
+
+		sub Rotate
+			facet Type
+				sub Standard
+					def double degrees = 15.0
+				sub Random
+					def double maxDegrees = 15.0
+
+		sub HorizontalFlip
+		sub VerticalFlip
+
+		sub Translate
+			facet Type
+				sub Standard
+					def double xRatio = 0.10
+					def double yRatio = 0.10
+				sub Random
+					def double maxXRatio = 0.10
+					def double maxYRatio = 0.10
+
+		sub Shear
+			facet Type
+				sub Standard
+					def double degrees = 10.0
+				sub Random
+					def double maxDegrees = 10.0
+
+		sub AffineTransform
+			facet Type
+				sub Standard
+					def double rotation = 15.0
+					def double scaleDelta = 0.20
+					def double translationRatio = 0.10
+				sub Random
+					def double maxRotation = 15.0
+					def double maxScaleDelta = 0.20
+					def double maxTranslationRatio = 0.10
+
+		sub PerspectiveTransform
+			facet Type
+				sub Standard
+					def double distortion = 0.20
+				sub Random
+					def double distortion = 0.20
+
+		sub ColorJitter
+			facet Type
+				sub Standard
+					def double brightness = 0.20
+					def double contrast = 0.20
+					def double saturation = 0.20
+					def double hue = 0.10
+				sub Random
+					def double brightness = 0.20
+					def double contrast = 0.20
+					def double saturation = 0.20
+					def double hue = 0.10
+
+		sub Brightness
+			facet Type
+				sub Standard
+					def double delta = 0.20
+				sub Random
+					def double maxDelta = 0.20
+
+		sub Contrast
+			facet Type
+				sub Standard
+					def double factor = 1.20
+				sub Random
+					def double minFactor = 0.80
+					def double maxFactor = 1.20
+
+		sub Saturation
+			facet Type
+				sub Standard
+					def double factor = 1.20
+				sub Random
+					def double minFactor = 0.80
+					def double maxFactor = 1.20
+
+		sub Hue
+			facet Type
+				sub Standard
+					def double delta = 0.10
+				sub Random
+					def double maxDelta = 0.10
+
+		sub GammaCorrection
+			facet Type
+				sub Standard
+					def double gamma = 1.20
+				sub Random
+					def double minGamma = 0.80
+					def double maxGamma = 1.20
+
+		sub Grayscale
+		sub ChannelShuffle
+
+		sub GaussianNoise
+			def boolean consistentAcrossFrames = true
+			facet Type
+				sub Standard
+					def double sigma = 0.05
+				sub Random
+					def double sigma = 0.05
+
+		sub GaussianBlur
+			def boolean consistentAcrossFrames = true
+			facet Type
+				sub Standard
+					def integer kernelSize = 3
+					def double sigma = 1.0
+				sub Random
+					def integer kernelSize = 3
+					def double sigma = 1.0
+
+		sub MotionBlur
+			facet Type
+				sub Standard
+					def integer kernelSize = 5
+					def double angle = 180.0
+				sub Random
+					def integer kernelSize = 5
+					def double maxAngle = 180.0
+
+		sub Pixelate
+			facet Type
+				sub Standard
+					def double scale = 0.20
+				sub Random
+					def double scale = 0.20
+
+		sub CodecCompression
+			def word:{h264 h265 vp9 av1} codec = h264
+			facet Type
+				sub Standard
+					def integer bitrateKbps = 2000
+				sub Random
+					def integer bitrateKbps = 2000
+
+		sub BitrateReduction
+			facet Type
+				sub Standard
+					def integer bitrateKbps = 500
+				sub Random
+					def integer bitrateKbps = 500
+
+		sub ResolutionReduction
+			facet Type
+				sub Standard
+					def double scale = 0.50
+				sub Random
+					def double scale = 0.50
+
+		sub TemporalCrop
+			facet Type
+				sub Standard
+					def double durationSeconds
+				sub Random
+					def double durationSeconds
+
+		sub UniformFrameSampling
+			def integer frames
+
+		sub FrameSampling
+			facet Type
+				sub Standard
+					def integer frames
+				sub Random
+					def integer frames
+
+		sub FrameDeletion
+			def double rate = 0.10
+
+		sub FrameDuplication
+			def double rate = 0.10
+
+		sub FrameShuffle
+			def integer window = 5
+
+		sub TemporalReverse
+
+		sub SpeedChange
+			def boolean preserveAudioPitch = true
+			facet Type
+				sub Standard
+					def double rate = 1.0
+				sub Random
+					def double minRate = 0.80
+					def double maxRate = 1.20
+
+		sub TimeWarp
+			facet Type
+				sub Standard
+					def double intensity = 0.20
+				sub Random
+					def double intensity = 0.20
+
+		sub FreezeFrame
+			def integer count = 1
+			facet Type
+				sub Standard
+					def double durationSeconds = 0.50
+				sub Random
+					def double durationSeconds = 0.50
+
+		sub LoopClip
+			def integer repetitions = 2
+
+		sub TemporalShift
+			facet Type
+				sub Standard
+					def double seconds = 1.0
+				sub Random
+					def double maxSeconds = 1.0
+
+		sub FrameRateChange
+			def double targetFPS
+
+		sub VariableFrameRate
+			facet Type
+				sub Standard
+					def double targetFPS
+				sub Random
+					def double minFPS
+					def double maxFPS
+
+		sub SceneShuffle
+
+		sub SceneCut
+			facet Type
+				sub Standard
+					def double durationSeconds
+				sub Random
+					def double durationSeconds
+
+		sub TransitionInsertion
+			def word:{fade dissolve wipe cut random} transition = random
+			facet Type
+				sub Standard
+					def double durationSeconds = 0.50
+				sub Random
+					def double durationSeconds = 0.50
+
+		sub ClipConcatenation
+			def resource content = empty
+
+		sub ClipMixUp
+			facet Type
+				sub Standard
+					def double alpha = 0.20
+				sub Random
+					def double alpha = 0.20
+
+		sub TemporalCutMix
+			facet Type
+				sub Standard
+					def double alpha = 1.0
+				sub Random
+					def double alpha = 1.0
+
+		sub VideoMosaic
+			facet Type
+				sub Standard
+					def integer rows = 2
+					def integer columns = 2
+				sub Random
+					def integer rows = 2
+					def integer columns = 2
+
+		sub Cutout
+			def boolean consistentAcrossFrames = true
+			facet Type
+				sub Standard
+					def integer holes = 1
+					def double areaRatio = 0.20
+				sub Random
+					def integer holes = 1
+					def double maxAreaRatio = 0.20
+
+		sub RandomErasing
+			def boolean consistentAcrossFrames = true
+			facet Type
+				sub Standard
+					def double area = 0.30
+				sub Random
+					def double minArea = 0.02
+					def double maxArea = 0.30
+
+		sub EntityOcclusion
+			facet Type
+				sub Standard
+					def double areaRatio = 0.30
+					def double durationRatio = 0.50
+				sub Random
+					def double maxAreaRatio = 0.30
+					def double durationRatio = 0.50
+
+		sub CameraShake
+			facet Type
+				sub Standard
+					def double translation = 0.02
+					def double rotation = 2.0
+				sub Random
+					def double translation = 0.02
+					def double rotation = 2.0
+
+		sub Pan
+			facet Type
+				sub Standard
+					def double ratio = 0.20
+				sub Random
+					def double maxRatio = 0.20
+
+		sub Tilt
+			facet Type
+				sub Standard
+					def double ratio = 0.20
+				sub Random
+					def double maxRatio = 0.20
+
+		sub Zoom
+			facet Type
+				sub Standard
+					def double factor = 1.20
+				sub Random
+					def double minFactor = 0.80
+					def double maxFactor = 1.20
+
+		sub RollingShutter
+			facet Type
+				sub Standard
+					def double strength = 0.20
+				sub Random
+					def double strength = 0.20
+
+		sub StabilizationPerturbation
+			facet Type
+				sub Standard
+					def double intensity = 0.20
+				sub Random
+					def double intensity = 0.20
+
+		sub LightingFlicker
+			facet Type
+				sub Standard
+					def double intensity = 0.20
+					def double frequency = 5.0
+				sub Random
+					def double intensity = 0.20
+					def double frequency = 5.0
+
+		sub Fog
+			facet Type
+				sub Standard
+					def double intensity = 0.30
+				sub Random
+					def double intensity = 0.30
+
+		sub Rain
+			facet Type
+				sub Standard
+					def double intensity = 0.30
+				sub Random
+					def double intensity = 0.30
+
+		sub Snow
+			facet Type
+				sub Standard
+					def double intensity = 0.30
+				sub Random
+					def double intensity = 0.30
+
+		sub Shadow
+			facet Type
+				sub Standard
+					def double opacity = 0.50
+				sub Random
+					def double opacity = 0.50
+
+		sub LensFlare
+			facet Type
+				sub Standard
+					def double intensity = 0.50
+				sub Random
+					def double intensity = 0.50
+
+		sub AudioShift
+			facet Type
+				sub Standard
+					def double seconds = 1.0
+				sub Random
+					def double maxSeconds = 1.0
+
+		sub AudioMasking
+			def double rate = 0.10
+
+		sub AudioNoise
+			facet Type
+				sub Standard
+					def double snr = 20.0
+				sub Random
+					def double minSNR = 10.0
+					def double maxSNR = 30.0
+
+		sub AudioReplacement
+			def resource content = empty
+
+		sub AudioVideoDesynchronization
+			facet Type
+				sub Standard
+					def double seconds = 1.0
+				sub Random
+					def double maxSeconds = 1.0
+
+		sub SubtitleOverlay
+			def resource content = empty
+			def string position = "bottom"
+
+		sub TextOverlay
+			def string content
+			def string position = "center"
+
+		sub WatermarkOverlay
+			def resource content
+			def double opacity = 0.50
+
+		sub BoundingBoxJitter
+			facet Type
+				sub Standard
+					def double translationRatio = 0.05
+					def double scaleRatio = 0.05
+				sub Random
+					def double maxTranslationRatio = 0.05
+					def double maxScaleRatio = 0.05
+
+		sub TrackJitter
+			facet Type
+				sub Standard
+					def double translationRatio = 0.05
+					def double temporalNoise = 0.05
+				sub Random
+					def double maxTranslationRatio = 0.05
+					def double temporalNoise = 0.05
+
+		sub MaskPropagationNoise
+			facet Type
+				sub Standard
+					def integer offset = 3
+				sub Random
+					def integer maxOffset = 3
+
+		sub OpticalFlowPerturbation
+			facet Type
+				sub Standard
+					def double intensity = 0.10
+				sub Random
+					def double intensity = 0.10

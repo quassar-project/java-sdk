@@ -1,0 +1,38 @@
+dsl Metta
+
+Concept Document
+	def word:{TEXT AUDIO VIDEO IMAGE OTHER ANY} type
+	def string subject = empty
+
+
+Concept Folder
+	def string subject = empty
+	has:{1..*} Document
+
+
+Concept Workflow
+	def string description
+	has:{0..*} Variable
+	has:{1..*} Step
+
+
+Concept Variable as component
+	def string name
+	def string description = empty
+	def string value
+
+
+Concept Step as component
+	def string description = empty
+	Concept:{1..*} Node
+		def string type
+		def string description = empty
+		def string when = empty
+		Concept:{0..*} Input
+			def string name
+			def string description = empty
+			def string value
+	Concept:{0..*} Export
+		def string name
+		def string value
+	

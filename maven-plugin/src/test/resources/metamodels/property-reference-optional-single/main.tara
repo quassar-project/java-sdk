@@ -1,0 +1,6 @@
+dsl metta
+
+// Java: Entry#value Target
+Concept Target
+Concept Entry
+	def Target[0..1] value

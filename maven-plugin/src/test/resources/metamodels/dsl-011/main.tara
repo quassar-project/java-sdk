@@ -1,0 +1,5 @@
+dsl metta
+
+Concept DataAsset
+	def word:{Low Medium High Variable Critical} sensitivity
+	def string description

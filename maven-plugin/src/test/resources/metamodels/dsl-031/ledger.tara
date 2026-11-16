@@ -1,0 +1,92 @@
+dsl metta
+
+Concept Ledger
+	def string subjectType
+	def word:{Second Minute Hour Day Week Month Year} scale
+	def word:{Events Status Master} content
+
+	Concept:{1..1} Source
+		def string subjectType
+
+	Concept:{1..1} Generation
+		facet Frequency
+			sub Realtime
+			sub Periodical
+				def string cronExpression
+
+	has Attribute
+	has Dimension
+	has Indicator
+
+	facet Translatable
+		def Dictionary[] dictionaries
+
+	facet Aggregation
+		def Ledger baseLedger
+		def word:{Week Month Quarter Year} aggregationPeriod
+		def Attribute aggregationKey = empty
+
+Concept Attribute as component
+
+	facet AttributeType
+		sub Category
+			def string label
+			def string[] options = empty
+//			sub Label
+		sub Int
+		sub Int8
+		sub Int16
+		sub Int32
+		sub Int64
+		sub Real
+		sub Real32
+		sub Real64
+		sub Label
+		sub Date
+		sub Time
+		sub Key
+		sub Url
+
+	facet Source
+		sub FromTag > def string tag
+		sub FromChildrenTag
+			def string subjectType
+			def string tag
+			def word:{Sum Average} operation = Sum
+
+Concept Indicator as component
+	def string label
+	def string unit = empty
+	def string scale = empty
+	def integer decimals = 0
+	
+	facet IndicatorType
+		sub AttributeIndicator
+    		def Attribute attribute
+
+			sub Sum
+			sub Average
+			sub Max
+			sub Min
+
+			sub FilterableIndicator
+				def string value = empty
+
+				sub Count
+				sub Ratio
+
+		sub Formula
+			def string formula
+		
+Concept Dimension as component
+
+	facet NumericalDimension
+		def Attribute attribute
+
+		sub Implicit
+			def string ranges
+			
+		sub Explicit
+			Concept Slice
+				def string label
+				def string range

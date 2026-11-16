@@ -1,0 +1,148 @@
+dsl metta
+
+Concept SubjectType
+	def string type
+
+Concept RoleType
+	def string type
+	
+Concept View
+
+	facet ViewType
+		sub Reference
+			has Widget
+
+		sub Projection
+
+			sub Container
+				def word:{Selector Tabs Stack} composition
+
+				Concept:{1..*} Panel
+					def string label
+					def Projection view
+
+					Concept Status
+						sub Visible
+						sub Invisible
+						sub Readonly
+
+						has Condition	
+
+			sub Collection
+				def word:{This All Root Parent GrandParent} scope = This		
+				def string query = empty // Triple expression. For example: * country Spain
+
+				Concept:{1..*} Item
+					def SubjectType subjectType
+					def integer:{px} width = -1px
+					def Reference reference = empty
+					def Projection navigate = empty
+
+				Concept:Single:Optional Commands
+					has:Single:Optional Grouping
+					has Filtering
+					has Sorting
+					has:Single:Optional Download
+
+				sub List
+					def word:{Stack Float} positioning = Stack  
+
+				sub Map
+					def string tag
+					def word:{HeatMap Points} layer
+					
+					Concept:{0..1} Center
+						def double longitude
+						def double latitude
+
+					Concept:{0..1} Zoom
+						def integer defaultZoom = 15
+						def integer min
+						def integer max
+
+				sub ColumnCollection
+
+					Concept:Required Column
+						def string tag
+						def string label = empty
+
+						Concept Highlighted
+							def string textColor = "white"
+							def string backgroundColor = "black"
+							def string when = empty
+							
+						facet Mode
+							sub Text
+							sub Number
+							sub Date > def word:{Seconds Minutes Hours Days Months Years} resolution
+							sub Link > def string referenceTitleTag
+							sub Term
+							sub Check
+								def string checkedValue = "Yes"
+								def string uncheckedValue = "No"
+
+						facet Positioning
+							sub Relative > def integer:{%} width
+							sub Absolute > def integer:{px} width
+
+						facet Inherited	
+							def word:{Parent GrandParent} from
+
+					sub Table
+					sub Grid
+
+			sub Frame
+				has Widget
+
+				sub Editor
+					Concept:Single:Optional Commands
+						has:Single:Optional DraftEditing
+
+				sub Log
+
+					Concept Status
+						sub Visible
+
+						has IfEquals	
+
+				sub Report
+					def resource overlayTemplate = empty
+
+			sub Analytical
+				def SubjectType subjectType
+				def word:{This Child} scope = This
+
+				sub CubeReport
+				sub Olap
+					Concept:{0..1} Microsite
+						def resource logo
+						def resource excelTemplate
+						def resource htmlTemplate
+
+			sub Document
+				def SubjectType subjectType
+				def integer:{MB} maxSize = -1 MB
+
+				Concept:Single:Optional Commands
+					has:Single:Optional Edit
+					has Sign
+					has:Single:Optional Seal
+
+				Concept:{0..1} Picture
+					has:{0..1} Size
+
+				Concept:Single:Optional Edition
+					facet Native
+
+			sub Delegate
+				def string subjectTag
+				def View view
+
+	facet Main // with Projection -> TODO OR: No funciona
+		def integer priority = 0
+
+Concept Viewer
+	def SubjectType subjectType
+	
+	has View
+	has Viewer

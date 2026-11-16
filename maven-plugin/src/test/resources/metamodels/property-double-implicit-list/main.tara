@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value java.util.List<java.math.BigDecimal>
+Concept Entry
+	def double[] value

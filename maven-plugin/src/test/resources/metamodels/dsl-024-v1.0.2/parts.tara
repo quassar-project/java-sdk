@@ -1,0 +1,46 @@
+dsl metta
+
+
+Concept Nota as component
+	def string nota
+
+
+Concept Atributo as component
+	def string descripcion = empty
+	facet Tipo
+		sub Booleano
+		sub Texto
+		sub Numero
+			def string metrica = empty
+		sub Fecha
+			def word:{Año Mes Dia Hora Minuto Segundo} resolucion = empty
+		sub Enlace
+			def Entidad entidad
+			def Faceta faceta = empty
+		sub Termino
+			def Tesauro tesauro
+		sub Tupla
+			has Atributo
+	facet Mutable
+	facet Multiple
+
+Concept Faceta as component
+	facet Mutable
+	facet TipoFaceta
+		sub Especializacion
+		sub Extension
+	def string nombre = empty
+	def string descripcion = empty
+	has Faceta
+	has Atributo
+	has Tesauro
+	has Nota
+	Concept Ejemplo
+		def string descripcion
+
+
+
+Concept Label
+	def string token
+	def string label
+

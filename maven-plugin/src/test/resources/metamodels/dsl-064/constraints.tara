@@ -1,0 +1,13 @@
+dsl metta
+
+constraint CheckContract:: startDate < endDate
+	message = "La fecha de inicio del contrato debe ser menor que la fecha de finalización"
+
+constraint CheckClause:: not(count(all(Duty, d -> d.action == "Renew")) == 1 and count(all(Duty, d -> d.action == "Terminate")) == 1)
+	message = "Se han detectado acciones incompatibles"
+
+constraint CheckPenalty:: count(all(components(container()), c -> c is "Duty")) > 0
+	message = "No se puede definir una penalización si previamente no ha definido obligaciones asociadas"
+
+constraint CheckPeriodicity:: frequency > 0
+	message = "Debe definir una frecuencia válida"

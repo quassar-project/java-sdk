@@ -1,0 +1,41 @@
+dsl metta
+
+use Variable
+
+Concept Node
+	def string url
+	def string port
+
+// ------------------------------------------------------------------------------------
+
+Concept Source //:Named
+	Concept Report
+		Concept Statement
+			def Subject subject
+
+			Concept Required > def Variable variable
+			Concept Included > def Variable variable
+
+			facet Multiple
+			facet Single
+
+Concept Scope //:Named
+	has Source
+	has Subject
+
+Concept Subject
+	def string type
+	def string hint = empty
+	has Variable
+
+// ------------------------------------------------------------------------------------
+
+Concept Artifact
+	def word[]:{Java Javascript Python Android IOs MacOs} platforms
+	def Subject[] subjects
+	def Reconciliation[] reconciliations
+
+	facet FieldValidation
+	facet DuplicationValidation
+	facet Query
+	facet Command

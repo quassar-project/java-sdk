@@ -1,0 +1,27 @@
+dsl metta
+
+Concept Hospital
+	def string name
+	Concept:{0..*} Room
+		def integer number
+
+Concept Patient
+	def string fullName
+	def integer age
+	def Hospital.Room room
+	has VitalSign
+
+Concept:R1 VitalSign as component
+	facet Type 
+		sub Temperature
+			def double:{°C} value
+			def double:{°C} threshold = 38.0 °C
+		sub HeartRate
+			def integer:{bpm} value
+			def integer:{bpm} threshold = 100 bpm
+		sub SpO2
+			def integer:{%} value
+			def integer:{%} threshold = 90 %
+
+constraint R1:: self is "Type" or self is "HearthRate" 
+	message = ""

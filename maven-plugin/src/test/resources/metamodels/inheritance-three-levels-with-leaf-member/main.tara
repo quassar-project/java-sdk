@@ -1,0 +1,8 @@
+dsl metta
+
+// Java: Entry#label java.lang.String
+// Java: Entry#size java.math.BigDecimal
+// Java: Entry#visible boolean
+Concept Base as generalization > def string label
+Concept Middle extends Base as generalization > def integer size
+Concept Entry extends Middle > def boolean visible

@@ -1,0 +1,38 @@
+dsl metta
+
+Concept Contrato
+	def long id
+	def date fecha-inicio
+	def date fecha-finalización
+	has:{2..*} Parte
+	has:{0..*} Cláusula
+
+
+Concept Parte
+	def long id
+	def string name
+	def word:{Buyer Seller Lessor Lessee Provider Client} rol
+
+Concept Cláusula
+	def string título
+	def string descripción
+	def boolean recurrente
+	has:{0..*} Obligación
+	has:{0..*} Penalización
+	has:{0..*} Cláusula
+	facet CláusulaCondicional
+		def function expresión
+		sub EventosExternos
+		sub FechasEspecíficas
+
+
+Concept Obligación
+	def word:{Pay Deliver Notify Transfer Terminate Renew} accion
+	def date fecha-activacion
+	def date fecha-limite
+	def Parte cumplimiento
+
+Concept Penalización
+	def integer cantidad
+	def string descripción
+

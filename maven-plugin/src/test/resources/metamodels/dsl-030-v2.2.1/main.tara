@@ -1,0 +1,121 @@
+dsl Metta
+
+Concept:Single Unit
+	def Module main = empty
+
+	has:Single:Required Label
+	has:Single Logo
+	has:Single Icon
+
+	has Role
+	has Subject
+
+Concept Role as component
+	def string type
+
+Concept Context as component
+
+	sub Pin
+		has:Single:Required Label
+		has:Single Icon
+
+		facet SubjectPanel
+			Concept:Single:Required Content
+				sub Singleton
+					def string id
+				sub Query
+					def Subject subject
+					def string condition = empty
+					
+		facet ErrorPanel
+		facet SearchPanel
+		facet TaskPanel
+
+	sub Subject	
+		def string type
+
+		Concept:Single Access
+			def Role[] roles = empty
+			Concept:Single Edition > def Role[] roles
+			Concept:Single Signing > def Role[] roles
+
+	facet Locked	
+
+Concept Module
+
+	has:Single:Required Label
+	has Pin
+
+	facet Locked	
+
+Concept Operation
+	def Context[] contexts
+	def string dialog = empty
+
+	has:Single:Required Label
+	has:Single Hint
+
+	Concept:Single Access > def Role[] roles
+
+	Concept:Single Availability
+
+		sub TagAvailability
+			Concept:Single:Required When
+				def string tag
+				def string value
+
+			sub Visible
+			sub Hidden
+
+		sub ComplianceAvailability
+			def string compliance = empty
+
+			sub HiddenIfNotCompliant
+			sub DisabledIfNotCompliant
+
+	facet Type
+		sub WorkflowTrigger
+			def Workflow workflow
+
+		sub FileDelivering
+			def string[] options = empty
+
+	facet NonBlocking
+	
+	facet OneShot
+		def string id
+
+	facet PermissionBased
+		def string message
+		def word:{Simple Tokenized} type = Simple
+
+Concept Workflow
+
+	Concept Stop
+		has:Single:Required Label
+		def string compliance = empty
+
+		has:Single Hint
+
+		sub:Single:Required Departure
+			def Stop stop
+
+		sub WayPoint
+			Concept:Single:Required Next
+				def Stop stop
+
+		sub Cross
+			Concept:Required Exit
+				has:Single:Required Label
+				def Stop stop
+
+		sub:Single:Required Arrival
+
+Concept Label as component > def string value
+Concept Hint as component > def string value
+Concept Logo as component > def resource value
+Concept Icon as component > def resource value
+
+
+
+

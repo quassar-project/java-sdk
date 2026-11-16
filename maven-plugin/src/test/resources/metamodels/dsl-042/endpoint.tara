@@ -1,0 +1,243 @@
+dsl metta
+
+Concept:Named EndPoint
+	def ArtifactTrack artifactTrack
+	def Schema schema
+	def integer priority = 0
+
+	Concept:{1..1}:ValidJournalRetention Journal
+		def word:{Off Sampled Full} capture
+		def integer:{days} retention
+		def word:{None Redact Encrypt} piiPolicy
+
+	Concept:{0..1} GuardRails
+		Concept:{0..*} GuardRail
+
+			sub Safeguard
+				sub PrivacyLeakageProtection
+
+				sub:ValidMembershipInferenceProtection MembershipInferenceProtection
+					def integer window = 600
+					def double similarityThreshold = 0.80
+					def integer maxSimilarQueries = 3
+
+				sub AttributeInferenceProtection
+				sub PropertyInferenceProtection
+
+				sub:ValidModelInversionProtection ModelInversionProtection
+					def integer topK = 3
+					def double minLogit = -8.0
+					def double maxLogit = 8.0
+					def integer decimals = 2
+					def double noiseAmplitude = 0.05
+					def double minimumRankingGap = 0.01
+
+				sub DataReconstructionProtection
+
+				sub:ValidOutlierInferenceProtection OutlierInferenceProtection
+					def double extremeVectorNorm = 100.0
+					def double nearZero = 0.000000001
+					def double dominantComponentRatio = 0.90
+
+				sub DataExfiltrationProtection
+				sub DataExtractionDetection
+				sub DocumentExfiltrationProtection
+				sub EntityExtractionLeakageProtection
+				sub MetadataLeakageProtection
+				sub CrossTenantDataLeakageProtection
+
+				sub PromptManipulationProtection
+				sub JailbreakProtection
+				sub PromptInjectionProtection
+				sub IndirectPromptInjectionProtection
+				sub SystemPromptExtractionProtection
+
+				sub ModelExtractionProtection
+				sub DecisionBoundaryProbingProtection
+				sub ConfidenceScoreLeakageProtection
+
+				sub RetrievalLeakageProtection
+				sub SimilaritySearchLeakageProtection
+				sub NearestNeighborDisclosureProtection
+
+				sub RobustnessProtection
+				sub EvasionProtection
+				sub AdversarialExampleProtection
+
+			sub:ValidBudget Budget
+				def integer:{$} max
+				def word:{Hourly Daily Weekly Monthly Yearly} period
+
+			sub:ValidQuotaMaximum:ValidQuotaTargets:UniqueQuotaTargets Quota
+				def integer:{tokens} max
+				def word:{Hourly Daily Weekly Monthly Yearly} period
+				def word[]:{Input Output Reasoning All} target = All
+
+			sub:ValidFallbackLimit FallbackLimit
+				def integer limit
+
+			sub:ValidCostBudget CostBudget
+				def integer:{$} max
+				def word:{Request Session} scope
+
+			sub:ValidCallBudget CallBudget
+				def integer max
+				def word:{Hourly Daily Weekly Monthly Yearly} period
+
+			sub:ValidAvailabilityRate AvailabilityRate
+				def integer:{%} minPercentage
+				def word:{Hourly Daily Weekly Monthly Yearly} period
+
+			sub:ValidErrorRate ErrorRate
+				def integer:{%} maxPercentage
+				def word:{Hourly Daily Weekly Monthly Yearly} period
+
+			sub:ValidTokenBudget TokenBudget
+				def integer:{tokens} max
+				def word:{Request Session} scope
+				def word:{Input Output Both} target
+
+			sub:ValidRetrievalBudget RetrievalBudget
+				def integer max
+				def word:{Hourly Daily Weekly Monthly Yearly} period
+
+			sub:ValidPayloadSize PayloadSize
+				def integer max
+				def word:{Bytes Kilobytes Megabytes} unit = Bytes
+
+			sub:ValidConcurrencyLimit ConcurrencyLimit
+				def integer max
+
+			sub:ValidLatency Latency
+				def integer:{millis} maxMillis
+
+			sub EvidencePolicy
+				sub:ValidEvidenceRetention Retention
+					def integer max
+					def word:{Hourly Daily Weekly Monthly Yearly} period
+
+				sub Provenance
+					def boolean requireSourceReferences = true
+					def boolean requireArtifactVersion = true
+					def boolean requireTimestamp = true
+					def boolean requireActorReference = false
+
+				sub PIIHandling
+					def word:{Block Redact Encrypt Allow} mode
+
+			sub Control
+				sub:ValidAuthorizationEntries Authorization
+					def string[] whitelist
+
+				sub:ValidLocationRegions Location
+					def string[] regions
+
+				sub SchemaConformance
+					def word:{Input Output Both} target = Input
+					def boolean rejectUnknownAttributes = true
+
+				sub:ValidCompletenessAttributes Completeness
+					def word:{Input Output Both} target = Input
+					def string[] requiredAttributes
+					def boolean rejectNullValues = true
+					def boolean rejectEmptyStrings = true
+					def boolean rejectEmptyCollections = true
+
+				sub:ValidHumanApprovalTimeout HumanApproval
+					def integer:{seconds} timeout
+
+			Concept:{0..1} OnViolation
+				sub Reject
+
+				sub Fallback
+					def EndPoint endpoint
+
+
+Concept:Named Schema
+	Concept:Named Attribute extends Data
+
+
+Concept Data as generalization
+	facet List
+
+	facet Type
+		sub Real
+		sub Integer
+		sub Bool
+		sub Text
+		sub Image
+		sub Document
+		sub Audio
+		sub Video
+		sub Object > def Schema schema
+		sub Chat
+
+
+constraint ValidJournalRetention :: retention >= 0
+	message = "Journal retention must be zero or greater"
+
+constraint ValidMembershipInferenceProtection :: window > 0 and similarityThreshold >= 0 and similarityThreshold <= 1 and maxSimilarQueries > 0
+	message = "Membership inference protection requires a positive window, similarityThreshold between 0 and 1, and positive maxSimilarQueries"
+
+constraint ValidModelInversionProtection :: topK > 0 and minLogit < maxLogit and decimals >= 0 and noiseAmplitude >= 0 and minimumRankingGap >= 0
+	message = "Model inversion protection requires positive topK, minLogit below maxLogit, and non-negative decimals, noiseAmplitude and minimumRankingGap"
+
+constraint ValidOutlierInferenceProtection :: extremeVectorNorm > 0 and nearZero > 0 and nearZero < extremeVectorNorm and dominantComponentRatio > 0 and dominantComponentRatio <= 1
+	message = "Outlier inference protection requires positive thresholds, nearZero below extremeVectorNorm, and dominantComponentRatio between 0 exclusive and 1 inclusive"
+
+constraint ValidBudget :: max >= 0
+	message = "Budget maximum must be zero or greater"
+
+constraint ValidQuotaMaximum :: max >= 0
+	message = "Quota maximum must be zero or greater"
+
+constraint ValidQuotaTargets :: count(target) > 0 and (count(all(target, t -> t == "All")) == 0 or count(target) == 1)
+	message = "Quota must specify at least one target; All cannot be combined with other targets"
+
+constraint UniqueQuotaTargets :: count(all(target, t -> t == "Input")) <= 1 and count(all(target, t -> t == "Output")) <= 1 and count(all(target, t -> t == "Reasoning")) <= 1 and count(all(target, t -> t == "All")) <= 1
+	message = "Quota targets must not contain duplicates"
+
+constraint ValidFallbackLimit :: limit >= 0
+	message = "Fallback limit must be zero or greater"
+
+constraint ValidCostBudget :: max >= 0
+	message = "Cost budget maximum must be zero or greater"
+
+constraint ValidCallBudget :: max >= 0
+	message = "Call budget maximum must be zero or greater"
+
+constraint ValidAvailabilityRate :: minPercentage >= 0 and minPercentage <= 100
+	message = "Minimum availability percentage must be between 0 and 100"
+
+constraint ValidErrorRate :: maxPercentage >= 0 and maxPercentage <= 100
+	message = "Maximum error percentage must be between 0 and 100"
+
+constraint ValidTokenBudget :: max >= 0
+	message = "Token budget maximum must be zero or greater"
+
+constraint ValidRetrievalBudget :: max >= 0
+	message = "Retrieval budget maximum must be zero or greater"
+
+constraint ValidPayloadSize :: max > 0
+	message = "Maximum payload size must be positive"
+
+constraint ValidConcurrencyLimit :: max > 0
+	message = "Concurrency limit must be positive"
+
+constraint ValidLatency :: maxMillis > 0
+	message = "Maximum latency must be positive"
+
+constraint ValidEvidenceRetention :: max >= 0
+	message = "Evidence retention maximum must be zero or greater"
+
+constraint ValidAuthorizationEntries :: count(all(whitelist, entry -> entry is empty or entry == "")) == 0
+	message = "Authorization whitelist entries must not be empty"
+
+constraint ValidLocationRegions :: count(regions) > 0 and count(all(regions, region -> region is empty or region == "")) == 0
+	message = "Location must specify at least one region and region names must not be empty"
+
+constraint ValidCompletenessAttributes :: count(requiredAttributes) > 0 and count(all(requiredAttributes, attribute -> attribute is empty or attribute == "")) == 0
+	message = "Completeness must specify at least one required attribute and attribute names must not be empty"
+
+constraint ValidHumanApprovalTimeout :: timeout > 0
+	message = "Human approval timeout must be positive"

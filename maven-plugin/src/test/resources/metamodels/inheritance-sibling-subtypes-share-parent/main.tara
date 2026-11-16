@@ -1,0 +1,8 @@
+dsl metta
+
+// Java: Entry#label java.lang.String
+// Java: Other#label java.lang.String
+// Java: Other#enabled boolean
+Concept Base as generalization > def string label
+Concept Entry extends Base > def integer count
+Concept Other extends Base > def boolean enabled

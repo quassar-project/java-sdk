@@ -1,0 +1,52 @@
+dsl metta
+
+Concept:C1:C2 Contract
+	def date start
+	def date end
+
+	Concept Part
+		def string name
+		def word:{Buyer Seller Lessor Lessee Provider Client} role
+
+	has:C3 Clause
+	has:C3 Subclause
+
+Concept:C3 Clause as component
+	def string title
+	def string description
+
+	Concept:{0..*} Obligation
+		def word:{Pay Deliver Notify Transfer Terminate Renew} action
+		def Contract.Part part
+		def date limit = empty
+		def integer days = empty
+	
+	Concept:{0..*}:C4 Penalty
+		def double amount
+		def string description
+	
+	facet Conditional
+		def string expression
+		def word:{ExternalEvent Date} type
+
+	facet:C5 Recurring
+		def integer cadenceInMonths
+
+Concept Subclause extends Clause
+
+
+constraint C1:: start < end
+	message = "La fecha de inicio debe ser anterior a la de finalización"
+
+constraint C2:: count(all(siblings(), s -> s is "Part")) >= 2
+	message = "Un contrato debe tener al menos dos partes"
+
+constraint C3:: count(all(components(), o -> o is "Obligation" and (o.action == "Terminate" or o.action == "Renew"))) < 2
+	message = "Acciones incompatibles"
+
+constraint C4:: contains(container(), "Obligation")
+	message = "La cláusula debe tener una obligación"
+
+constraint C5:: cadenceInMonths > 0
+	message = "Cadencia inválida"
+

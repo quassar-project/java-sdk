@@ -1,0 +1,18 @@
+dsl metta
+
+Concept Attribute as component
+	def string name
+	def string defaultValue = empty
+	def boolean optional = true
+	facet Text
+		facet List
+	facet Integer
+		facet List
+	facet Real
+		facet List
+
+
+Concept Factura
+	def string comercializadora
+	def string description = empty
+

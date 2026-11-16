@@ -1,0 +1,6 @@
+dsl metta
+
+// Java: Configured#value java.util.List<java.lang.String>
+Concept Entry
+	facet Configured
+		def word[]:{Ready Pending} value

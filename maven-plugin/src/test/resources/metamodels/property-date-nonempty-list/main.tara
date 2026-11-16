@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value java.util.List<java.lang.String>
+Concept Entry
+	def date[1..*] value

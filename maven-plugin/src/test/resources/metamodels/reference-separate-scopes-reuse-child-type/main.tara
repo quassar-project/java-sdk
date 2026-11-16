@@ -1,0 +1,10 @@
+dsl metta
+
+// Java: Entry#selected EntryItem
+// Java: Other#selected OtherItem
+Concept Entry
+	Concept Item
+	def Item selected
+Concept Other
+	Concept Item
+	def Item selected

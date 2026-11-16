@@ -1,0 +1,63 @@
+dsl metta
+
+Concept Observer
+	Concept Ontology
+		has Subject
+
+Concept Reconciliation
+	has:Single:Required Label
+	has:Single:Required Hint
+
+	def Subject left
+	def Subject right
+
+	Concept:Single:Required Key
+		def Variable left
+		def Variable right
+
+	Concept Filter
+		def Variable variable
+
+		Concept Condition
+			sub Normalized
+			sub Min > def integer value
+			sub Max > def integer value
+			sub MaxAge > def integer days
+			sub Range
+				def integer min
+				def integer max
+			sub Matches
+				def string regex
+			sub Required
+			sub Equals > def string value
+			sub NoPastDate
+			sub NoFutureDate
+			sub Subset > def string[] values
+
+	Concept Map		
+		def Variable left = empty	
+		def Variable right = empty
+
+		facet Similar
+			def word:{LevenshteinDistance} algorithm
+
+		facet SingleToMultiple
+		facet Deviation
+		facet Subset
+
+		Concept Rule
+			def double value = empty
+
+			Concept:{0..1} Var > def Variable variable
+			
+			sub Equals 
+			sub Min
+			sub Max
+			sub Percentage 
+			
+Concept Label as component
+	def string value
+	def resource icon = empty
+
+Concept Hint as component
+	def string value

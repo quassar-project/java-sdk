@@ -1,0 +1,162 @@
+dsl metta
+
+Concept Model as component
+    def string name
+    def string category
+
+Concept Range as component
+    def integer start = 0
+    def integer end
+    def integer step = 1
+
+Concept:R2:R3 TransformationSet as component
+    def Transformation[] transformations
+
+Concept Dataset
+    has:{1..*} Model
+
+    Concept:{0..*} Template
+
+        Concept:{1..1} Sentences
+            def resource content
+
+        Concept SubstituteSet
+            def string name
+            has:{1..*} Substitute
+
+        Concept Substitute
+            def string mark
+            def string[] candidates = empty
+            def Range range = empty
+            def string pattern = empty
+            def integer size = empty
+            def boolean ner = true
+
+        has:{0..*} TransformationSet
+        has:{0..*} TextTransformation
+
+    Concept:{0..*}:R5:R6:R7 BrowseQuery
+        def word:{image audio video} modality
+
+        Concept:{1..1} Queries
+            def resource content
+
+        facet Type
+            sub Agent
+            sub Simple
+
+        Concept:R1 Substitute
+            def string mark
+            def string[] candidates = empty
+            def Range range = empty
+            def string pattern = empty
+            def integer size = empty
+
+        Concept:{0..1} BrowseOptions
+            def integer maxDownloadRetries = empty
+
+        Concept:{0..1} ImageFilters
+            def integer minWidth = empty
+            def integer minHeight = empty
+
+        Concept:{0..1} VideoFilters
+            def integer minWidth = empty
+            def integer minHeight = empty
+            def integer maxDurationSeconds = empty
+
+        Concept:{0..1} AudioFilters
+            def integer maxDurationSeconds = empty
+
+        has:{0..*} TransformationSet
+        has:{0..*} Transformation
+
+    Concept:{0..*}:RGCommon:RGModality Generation
+        def string model
+        def integer samples = 1
+
+        Concept:{1..1} Prompts
+            def resource content
+
+        Concept:{0..*}:RGSubstitute Substitute
+            def string mark
+            def string[] candidates = empty
+            def Range range = empty
+            def string pattern = empty
+            def integer size = empty
+
+        facet:RGTextParameters Text
+            def double temperature = empty
+            def integer maxTokens = empty
+            def double topP = empty
+            def string systemMessage = empty
+
+        facet:RGImageParameters Image
+            def resource[] referenceImages = empty
+            def integer width = empty
+            def integer height = empty
+            def string quality = empty
+            def integer steps = empty
+            def string sampler = empty
+            def double guidance = empty
+            def string negativePrompt = empty
+            def resource workflow = empty
+
+        facet:RGAudioParameters Audio
+            def word:{soundEffects} operation = soundEffects
+            def double durationSeconds = empty
+            def double promptInfluence = empty
+            def boolean loop = empty
+
+        facet:RGVideoParameters Video
+            def resource[] referenceVideos = empty
+            def integer durationSeconds = empty
+            def string resolution = empty
+            def string aspectRatio = empty
+            def resource workflow = empty
+
+    Concept:{0..*} Source
+        def word:{image audio video text} modality
+        def string path
+
+
+constraint R1:: (count(candidates) > 0 and pattern is empty and size is empty) or (count(candidates) == 0 and (pattern is not empty or size is not empty)) or (count(candidates) == 0 and pattern is empty and size is empty and range is not empty)
+    message = "Use either candidates or pattern/size, but never both."
+
+constraint R2:: count(transformations) > 0 and (count(all(transformations, t -> t is "TextTransformation")) == count(transformations) or count(all(transformations, t -> t is "ImageTransformation")) == count(transformations) or count(all(transformations, t -> t is "AudioTransformation")) == count(transformations) or count(all(transformations, t -> t is "VideoTransformation")) == count(transformations))
+    message = "A TransformationSet must contain transformations of exactly one modality."
+
+constraint R3:: count(transformations) > 0 and count(difference(transformations, siblings())) == 0
+    message = "A TransformationSet must reference transformations declared in the same parent."
+
+//constraint R4:: count(TransformationSet) == 0 or count(all(TransformationSet, s -> count(s.transformations) > 0 and count(all(s.transformations, t -> t is "TextTransformation")) == count(s.transformations))) == count(TransformationSet)
+//    message = "A Template can only contain TransformationSets composed of text transformations."
+
+constraint R5:: count(Transformation) == 0 or (modality == "image" and count(all(Transformation, t -> t is "ImageTransformation")) == count(Transformation)) or (modality == "audio" and count(all(Transformation, t -> t is "AudioTransformation")) == count(Transformation)) or (modality == "video" and count(all(Transformation, t -> t is "VideoTransformation")) == count(Transformation))
+    message = "The transformations of a BrowseQuery must match its modality."
+
+constraint R6:: count(TransformationSet) == 0 or (modality == "image" and count(all(TransformationSet, s -> count(s.transformations) > 0 and count(all(s.transformations, t -> t is "ImageTransformation")) == count(s.transformations))) == count(TransformationSet)) or (modality == "audio" and count(all(TransformationSet, s -> count(s.transformations) > 0 and count(all(s.transformations, t -> t is "AudioTransformation")) == count(s.transformations))) == count(TransformationSet)) or (modality == "video" and count(all(TransformationSet, s -> count(s.transformations) > 0 and count(all(s.transformations, t -> t is "VideoTransformation")) == count(s.transformations))) == count(TransformationSet))
+    message = "The TransformationSets of a BrowseQuery must match its modality."
+
+constraint R7:: (modality == "image" and VideoFilters is empty and AudioFilters is empty) or (modality == "video" and ImageFilters is empty and AudioFilters is empty) or (modality == "audio" and ImageFilters is empty and VideoFilters is empty)
+    message = "BrowseQuery options must match its modality."
+
+constraint RGCommon:: model is not empty and samples > 0
+    message = "Generation requires a model profile and a positive number of samples."
+
+constraint RGModality:: (self is "Text" and not (self is "Image" or self is "Audio" or self is "Video")) or (self is "Image" and not (self is "Text" or self is "Audio" or self is "Video")) or (self is "Audio" and not (self is "Text" or self is "Image" or self is "Video")) or (self is "Video" and not (self is "Text" or self is "Image" or self is "Audio"))
+    message = "Generation must apply exactly one modality facet: Text, Image, Audio, or Video."
+
+constraint RGSubstitute:: mark is not empty and ((count(candidates) > 0 and range is empty and pattern is empty and size is empty) or (count(candidates) == 0 and range is not empty and pattern is empty and size is empty) or (count(candidates) == 0 and range is empty and pattern is not empty and size is not empty and size > 0))
+    message = "Use exactly one of candidates, range, or pattern with a positive size."
+
+constraint RGTextParameters:: (temperature is empty or temperature >= 0) and (maxTokens is empty or maxTokens > 0) and (topP is empty or (topP > 0 and topP <= 1))
+    message = "temperature must be nonnegative, maxTokens positive, and topP in (0, 1]."
+
+constraint RGImageParameters:: ((width is empty and height is empty) or (width is not empty and height is not empty and width > 0 and height > 0)) and (steps is empty or steps > 0) and (guidance is empty or guidance >= 0)
+    message = "Supply positive width and height together; steps must be positive and guidance nonnegative."
+
+constraint RGAudioParameters:: (durationSeconds is empty or durationSeconds > 0) and (promptInfluence is empty or (promptInfluence >= 0 and promptInfluence <= 1))
+    message = "Audio duration must be positive and promptInfluence in [0, 1]."
+
+constraint RGVideoParameters:: durationSeconds is empty or durationSeconds > 0
+    message = "Video duration must be positive."

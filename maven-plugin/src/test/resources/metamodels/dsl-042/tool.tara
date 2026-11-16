@@ -1,0 +1,392 @@
+dsl metta
+
+Concept Argument as component
+	def string name
+	sub Str
+		def string value
+	sub Int
+		def integer value
+	sub Double
+		def double value
+	sub Bool
+		def boolean value
+	sub StringArray
+		def string[] array
+	sub IntArray
+		def integer[] array
+	sub DoubleArray
+		def double[] array
+	sub BoolArray
+		def boolean[] array
+	sub Object
+		has:{1..*} Argument
+
+Concept LabelDescription as component
+	def string label
+	def string description
+
+Concept EntityDescription as component
+	def string entity
+	def string description
+
+Concept:ValidLoraConfig LoraConfig as component
+	def integer rank = 16
+	def integer alpha = 16
+	def double dropout = 0.05
+	def word[]:{query key value output} targetModules = query key value output
+
+Concept:ValidEarlyStopping EarlyStopping as component
+	def integer patience = 2
+	def boolean restoreBestWeights = true
+
+	facet:Required Type
+		sub:ValidValLossEarlyStopping ValLossEarlyStopping
+			def double lossDelta = 0.01
+
+		sub:ValidValAccuracyEarlyStopping ValAccuracyEarlyStopping
+			def double:{%} accDelta = 0.5%
+
+Concept TrainingConfig as component
+	has:{0..*} Argument
+
+	sub:ValidGradientBasedMethod GradientBasedMethod
+		def double lr = 0.0001
+		def integer epochs = 20
+		def integer batchSize = 16
+		def double weightDecay = 0.01
+		has:{0..1} EarlyStopping
+
+		sub:ValidTranslatorTrainingConfig TranslatorTrainingConfig
+			def integer maxSeqLength = 1024
+
+		sub:ValidAssistantTrainingConfig AssistantTrainingConfig
+			def integer maxSeqLength = 1024
+			has:{0..1} LoraConfig
+
+			Concept:{0..1}:ValidFinetuning Finetuning
+				def integer gradientAccumulationSteps = 1
+
+				facet BackProp
+
+				facet:ValidDPO DPO
+					def double beta = 0.1
+					def word:{sigmoid hinge ipo} lossType = sigmoid
+					def boolean referenceFree = false
+					def double temperature = 1.0
+
+			Concept:{0..1}:ValidQuantizationConfig QuantizationConfig
+				def word:{float32 float16 bfloat16} computeDataType = float16
+				def integer quantizationBits = 8
+
+		sub ClassifierTrainingConfig
+
+		sub EntityDetectorTrainingConfig
+			def boolean allowNestedEntities = false
+
+		sub:ValidDescriptorTrainingConfig DescriptorTrainingConfig
+			def integer maxSeqLength = 512
+
+		sub:ValidMLPConfig MLPConfig
+			def integer hiddenLayers = 2
+			def integer hiddenSize = 128
+			def word:{relu gelu tanh swish} activation = relu
+			def word:{xavier he normal} weightInitialization = xavier
+			def double dropout = 0.1
+			def word:{batchnorm layernorm none} normalization = none
+			def boolean useBias = true
+
+		sub:ValidKANConfig KANConfig
+			def integer hiddenLayers = 2
+			def integer hiddenSize = 128
+			def integer gridSize = 10
+			def double splineOrder = 3
+			def double noiseScale = 0.01
+			def double regularization = 0.001
+			def boolean adaptiveGrid = true
+			def integer refinementSteps = 2
+
+		sub LinearConfig
+			def boolean fitIntercept = true
+			def boolean positive = false
+			def word:{auto svd cholesky lsqr saga} solver = auto
+
+	sub:ValidClassicalTrainingConfig ClassicalTrainingConfig
+		def integer maxIterations = 1000
+		def double tolerance = 0.001
+
+		sub:ValidRandomForestConfig RandomForestConfig
+			def integer nEstimators = 100
+			def integer maxDepth = 10
+			def integer minSamplesSplit = 2
+			def integer minSamplesLeaf = 1
+			def double maxFeatures = 1.0
+			def boolean bootstrap = true
+
+		sub:ValidSVRConfig SVRConfig
+			def word:{linear rbf poly sigmoid} kernel = rbf
+			def double regularizationStrength = 1.0
+			def double epsilon = 0.1
+			def integer polynomialDegree = 3
+			def double coef0 = 0.0
+			def double tolerance = 0.001
+
+
+Concept:Named Tool
+
+	sub:Named Translator
+		def word:{Text Audio} input
+		def string fromLanguage
+		def string toLanguage
+		def string instructions = empty
+
+		facet:Required Implementation
+			sub Provided
+				sub Chatgpt > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Ollama > def string model = empty
+				sub ThirdParty > def string url
+
+			sub Proprietary
+				def string alias
+				has:{0..1} TranslatorTrainingConfig
+				def string model = empty
+
+	sub:Named Assistant
+		def word:{Text Image Audio Video Chat Multimodal} input
+		def string instructions = empty
+
+		facet:{1..*} Implementation
+			sub Provided
+				sub Chatgpt > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Ollama > def string model = empty
+				sub ThirdParty > def string url
+
+			sub Proprietary
+				def string alias
+				has:{0..1} AssistantTrainingConfig
+				def string model = empty
+
+	sub:Named EmbeddingStore
+		def word:{Text Image Audio Video Document Chat Multimodal} input
+		def word:{Fast Balanced Quality} embedding = Balanced
+		def word:{Cosine DotProduct Euclidean} similarity = Cosine
+		def word:{Flat HNSW IVF} indexType = HNSW
+		def word:{File Memory} storage
+		def word:{Document Chapter Chunk Sentence} chunkingStrategy
+		def boolean save = true
+
+		facet:Required Implementation
+			sub Provided
+				sub Generic > def string url
+
+			sub Proprietary
+				def string alias
+				sub Qdrant
+				sub Chroma
+
+	sub:Named Classifier
+		def word:{Text Chat Image Audio Video Vector TimeSeries Multimodal} input
+		def string[] labels
+		has:{0..*} LabelDescription
+		def string instructions = empty
+
+		facet:Required Implementation
+			sub Provided
+				sub Chatgpt > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Ollama > def string model = empty
+				sub Jev > def string model = empty
+				sub ThirdParty > def string url
+
+			sub Proprietary
+				def string alias
+				has:{0..1} ClassifierTrainingConfig
+				def string model = empty
+				sub Zeroshot
+				sub Fewshot
+				sub Finetuned
+
+	sub:Named Regressor
+		def word:{Normalization Standard MinMax Log RobustScaler} scaling
+		def word:{Clip Ignore Flag} outlierHandling = Clip
+		def string unit
+		def string instructions = empty
+
+		facet:Required Implementation
+			sub Provided
+				sub Chatgpt > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Ollama > def string model = empty
+				sub ThirdParty > def string url
+
+			sub Proprietary
+				def string alias
+
+				sub Linear
+					has:{0..1} LinearConfig
+
+				sub MLP
+					has:{0..1} MLPConfig
+
+				sub RandomForest
+					has:{0..1} RandomForestConfig
+
+				sub SVR
+					has:{0..1} SVRConfig
+
+				sub KAN
+					has:{0..1} KANConfig
+
+	sub:Named EntityDetector
+		def word:{Text Image Audio Video} input
+		def string[] entities
+		has:{0..*} EntityDescription
+		def string instructions = empty
+
+		facet:Required Implementation
+			sub Provided
+				sub Chatgpt > def string model = empty
+				sub Perplexity > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Ollama > def string model = empty
+				sub ThirdParty > def string url
+
+			sub Proprietary
+				def string alias
+				has:{0..1} EntityDetectorTrainingConfig
+				def string model = empty
+				sub Pretrained
+				sub Trained
+
+	sub:Named Descriptor
+		def word:{Text Image Audio Video Multimodal} input
+		def string instructions = empty
+
+		facet:Required Implementation
+			sub Provided
+				sub Chatgpt > def string model = empty
+				sub Perplexity > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Ollama > def string model = empty
+				sub ThirdParty > def string url
+
+			sub Proprietary
+				def string alias
+				has:{0..1} DescriptorTrainingConfig
+				def string model = empty
+				sub Pretrained
+				sub Trained
+
+	sub:Named GenericTool
+		has:{0..*} Argument
+
+		Concept:{0..1} Settings
+			has:{0..*} Argument
+
+		Concept:{1..1} Provider
+			facet Type
+				sub MarketPlace
+					def string plugin
+					def string toolName
+
+				sub Resource
+					def resource path
+
+				sub ThirdParty
+					def string url
+
+		facet Type
+			sub Translator
+				def word:{Text Audio} input
+				def string fromLanguage
+				def string toLanguage
+				def string instructions = empty
+				has:{1..1} TranslatorTrainingConfig
+
+			sub Assistant
+				def word:{Text Image Audio Video Chat Multimodal} input
+				def string instructions = empty
+				has:{1..1} AssistantTrainingConfig
+
+			sub Descriptor
+				def word:{Text Image Audio Video Multimodal Custom} input
+				def string instructions = empty
+				has:{1..1} DescriptorTrainingConfig
+
+			sub EntityDetector
+				def word:{Text Image Audio Video} input
+				def string[] entities
+				has:{0..*} EntityDescription
+				def string instructions = empty
+				has:{1..1} EntityDetectorTrainingConfig
+
+			sub Classifier
+				def word:{Text Chat Image Audio Video Vector TimeSeries Multimodal} input
+				def string[] labels
+				has:{0..*} LabelDescription
+				def string instructions = empty
+				has:{1..1} ClassifierTrainingConfig
+
+			sub Custom
+
+
+constraint ValidLoraConfig :: rank > 0 and alpha > 0 and dropout >= 0 and dropout < 1
+	message = "LoRA rank and alpha must be positive; dropout must be between 0 inclusive and 1 exclusive"
+
+constraint ValidEarlyStopping :: patience >= 0
+	message = "Early stopping patience must be zero or greater"
+
+constraint ValidValLossEarlyStopping :: lossDelta >= 0
+	message = "Early stopping lossDelta must be zero or greater"
+
+constraint ValidValAccuracyEarlyStopping :: accDelta >= 0 and accDelta <= 100
+	message = "Early stopping accDelta must be between 0% and 100%"
+
+constraint ValidGradientBasedMethod :: lr > 0 and epochs > 0 and batchSize > 0 and weightDecay >= 0
+	message = "Learning rate, epochs and batch size must be positive; weight decay must be zero or greater"
+
+constraint ValidTranslatorTrainingConfig :: maxSeqLength > 0
+	message = "Translator maxSeqLength must be positive"
+
+constraint ValidAssistantTrainingConfig :: maxSeqLength > 0
+	message = "Assistant maxSeqLength must be positive"
+
+constraint ValidFinetuning :: gradientAccumulationSteps > 0
+	message = "Gradient accumulation steps must be positive"
+
+constraint ValidDPO :: beta > 0 and temperature > 0
+	message = "DPO beta and temperature must be positive"
+
+constraint ValidQuantizationConfig :: quantizationBits == 4 or quantizationBits == 8
+	message = "Quantization bits must be 4 or 8"
+
+constraint ValidDescriptorTrainingConfig :: maxSeqLength > 0
+	message = "Descriptor maxSeqLength must be positive"
+
+constraint ValidMLPConfig :: hiddenLayers > 0 and hiddenSize > 0 and dropout >= 0 and dropout < 1
+	message = "MLP hidden layers and hidden size must be positive; dropout must be between 0 inclusive and 1 exclusive"
+
+constraint ValidKANConfig :: hiddenLayers > 0 and hiddenSize > 0 and gridSize > 0 and splineOrder >= 1 and noiseScale >= 0 and regularization >= 0 and refinementSteps >= 0
+	message = "KAN dimensions and spline order must be positive; noise scale, regularization and refinement steps must be zero or greater"
+
+constraint ValidClassicalTrainingConfig :: maxIterations > 0 and tolerance > 0
+	message = "Maximum iterations and tolerance must be positive"
+
+constraint ValidRandomForestConfig :: nEstimators > 0 and maxDepth > 0 and minSamplesSplit >= 2 and minSamplesLeaf >= 1 and maxFeatures > 0 and maxFeatures <= 1
+	message = "Random forest requires positive estimators and depth, minSamplesSplit >= 2, minSamplesLeaf >= 1 and maxFeatures between 0 exclusive and 1 inclusive"
+
+constraint ValidSVRConfig :: regularizationStrength > 0 and epsilon >= 0 and polynomialDegree >= 0 and tolerance > 0
+	message = "SVR regularization strength and tolerance must be positive; epsilon and polynomial degree must be zero or greater"

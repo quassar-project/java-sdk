@@ -1,0 +1,6 @@
+dsl metta
+
+// Java: Entry#selected EntryItem
+Concept Entry
+	Concept Item > def string label
+	def Item selected

@@ -1,0 +1,81 @@
+dsl metta
+
+Concept Field extends TypedNode as component
+	def string doc
+	def string[] aliases
+	def word:{Ascending Descending Ignore} order = Ascending
+	
+	facet Presence
+		sub Required
+		sub Nullable
+
+	has:{0..1} Default
+
+Concept Default as component
+	facet Value
+		sub NullValue
+		sub BooleanValue > def boolean value
+		sub IntValue > def integer value
+		sub LongValue > def long value
+		sub FloatValue > def double value
+		sub DoubleValue > def double value
+		sub StringValue > def string value
+		sub EnumValue > def string symbol
+		sub EmptyArray
+		sub EmptyMap
+
+Concept Items extends TypedNode as component
+Concept Values extends TypedNode as component
+Concept Option extends TypedNode as component
+
+Concept TypedNode as component
+	facet Type
+		sub Null
+		sub Boolean
+		sub Int
+		sub Long
+		sub Float
+		sub Double
+		sub Bytes
+		sub String
+		
+		sub RecordRef
+			def Record target
+			
+		sub EnumRef
+			def Enum target
+			
+		sub FixedRef
+			def Fixed target
+		
+		sub Array
+			has:{1..1} Items
+			
+		sub Map
+			has:{1..1} Values
+			
+		sub Union
+			has:{2..*} Option
+			
+		sub Decimal
+			def word:{Bytes Fixed} storage = Bytes
+			def integer precision
+			def integer scale = 0
+			def integer fixedSize
+			def string fixedName
+			
+		sub BigDecimal
+		sub Uuid
+			def word:{String Fixed} storage = String
+			def string fixedName = "UuidFixed"
+			
+		sub Date
+		sub TimeMillis
+		sub TimeMicros
+		sub TimestampMillis
+		sub TimestampMicros
+		sub TimestampNanos
+		sub LocalTimestampMillis
+		sub LocalTimestampMicros
+		sub LocalTimestampNanos
+		sub Duration

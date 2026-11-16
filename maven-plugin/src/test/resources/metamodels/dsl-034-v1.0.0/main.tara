@@ -1,0 +1,213 @@
+dsl metta
+
+Concept:{1..*} Intent
+	def string label
+	def string description = empty
+
+	facet Query
+		def string operation
+		Concept:{0..*} Filter
+			def string id
+			def string label
+			def string description = empty
+			def word:{Durable Inferable IntentVolatile} hydrationPolicy = Inferable
+			def word:{Blocking NonBlocking} askingPolicy = Blocking
+			def boolean widgetAsk = false
+			facet Date
+			facet Object > def Entity entity
+			facet Location
+				Concept:{0..1} Center
+					def double latitudeCenter
+					def double longitudeCenter
+					def double kmRadius = 41000
+			facet Number
+				Concept:{0..1} Min
+					def double value
+				Concept:{0..1} Max
+					def double value
+			facet Selector
+				Concept Option
+					def string id
+					def string label
+			facet Text
+				has:{0..1} TextType
+			facet Multiple
+		Concept:{0..1} Condition
+			def word:{Or And} operator = Or
+			has:{0..*} Condition
+			Concept:{0..*} Rule
+				def string filterId
+				def word:{Equal Greater Less NotEquals GreaterOrEqual LessOrEqual Contains} operator = Equal
+
+		Concept:{0..1} Send
+			def string[] fieldIds
+
+	facet Job
+		Concept:{1..*} Step
+			sub Execute
+				def string operation
+				Concept:{0..1} Response
+					facet Object
+						def string[] fieldIds
+						Concept:{1..*} Map
+							def string slot
+							def string responsePath
+					facet Text
+						def string name
+					facet File
+						def string name
+			sub Check
+				def Step failure
+			sub Gateway
+				Concept:{1..*} Route
+					def string if
+					has:{1..*} Step
+			sub Ask
+				def Attachment[] allowedAttachments = empty
+				Concept:{1..*} Field
+					def string id
+					def string label
+					def string description = empty
+					def word:{Durable Inferable IntentVolatile StepVolatile} hydrationPolicy = Inferable
+					def word:{Blocking FirstTimeBlocking NonBlocking} askingPolicy = Blocking
+					def boolean widgetAsk = false
+					facet Date
+					facet Object > def Entity entity
+					facet Location
+						Concept:{0..1} Center
+							def double latitudeCenter
+							def double longitudeCenter
+							def double kmRadius = 41000
+					facet Number
+						Concept:{0..1} Min
+							def double value
+						Concept:{0..1} Max
+							def double value
+					facet Selector
+						Concept Option
+							def string id
+							def string label
+					facet Text
+						has:{0..1} TextType
+					facet File
+					facet Multiple
+						def boolean incremental = true
+				facet Labeled
+					def string message
+				facet Delegated
+			sub Send
+				facet Labeled
+					def string message
+				facet Delegated
+
+Concept:{1..1} Configuration
+
+	def string organization
+	def string service
+
+	def word[]:{Discord Whatsapp Telegram} platforms
+
+	Concept:{1..1} DefaultMessages
+		def string conversationMessage = empty
+		def string censorshipMessage = empty
+		def string helpMessage = empty
+		def string outOfBoundsMessage = empty
+		def string welcomeMessage = empty
+
+	Concept:{0..1} LocationProvider
+		facet GoogleMaps
+
+	def word:{English Spanish} defaultLanguage
+	def word[]:{English Spanish} languages = empty
+
+	def integer maxInactivitySeconds = 3600
+
+	Concept:{0..1} Platon
+
+	Concept:{1} ModelService
+		facet Gal2
+
+Concept Entity
+	def string id
+	Concept:{1..*} Attribute
+		def string id
+		def string label
+		def string description = empty
+		facet Date
+		facet Text
+			has:{0..1} TextType
+		facet Location
+			Concept:{0..1} Center
+				def double latitudeCenter
+				def double longitudeCenter
+				def double kmRadius = 41000
+		facet Number
+			Concept:{0..1} Min
+				def double value
+			Concept:{0..1} Max
+				def double value
+
+Concept TextType
+	facet Email
+	facet URL
+	facet PhoneNumber
+	facet IP
+	facet CreditCard
+
+Concept Transcriber
+	def string appliesTo
+	def string label
+	def string description = empty
+	facet Type
+		sub Default
+			sub Levenshtein
+				def double threshold
+			sub Jaccard
+				def double threshold
+		sub Delegated
+			def string operation
+
+Concept:Named Attachment
+	def string id
+	Concept:{0..1} ImageSynthesis
+		has:{0..1} EntityDetection
+		has:{0..1} Description
+		has:{0..1} Transcription
+		has:{0..*} Classification
+	Concept:{0..1} DocumentSynthesis
+		has:{0..1} Summarization
+		has:{0..*} Indexation
+	Concept:{0..1} AudioSynthesis
+		has:{0..1} Transcription
+		has:{0..*} Classification
+		has:{0..1} Description
+	Concept:{0..1} VideoSynthesis
+		has:{0..1} EntityDetection
+		has:{0..1} Description
+		has:{0..1} Transcription
+		has:{0..*} Classification
+
+Concept EntityDetection as component
+	def string id
+	def string[] entities
+	has:{0..1} EntityDetection
+	has:{0..1} Description
+	has:{0..1} Transcription
+	has:{0..*} Classification
+
+Concept Description as component
+	def string id
+
+Concept Transcription as component
+	def string id
+
+Concept Classification as component
+	def string id
+	def string[] options
+
+Concept Summarization as component
+	def string id
+
+Concept Indexation as component
+	def string id
+	def string searchFor

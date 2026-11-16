@@ -1,0 +1,25 @@
+dsl metta
+
+Concept Project
+	def string name
+	def string description
+	has:{1..1} Task
+
+Concept:R1:R2 Task as component
+	def string title
+	def string description
+	def word:{Low Medium High} priority
+	def date dueDate
+	def User assignee = empty
+	def word:{ToDo InProgress Done} status
+
+Concept User
+	def string name
+	def string email
+	def word:{Manager Developer Tester} role 
+
+constraint R1:: (status == "ToDo") or (assignee is not empty)
+	message = "InProgress or Done tasks must have an assignee"
+
+constraint R2:: (assignee is not empty) or (status == "ToDo")
+	message = "Tasks without assignee must be in ToDo status"

@@ -1,0 +1,8 @@
+dsl metta
+
+// Java: Entry#asConfigured Configured
+// Java: Configured#asValidated Validated
+// Java: Validated#valid boolean
+Concept Entry
+	facet Configured
+		facet Validated > def boolean valid

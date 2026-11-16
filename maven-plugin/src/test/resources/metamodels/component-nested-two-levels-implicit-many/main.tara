@@ -1,0 +1,6 @@
+dsl metta
+
+// Java: EntryGroup#entryGroupItems java.util.List<EntryGroupItem>
+Concept Entry
+	Concept Group
+		Concept Item

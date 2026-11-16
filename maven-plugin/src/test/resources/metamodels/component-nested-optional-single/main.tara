@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#item EntryItem
+Concept Entry
+	Concept:{0..1} Item

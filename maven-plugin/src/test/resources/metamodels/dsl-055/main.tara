@@ -1,0 +1,36 @@
+dsl metta
+
+Concept Building
+	def string name
+	def Room[] rooms
+
+Concept:R1 Room as component
+	def string name
+	def integer capacity
+	def string[] equipment
+	def TimeSlot[] availability
+
+constraint R1:: name is not empty and substring(name, 0, 1) >= "A" and substring(name, 0, 1) <= "Z"
+	message = "Room name must start with an uppercase letter and not be empty"
+
+Concept TimeSlot
+	def word:{Monday Tuesday Wednesday Thursday Friday} day
+	def time start
+	def time end
+
+Concept User
+	def string name
+	def string email
+
+Concept:R3 Booking
+	def User user
+	def Room room
+	def date startDate
+	def time startTime
+	def time endTime
+
+constraint R2:: startTime < endTime
+	message = "Booking end time must be after start time"
+
+constraint R3:: count(all(room.availability, s -> (startTime >= s.start) and (endTime <= s.end))) >= 1
+	message = "Booking must be contained within a room availability timeslot"

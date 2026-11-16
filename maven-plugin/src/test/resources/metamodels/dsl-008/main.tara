@@ -1,0 +1,9 @@
+dsl metta
+
+Concept Control
+	def word:{Security DataManagement Accountability Availability Integrity Operational Governance Privacy Transparency Ethical Other} category
+	def string description
+
+Concept Role
+	def string name
+	def string[] responsibilities

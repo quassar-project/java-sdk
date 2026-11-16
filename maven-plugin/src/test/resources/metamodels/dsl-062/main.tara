@@ -1,0 +1,44 @@
+dsl metta
+
+Concept Dataset
+	def string namespace
+	def string doc
+	def string version
+
+	// Root Avro record for this dataset.
+	def Record rootRecord
+
+
+Concept:RecordMustHaveFields Record
+	def string namespace
+	def string doc
+	def string[] aliases
+	has:{1..*} Field
+
+
+Concept:EnumMustHaveSymbols Enum
+	def string namespace
+	def string doc
+	def string[] aliases
+	def string[] symbols
+	def string defaultSymbol
+
+
+Concept:FixedMustHavePositiveSize Fixed
+	def string namespace
+	def string doc
+	def string[] aliases
+	def integer size
+
+
+constraint RecordMustHaveFields :: count(Field) >= 1
+	message = "A record must contain at least one field."
+
+constraint EnumMustHaveSymbols :: count(symbols) >= 1
+	message = "An enum must contain at least one symbol."
+
+constraint FixedMustHavePositiveSize :: size > 0
+	message = "A fixed type must have a positive size."
+
+constraint ValidDecimal :: precision > 0 and scale >= 0 and scale <= precision
+	message = "Decimal precision must be positive and scale must be between 0 and precision."

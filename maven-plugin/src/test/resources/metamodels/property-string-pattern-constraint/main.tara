@@ -1,0 +1,4 @@
+dsl metta
+
+// Java: Entry#code java.lang.String
+Concept Entry > def string:{"[A-Z;>]+"} code

@@ -1,0 +1,50 @@
+dsl metta
+
+Concept Deadline
+	def date absoluteDate
+	def integer relativeDays
+
+Concept RecurrencePattern
+    def integer intervalInMonths
+
+Concept:ContractDateOrder:ContractMinParties Contract
+	def string id
+	def date startDate
+	def date endDate
+	has:Required:MutuallyExclusiveObligations Clause
+	def Party[] parties
+
+Concept Party
+	def string name
+	def word:{Buyer Seller Lessor Lessee Provider Client} role
+	def string identifier
+
+Concept:LeafClauseHasObligation:MutuallyExclusiveObligations Clause as component
+	def string title
+	def string description
+	has:MutuallyExclusiveObligations Clause
+	has RecurrencePattern
+	Concept Obligation
+		def string description
+		def Party actor
+		def word:{Pay Deliver Notify Transfer Terminate Renew} action
+		has Deadline
+	Concept:Single Penalty
+		def double amount
+		def string description
+	facet Conditional
+		Concept:Single:Required Condition
+			def word:{Event Date State} type
+			def string expression
+
+constraint MutuallyExclusiveObligations :: not (count(all(Obligation, o -> o.action == "Terminate")) >=1 and count(all(Obligation, o -> o.action == "Renew")) >=1)
+	"Cannot coexists inside a cluse and oblgation action of 'Terminate' and 'Renovate'"
+
+constraint LeafClauseHasObligation :: count(Clause) > 0 or count(Obligation) >= 1
+	"A clause without subclauses must declare at least one Obligation"
+
+constraint ContractMinParties :: count(parties) >= 2
+	"A contract must have at least two parties"
+
+constraint ContractDateOrder :: startDate < endDate
+    "The start date must be before the end date"

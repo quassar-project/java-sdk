@@ -1,0 +1,40 @@
+dsl metta
+
+Concept:R1 Contract
+	def Party[]:{2..*} parties
+	def date start
+	def date end
+	Concept Clause
+		def string title
+		def string description
+		has Clause
+		Concept:R2 Obligation
+			def word:{Pay Deliver Notify Transfer Terminate Renew} action
+			def Party responsible
+			def date deadline = empty
+			def integer offset = empty
+			Concept Penalty
+				def long amount
+				def string description
+
+		facet Conditional
+			sub EventConditional
+				def string events
+			sub DateConditional
+				def date start
+				def date end
+		
+		facet Recurrent
+			sub Monthly
+				def integer months
+
+
+Concept Party
+	def string name
+	def word:{Buyer Seller Lessor Lessee Provider Client} role
+
+constraint R1:: start < end
+	message = "El inicio del intervalo debe ser menor que el final"
+
+constraint R2:: (action != "Terminate" or count(all(siblings(), o -> o is "Obligation" and o.action == "Renew")) == 0) and (action != "Renew" or count(all(siblings(), o -> o is "Obligation" and o.action == "Terminate")) == 0)
+

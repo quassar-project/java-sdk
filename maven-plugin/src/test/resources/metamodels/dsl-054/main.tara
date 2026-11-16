@@ -1,0 +1,77 @@
+dsl metta
+
+
+Concept:C1 Contrato
+  	def string id
+  	def date fechaInicio
+  	def date fechaFin
+
+  	Concept:{2..*}:P1 Parte
+    	def string nombre
+    	def string identificador
+    	def word:{Comprador Vendedor Arrendador Arrendatario Proveedor Cliente} rol
+
+
+  	Concept:{1..*}:CL1:CL2:CL3 Clausula
+    	def string titulo
+    	def string descripcion
+
+		has:{0..*} Obligacion
+		has:{0..*} Penalizacion
+		has:{0..1} Condicion
+
+		facet:CL4 Recurrencia
+      		def integer cadenciaMeses  
+
+		has:{0..*} Clausula
+
+
+Concept:OB1 Obligacion as component
+	def word:{Pagar Entregar Notificar Transferir Terminar Renovar} accion
+	def Contrato.Parte sujeto
+	facet Vencimiento
+		sub:OB3 Absoluto
+			def instant fechaLimite
+		sub:OB2 Relativo
+			def integer diasDesdeActivacion
+
+Concept Penalizacion as component
+	def double:{€} importe
+	def string detalle
+
+Concept Condicion as component
+	def string expresion 
+	facet Tipo
+		sub Evento
+		sub Fecha
+
+
+constraint C1 :: fechaInicio < fechaFin
+  	message = "La fecha de inicio debe ser anterior a la de finalización"
+
+
+constraint P1 :: count(all(siblings(), p -> p is "Parte" and p.identificador == self.identificador)) == 1
+  	message = "El identificador de la parte debe ser único dentro del contrato"
+
+
+constraint CL1 :: count(Penalizacion) == 0 or count(Obligacion) >= 1
+  	message = "No puede haber penalizaciones sin obligaciones asociadas en la cláusula"
+
+constraint CL2 :: not (count(all(Obligacion, o -> o.accion == "Terminar")) > 0 and count(all(Obligacion, o -> o.accion == "Renovar")) > 0)
+  	message = "Una cláusula no puede contener simultáneamente Terminar y Renovar"
+
+constraint CL3 :: count(all(Condicion, c -> c.expresion is not empty)) == count(Condicion)
+	message = "Una cláusula condicional debe especificar una expresión de condición"
+
+constraint CL4 :: cadenciaMeses > 0
+  	message = "La cadencia de una cláusula recurrente debe ser un entero positivo"
+
+
+constraint OB1 :: sujeto is not empty and sujeto in all(components(container(container())), x -> x is "Parte")
+  	message = "La obligación debe referenciar una Parte del mismo contrato"
+
+constraint OB2 :: diasDesdeActivacion > 0
+  	message = "Si el vencimiento es relativo, los días deben ser un entero positivo"
+
+constraint OB3 :: fechaLimite is not empty
+  	message = "Si el vencimiento es absoluto, debe especificarse una fecha límite"

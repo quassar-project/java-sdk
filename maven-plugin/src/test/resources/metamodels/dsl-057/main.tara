@@ -1,0 +1,20 @@
+dsl metta
+
+Concept Campus
+	def string manager
+	def string location
+	Concept:{1..*} Building
+		def string address
+		def integer yearBuilt
+		has Sensor
+		Concept:{1..*} Floor
+			def integer level
+			Concept:{1..*} Room
+				def integer area
+				has Sensor
+
+Concept Sensor as component
+	facet Type
+		sub Temperature
+		sub Humidity
+		sub CO2

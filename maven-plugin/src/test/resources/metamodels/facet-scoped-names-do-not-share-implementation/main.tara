@@ -1,0 +1,8 @@
+dsl metta
+
+// Java: Configured#text java.lang.String
+// Java: Configured2#count java.math.BigDecimal
+Concept Entry
+	facet Configured > def string text
+Concept Other
+	facet Configured > def integer count

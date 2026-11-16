@@ -1,0 +1,27 @@
+dsl metta
+
+Concept Condition as component
+	def word:{This Parent GrandParent} scope = This
+
+	sub IfEquals
+		def string tag
+		def string[] value
+
+	sub IfNotEquals
+		def string tag
+		def string[] value
+
+	sub IfRole
+		def RoleType[] value
+
+	sub IfUser
+		def string tag
+
+	sub IfNotUser
+		def string tag
+
+	sub And
+		has Condition
+
+	sub Or
+		has Condition

@@ -1,0 +1,115 @@
+dsl metta
+
+Concept View
+	def string label = empty
+	
+	facet Main
+		def integer priority = 0
+	
+	facet Design
+
+		sub TabSelector
+			Concept Tab
+				def string label
+				def View view
+		
+		sub Board
+			Concept Section
+				def string label
+				def View view
+
+		sub Collection
+			def word:{This All Root Parent GrandParent} scope = This		
+			def string query = empty // Triple expression. For example: * country Spain
+
+			Concept:{1..*} Item
+				def string type
+				def View.Reference reference
+				def View navigate = empty
+
+				facet Document
+					def integer:{MB} maxSize = -1 MB
+
+				facet Image with Document
+					has:{0..1} Size
+
+				facet Required with Document
+				facet Multiple with Document
+
+			Concept:{0..1} Grouping
+				def string tag 
+
+			Concept Filter
+				def string tag
+				def string label
+				def word:{Number Text Date} type = Text
+				//def string[] filters = empty
+
+			sub List
+				Concept Sort
+					def string tag
+					def string label
+					def word:{Ascending Descending} mode = Ascending
+					def word:{Number Text Date} type = Text
+
+			sub Map
+				def string tag
+				def word:{HeatMap Points} layer
+				
+				Concept:{0..1} Center
+					def double longitude
+					def double latitude
+
+				Concept:{0..1} Zoom
+					def integer defaultZoom = 15
+					def integer min
+					def integer max
+
+			sub Table
+				Concept:Required Column
+					def string label
+
+					facet Mode
+						def string tag
+
+						sub Text
+						sub Number
+						sub Date
+						sub Link
+							def View reference
+							def View navigate
+			sub Magazine
+				Concept Sort
+					def string tag
+					def string label
+					def word:{Ascending Descending} mode = Ascending
+					def word:{Number Text Date} type = Text
+
+		sub Frame
+			has Widget
+
+		sub Reference
+			Concept:{0..1} Simple
+				def string tag
+
+			Concept:{0..1} Template			
+				Concept:{0..1} Image
+					def string tag
+					def string defaultImage = empty
+					has:{0..1} Size
+
+				Concept Row
+					Concept Cell 
+						def string tag
+						def string label = empty
+
+					sub:{0..1} Header
+					sub:{0..1} Highlight
+					sub Line
+					sub:{0..1} Footer
+
+Concept Viewer
+	def string type
+	
+	has View
+	has Viewer

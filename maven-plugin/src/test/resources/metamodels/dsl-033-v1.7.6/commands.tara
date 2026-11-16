@@ -1,0 +1,79 @@
+dsl metta
+
+Concept Command as component
+
+	Concept Status
+		sub Visible
+		sub Invisible
+		sub Readonly
+
+		has Condition	
+
+	sub EditionCommand
+		sub DraftEditing
+			def word:{DirectUpdate EventDispatch} saveStrategy = DirectUpdate
+
+	sub DocumentCommand
+		sub Edit
+		sub Sign > def string label = empty
+		sub Seal
+
+	sub CollectionCommand
+
+		sub Download
+			def string label
+			def string downloadTitle = empty
+
+			Concept:Required Column
+				def string label
+				def string tag
+
+				facet ColumnType
+					sub Link > def string value
+					sub Term
+					sub Text
+					sub Number
+					sub Check
+						def string checkedValue = "Yes"
+						def string uncheckedValue = "No"
+					sub Date > def word:{Seconds Minutes Hours Days Months Years} resolution
+
+				facet Inherited	
+					def word:{Parent GrandParent} from
+
+			Concept Format 
+				facet Csv
+				facet Tsv
+				facet Xlsx > def resource template = empty
+				facet Docx > def resource template = empty
+				facet Pdf > def resource template = empty
+
+		sub Filtering
+			def string tag
+			def string label
+			def string defaultValue = empty
+
+			facet FilteringType
+				sub Date > def word:{Value Range} mode = Value
+				sub Link 
+					def word:{This All Root Parent GrandParent} scope = This
+					def SubjectType subjectType
+					def string value
+			    sub Text
+
+		sub Grouping
+			def string tag
+			def word:{Ascending Descending} mode = Ascending
+
+			facet Type
+				sub Text
+				sub Date
+					def word:{Seconds Minutes Hours Days Months Years} resolution
+
+		sub Sorting
+			def string tag
+			def string label = empty
+			def word:{Ascending Descending} mode = Ascending
+			def word:{Number Text Date} type = Text
+
+			facet Default

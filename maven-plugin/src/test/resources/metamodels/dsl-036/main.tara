@@ -1,0 +1,300 @@
+dsl metta
+
+Concept DeploymentSystem
+
+	Concept Namespace
+		def string name
+
+	facet Gal2
+		def string url
+
+	facet Amazon
+
+
+Concept:Named Tool
+	sub BaseTranslator
+		facet:Required Implementation
+			sub ThirdParty
+				sub Chatgpt > def string model = empty
+				sub Perplexity > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Generic > def string url
+
+			sub Proprietary
+				sub Huggingface > def string modelkey = empty
+				def DeploymentSystem.Namespace namespace
+
+		sub Translator
+			def word:{Text Audio} input
+			def string fromLanguage
+			def string toLanguage
+
+			facet:Required Type
+				sub Mutable
+					has Tool.BaseTranslator.Self
+
+		sub Self
+			Concept:Single:Required When
+				Concept:Single:Required Dataset
+					facet:Required Condition
+						sub LowerThan > def integer count
+						sub HigherThan > def integer count
+
+	sub BaseAssistant
+		facet:Required Implementation
+			sub ThirdParty
+				sub Chatgpt > def string model = empty
+				sub Perplexity > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Generic > def string url
+
+			sub Proprietary
+				sub Huggingface > def string modelkey = empty
+				def DeploymentSystem.Namespace namespace
+
+		sub Assistant
+			def word:{Text Image Audio Video} input
+			facet:Required Type
+				sub Mutable
+					has Tool.BaseAssistant.Self
+
+		sub Self
+			Concept:Single:Required When
+				Concept:Single:Required Dataset
+					facet:Required Condition
+						sub LowerThan > def integer count
+						sub HigherThan > def integer count
+
+	sub EmbeddingStore
+		def word:{Cosine DotProduct Euclidean Manhatan} similarity
+		def word:{Document Chapter Chunk Sentence} granularity
+
+		facet:Required Implementation
+			sub ThirdParty
+				sub Quadrant > def string url
+				sub Chroma > def string url
+				sub Generic > def string url
+
+			sub Proprietary
+				def DeploymentSystem.Namespace namespace
+
+	sub BaseClassifier
+		facet:Required Implementation
+			sub ThirdParty
+				sub Generic > def string url
+
+			sub Proprietary
+				def string textModel = empty
+				def string imageModel = empty
+				def string audioModel = empty
+				def string videoModel = empty
+
+				sub Zeroshot
+				sub Fewshot
+				sub Finetuned
+
+		sub Classifier // :IfMutableCanOnlyBeMutable
+			def word:{Text Image Audio Video Vector TimeSeries} input
+			def string[] labels
+			def DeploymentSystem deployment
+
+			facet:Required Type
+				sub Mutable
+					has SelfClassifier
+
+		sub SelfClassifier
+			Concept:Single:Required When
+				Concept:Single:Required Dataset
+					facet:Required Condition
+						sub LowerThan > def integer count
+						sub HigherThan > def integer count
+
+	sub BaseRegressor
+		facet:Required Implementation
+			sub ThirdParty
+				sub Generic > def string url
+			sub Proprietary
+				def DeploymentSystem deployment
+
+		sub Regressor
+			Concept:Single:Required Output
+				def string unit
+				def double min 
+				def double max
+
+			facet:Required Type
+				sub Mutable
+					has SelfRegressor
+
+		sub SelfRegressor
+			Concept:Single:Required When
+				Concept:Single:Required Dataset
+					facet:Required Condition
+						sub LowerThan > def integer count
+						sub HigherThan > def integer count
+
+	sub BaseEntityDetector
+		facet:Required Implementation
+			sub ThirdParty
+				sub Chatgpt > def string model = empty
+				sub Perplexity > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Generic > def string url
+
+			sub Proprietary
+				def DeploymentSystem.Namespace namespace
+
+		sub EntityDetector
+			def word:{Text Image Audio Video} input
+			facet:Required Type
+				sub Mutable
+					has SelfEntityDetector
+
+		sub SelfEntityDetector
+			Concept:Single:Required When
+				Concept:Single:Required Dataset
+					facet:Required Condition
+						sub LowerThan > def integer count
+						sub HigherThan > def integer count
+
+	sub BaseDescriptor
+		facet:Required Implementation
+			sub ThirdParty
+				sub Chatgpt > def string model = empty
+				sub Perplexity > def string model = empty
+				sub Claude > def string model = empty
+				sub Gemini > def string model = empty
+				sub Grok > def string model = empty
+				sub Generic > def string url
+
+			sub Proprietary
+				def DeploymentSystem.Namespace namespace
+
+		sub Descriptor
+			def word:{Text Image Audio Video} input
+			facet:Required Type
+				sub Mutable
+					has SelfDescriptor
+
+		sub SelfDescriptor
+			Concept:Single:Required When
+				Concept:Single:Required Dataset
+					facet:Required Condition
+						sub LowerThan > def integer count
+						sub HigherThan > def integer count
+
+
+Concept ArtifactTrack
+	Concept:{1..1} Artifact
+		facet Type
+			sub TranslatorModel
+				def BaseTranslator translator
+
+			sub AssistantModel
+				def word:{Conversation Reporting Transcription ProofReading Synthesis} usage
+				def string prompt
+				def double:{%} temperature = empty
+				def integer topK = empty
+				def double:{%} topP = empty
+				def boolean reasoning = empty
+				def integer maxTokens = empty
+				def integer bestOfN = empty
+				def BaseAssistant assistant
+
+			sub ClassificationModel
+				def BaseClassifier classifier
+
+			sub RegressionModel
+				def BaseRegressor regressor
+
+			sub EmbeddingMethod
+				def EmbeddingStore embeddingStore
+
+			sub DescriptorModel
+				def BaseDescriptor descriptor
+
+			sub EntityDetectorModel
+				def BaseEntityDetector entityDetector
+
+	Concept:Single:Required Versioning
+		facet Type
+			sub SemVer // 1.1.1, 1.1.2
+			sub Monotonic // 1, 2, 3
+			sub TimeStamped // 01012026, 02012026
+			sub BuildStamped // 000-00001, 000-00002
+
+	Concept:Single:Required Routing
+		facet:Required Selection
+			sub Steady
+			sub Pinned
+
+	Concept:Single Rollout
+		facet Strategy
+			sub Canary
+				Concept Step
+					def integer:{%} percentage
+					def integer:{minutes} duration
+
+			sub Shadow
+				def integer:{minutes} duration
+
+		Concept:Single:Required Gate
+			Concept Metric
+				sub Latency > def integer:{millis} max
+				sub Drift > def integer:{%} max
+				sub AvailabilityRate > def integer:{%} min
+				sub ErrorRate > def integer:{%} max
+
+			facet PercentileBased > def integer percentile
+
+Concept:Named EndPoint
+	def ArtifactTrack artifactTrack
+
+	Concept:Single:Required Journal
+		def word:{Off Sampled Full} capture
+		def integer:{days} retention
+		def word:{None Redact Encrypt} piiPolicy
+
+	Concept:Single:Required Execution
+		def Schema schema
+
+	Concept:Single GuardRail
+		Concept Metric
+			def word:{Hourly Daily Weekly Monthly Yearly} period
+
+			sub Budget > def integer:{$} max
+			sub Quota > def integer:{tokens} max
+			sub AvailabilityRate > def integer:{%} min
+			sub ErrorRate > def integer:{%} max
+
+Concept:Named Schema
+	Concept:Named Attribute extends Data
+	has Schema
+
+Concept Data as generalization
+	facet List
+	facet Type
+		sub Real
+		sub Integer
+		sub LongInteger
+		sub Bool
+		sub Text
+		sub Date
+		sub DateTime
+		sub Image
+		sub File
+		sub Audio
+		sub Video
+		sub Object > def Schema schema
+		sub Map
+			Concept:Single:Required Key extends Data
+			Concept:Single:Required Value extends Data
+
+constraint IfMutableCanOnlyBeMutable:: not (self is "Mutable") or not (self is "Zeroshot" or self is "Fewshot" or self is "Finetuned")
+	message = "Mutable classifiers cannot use Zeroshot, Fewshot or Finetuned strategies"

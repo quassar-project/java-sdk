@@ -1,0 +1,37 @@
+dsl metta
+
+Concept:Single:Required Stage
+	facet Definition
+		def resource initial
+	facet Transformation
+		def string from
+
+Concept Task
+	Concept:{1..1} Filter
+		def string subject
+		def string predicate
+		def string value
+	Concept Action
+		sub Remove
+		sub Fix
+			facet Column
+				sub Subject
+				sub Predicate
+				sub Value
+			Concept Operator
+				sub ChangeCase
+					def word:{Lower Upper Capitalize Camel Snake Kebab} mode
+				sub Delete
+					def string symbols
+				sub Trim
+				sub NormalizeSpaces
+				sub Set
+					def string value
+				sub Replace
+					def string target
+					def string replacement
+				sub Canonicalize
+					def string[] variants
+					def string canonical
+
+

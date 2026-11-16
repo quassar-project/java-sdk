@@ -1,0 +1,7 @@
+dsl metta
+
+// Java: Configured#item Item
+Concept Item as component
+Concept Entry
+	facet Configured
+		has:{1..1} Item

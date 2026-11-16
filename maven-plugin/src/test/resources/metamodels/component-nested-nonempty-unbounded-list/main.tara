@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#entryItems java.util.List<EntryItem>
+Concept Entry
+	Concept:{1..*} Item

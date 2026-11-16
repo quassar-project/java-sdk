@@ -1,0 +1,143 @@
+dsl metta
+
+Concept Subject
+	def string type
+
+Concept Role
+	def string type
+	
+Concept View
+
+	facet ViewType
+		sub Reference
+			has Widget
+
+		sub Projection
+
+			sub Container
+				def word:{Selector Tabs Stack} composition
+
+				Concept:{1..*} Panel
+					def string label
+					def Projection view
+
+					Concept Status
+						sub Visible
+						sub Invisible
+						sub Readonly
+
+						has Condition	
+
+			sub Collection
+				def word:{This All Root Parent GrandParent} scope = This		
+				def string query = empty // Triple expression. For example: * country Spain
+
+				Concept:{1..*} Item
+					def Subject subject
+					def integer:{px} width = -1px
+					def Reference reference
+					def Projection navigate = empty
+
+				Concept:{0..1} Grouping
+					def string tag
+					def word:{Ascending Descending} mode = Ascending
+
+					sub TextGrouping
+					sub DateGrouping
+						def word:{Seconds Minutes Hours Days Months Years} resolution
+
+				Concept Filtering
+					def string tag
+					def string label
+					def string defaultValue = empty
+					def word:{Number Text Date} type = Text
+
+				Concept Sorting
+					def string tag
+					def string label = empty
+					def word:{Ascending Descending} mode = Ascending
+					def word:{Number Text Date} type = Text
+
+				sub List
+					def word:{Stack Float} positioning = Stack  
+
+				sub Map
+					def string tag
+					def word:{HeatMap Points} layer
+					
+					Concept:{0..1} Center
+						def double longitude
+						def double latitude
+
+					Concept:{0..1} Zoom
+						def integer defaultZoom = 15
+						def integer min
+						def integer max
+
+				sub Table
+					Concept:Required Column
+						def string tag
+						def string label = empty
+
+						facet Mode
+							sub Text
+							sub Number
+							sub Date
+							sub Link
+								def Reference reference
+								def Projection navigate = empty
+								
+			sub Frame
+				has Widget
+
+				sub Editor
+				sub Report
+					def resource overlayTemplate = empty
+
+			sub Analytical
+				def Subject subject
+				def word:{This Child} scope = This
+
+				sub CubeReport
+				sub Olap
+					Concept:{0..1} Microsite
+						def resource logo
+						def resource excelTemplate
+						def resource htmlTemplate
+
+			sub Attachment
+				def Subject subject
+				def integer:{MB} maxSize = -1 MB
+				def boolean multiple = false
+
+				Concept:{0..1} Picture
+					has:{0..1} Size
+		
+	facet Main // with Projection -> TODO OR: No funciona
+		def integer priority = 0
+
+Concept Viewer
+	def Subject subject
+	
+	has View
+	has Viewer
+
+Concept Condition as component
+	def word:{This Parent GrandParent} scope = This
+
+	sub IfEquals
+		def string tag
+		def string[] value
+
+	sub IfNotEquals
+		def string tag
+		def string[] value
+
+	sub IfRole
+		def Role[] value
+
+	sub And
+		has Condition
+
+	sub Or
+		has Condition

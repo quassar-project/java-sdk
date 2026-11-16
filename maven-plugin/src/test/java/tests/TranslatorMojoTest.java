@@ -8,17 +8,87 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import tests.fixtures.GeneratedDecorators;
 
 import java.lang.reflect.Field;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class TranslatorMojoTest {
+	private static final String METAMODEL_RESOURCES = "/metamodels/";
+	private static final String MODEL_PACKAGE = "library.model.model.";
+	private static final String JAVA_EXPECTATION = "// Java: ";
+
 	@TempDir
 	Path directory;
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("metamodelCases")
+	void generatesCompilableClassesForMetamodel(String name) throws Exception {
+		Path metamodel = metamodelDirectory().resolve(name);
+		MavenProject project = project();
+		TranslatorMojo mojo = configuredMojo(project);
+		parameter(mojo, "mode", "interpreter");
+		setModelInput(mojo, metamodel.toUri().toURL());
+		Path source = Files.createDirectories(directory.resolve("src/main/java"));
+		Files.writeString(source.resolve("Existing.java"), "class Existing {}");
+		assertDoesNotThrow(mojo::execute, () -> "Generate Java for " + name);
+
+		Path generated = directory.resolve("src/main/gen");
+		assertThat(project.getCompileSourceRoots()).contains(generated.toString());
+		List<Path> sources;
+		try (var files = Files.walk(generated)) {
+			sources = files.filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".java")).sorted().toList();
+		}
+		Path classes = directory.resolve("classes");
+		assertDoesNotThrow(() -> GeneratedDecorators.compileSources(sources, classes),
+			() -> "Compile Java for " + name);
+		assertThat(classes.resolve("library/model/model/DecoratedModel.class")).exists();
+		assertDoesNotThrow(() -> verifyJavaApi(metamodel, classes), () -> "Check Java API for " + name);
+	}
+
+	private static void verifyJavaApi(Path metamodel, Path classes) throws Exception {
+		try (var files = Files.list(metamodel);
+			 var loader = new URLClassLoader(new URL[]{classes.toUri().toURL()}, TranslatorMojoTest.class.getClassLoader())) {
+			for (Path file : files.filter(TranslatorMojoTest::isTaraSource).sorted().toList()) {
+				for (String line : Files.readAllLines(file)) {
+					if (!line.startsWith(JAVA_EXPECTATION)) continue;
+					// Expectations name a zero-argument getter and its generic Java return type.
+					String[] expectation = line.substring(JAVA_EXPECTATION.length()).split(" ", 2);
+					String[] member = expectation[0].split("#", 2);
+					Class<?> type = loader.loadClass(MODEL_PACKAGE + member[0]);
+					String result = type.getMethod(member[1]).getGenericReturnType().getTypeName().replace(MODEL_PACKAGE, "");
+					assertThat(result).as(expectation[0]).isEqualTo(expectation[1]);
+				}
+			}
+		}
+	}
+
+	private static Stream<String> metamodelCases() throws Exception {
+		try (var cases = Files.list(metamodelDirectory())) {
+			return cases.filter(Files::isDirectory).sorted().map(path -> path.getFileName().toString()).toList().stream();
+		}
+	}
+
+	private static boolean isTaraSource(Path path) {
+		return Files.isRegularFile(path) && path.getFileName().toString().endsWith(".tara");
+	}
+
+	private static Path metamodelDirectory() throws Exception {
+		var resource = TranslatorMojoTest.class.getResource(METAMODEL_RESOURCES);
+		assertThat(resource).as("Metamodel fixtures at %s", METAMODEL_RESOURCES).isNotNull();
+		return Path.of(resource.toURI());
+	}
 
 	@Test
 	void compilesTemplatesAndRegistersTheirSources() throws Exception {
@@ -198,8 +268,12 @@ class TranslatorMojoTest {
 	}
 
 	private void setModelInput(TranslatorMojo mojo) throws Exception {
+		setModelInput(mojo, getClass().getResource("/maven/consumer/metamodel/"));
+	}
+
+	private static void setModelInput(TranslatorMojo mojo, URL model) throws Exception {
 		var input = new TranslatorMojo.Input();
-		input.setModel(getClass().getResource("/maven/consumer/metamodel/"));
+		input.setModel(model);
 		parameter(mojo, "input", input);
 	}
 

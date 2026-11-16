@@ -1,0 +1,6 @@
+dsl metta
+
+// Java: Configured#entryConfiguredItems java.util.List<EntryConfiguredItem>
+Concept Entry
+	facet Configured
+		Concept:{2} Item

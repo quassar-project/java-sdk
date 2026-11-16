@@ -1,0 +1,166 @@
+dsl metta
+
+Concept Widget
+
+	Concept Status
+		sub Visible
+		sub Invisible
+		sub Readonly
+
+		has Condition
+
+	facet Positioning
+
+		sub Relative
+			def integer width = -1%
+			def word:{_0px _5px _10px _15px _20px} spacing = _10px
+
+		sub Absolute
+			def integer width = -1px
+			def word:{_0px _5px _10px _15px _20px} spacing = _10px
+
+	sub Header
+		def string label
+		def word:{Left Right Center} position = Left
+		def word:{Header1 Header2 Header3 Header4 Header5 Body1 Body2} appearance = Header3
+
+	sub Region
+		def integer:{%} width = -1%
+		def string label = empty
+		has Widget
+
+	sub Split
+		has Widget
+
+	sub Stack
+		def string children
+		def integer max = empty
+		has Widget
+
+		facet Inherited
+			def word:{Parent GrandParent} from
+
+	sub Export
+		def View.Report report
+		def string label
+		def word:{Button Link} appearance = Button
+
+	sub Attachment
+		def SubjectType subjectType
+		def string label = empty
+		def integer:{MB} maxSize = -1 MB
+
+		facet Inherited
+			def word:{Parent GrandParent} from
+
+	sub Picture
+		def SubjectType subjectType
+		def string label = empty
+		def string defaultImage = empty
+		has:{0..1} Size
+
+		facet Inherited
+			def word:{Parent GrandParent} from
+
+	sub Field
+		def string tag
+		def string label = empty
+		!! By assigning an alias, input value is stored in view context allowing other inputs to use its value
+		def string alias = empty
+		def string hint = empty
+
+		facet Multiple // Only for Text and Link
+			def word:{Vertical Horizontal} arrangement = Vertical
+			Concept:{0..1} Boundary > def integer min; def integer max
+			Concept:{0..1} Mode > def integer min; def integer max
+
+		facet Dependent
+			def Field onField	
+
+		facet Inherited
+			def word:{Parent GrandParent} from
+
+		facet Required
+
+		facet FieldType
+
+			sub Text
+				def word:{None Uppercase Lowercase Sentence Title} mode = None
+				def word:{Header1 Header2 Header3 Header4 Header5 Body1 Body2} appearance = empty
+
+				Concept:Single Pattern
+					facet Email
+					facet RegularExpression
+						def string value
+						Concept Meta > def integer position; def string indicator
+
+				Concept Highlighted
+					def string textColor = "white"
+					def string backgroundColor = "black"
+					def string when = empty
+
+			sub Memo
+				def integer:{rows} height
+				def word:{None Rich} mode = None
+
+			sub Select
+				Concept:{1..1} Source
+					facet SourceType
+						sub Options
+							def string[] values
+							
+						sub Thesaurus
+
+			sub Link
+				def word:{This All Root Parent GrandParent} scope = This
+				def SubjectType subjectType = empty
+				!! Triple expression. For example: * country Spain
+				def string filter = empty
+				def View.Reference reference
+				def View.Projection navigate = empty
+				def string value
+				
+			sub WebLink
+				def boolean openNewTab = true
+
+			sub Check
+
+			sub Checklist
+				def word:{This All Root Parent GrandParent} scope = This
+				def SubjectType subjectType = empty
+				def string filter = empty
+				def string reference
+
+			sub Date
+				def word:{Seconds Minutes Hours Days Months Years} resolution
+				def word:{None Past Future} scope = None // empty -> poder indicar empty para quitar el None
+			
+			sub Number
+				def integer decimalsCount = 0
+				def word:{Number Currency Bytes Percentage Exponential} format = Number
+				def word:{Input Button Slider} mode = Input
+
+				has:{0..1} Range				
+			
+			sub Location
+
+				Concept:{0..1} Zoom
+					def integer defaultZoom = 15
+					def integer min = 1
+					def integer max = 18
+				
+				Concept:{0..1} Center
+					def double latitude
+					def double longitude
+
+			sub Sequence
+				def string format
+				def string name
+
+Concept Size as component
+	def integer:{px} width
+	def integer:{px} height				
+
+Concept Range as component
+	def integer min
+	def integer max

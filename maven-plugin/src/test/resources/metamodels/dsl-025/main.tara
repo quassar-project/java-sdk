@@ -1,0 +1,46 @@
+dsl metta
+
+Concept:DatesValidation Contract
+	def string id
+	def date:{"dd/MM/yyyy"} startDate
+	def date endDate
+	has:{2..*} Party
+	has:{1..*}:PenaltyRule:ObligationRule Clause
+
+
+Concept:PenaltyRule:ObligationRule Clause as component
+	def string title
+	def string description
+	has:{0..*} Obligation
+	has:{0..*} Penalty
+	def Clause[] subclauses
+	facet Conditional
+		def string expression
+	facet:MonthCadenceRule Recurrent
+		def integer monthCadence
+
+
+Concept Penalty
+	def string description
+	def double:{$} amount
+
+
+Concept Obligation as component
+	def string responsible
+	def word:{Pay Deliver Notify Transfer Terminate Renew} action
+	Concept DueDate
+		facet AbsoluteDate 
+			def date value
+		facet RelativeDays
+			def integer days
+
+Concept Party as component
+	def string id
+	def string name
+	def word:{Buyer Seller Lessor Lessee Provider Client} role
+
+
+constraint DatesValidation:: startDate < endDate
+constraint PenaltyRule:: count(Obligation) > 0
+constraint ObligationRule:: not ("Terminate" in map(Obligation, o -> o.action) and "Renew" in map(Obligation, o -> o.action))
+constraint MonthCadenceRule:: monthCadence > 0 and monthCadence < 999

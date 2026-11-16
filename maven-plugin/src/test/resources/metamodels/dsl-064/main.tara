@@ -1,0 +1,56 @@
+dsl metta
+
+Concept:CheckContract SmartContract
+	def string identifier
+	def instant startDate
+	def instant endDate
+
+	has:CheckClause Clause
+
+	sub SalesContract
+		has:{1..*} Buyer
+		has:{1..*} Seller
+
+	sub LeaseContract
+		has:{1..*} Lessor
+		has:{1..*} Lessee
+
+	sub ServiceContract
+		has:{1..*} Client
+		has:{1..*} Provider
+
+Concept:CheckClause Clause
+	def string title
+	def string description
+
+	has:CheckClause Clause
+	
+	Concept Duty
+		def word:{Pay Deliver Notify Transfer Terminate Renew} action
+		def ContractParty responsible
+		
+		facet Absolute > def instant dueDate
+		facet Relative > def integer:{days} dueDate
+
+	Concept:CheckPenalty Penalty
+		def double amount
+		def string description
+
+	facet Conditional
+		Concept:{1..1} When
+			sub WhenEventReceived > def string eventType
+			sub WhenDateArrival	> def instant from
+
+	facet:CheckPeriodicity Periodic
+		def integer:{Months} frequency
+
+Concept ContractParty
+	def string identifier
+	def string name
+
+	sub Buyer
+	sub Seller
+	sub Lessor
+	sub Lessee
+	sub Client
+	sub Provider
