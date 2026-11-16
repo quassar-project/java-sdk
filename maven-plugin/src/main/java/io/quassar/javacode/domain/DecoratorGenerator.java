@@ -35,8 +35,8 @@ public final class DecoratorGenerator {
 	private static final String NODE = "io.quassar.reader.model.Node";
 	private static final String SUPPORT = "NodeSupport";
 	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
-	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
-	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
+	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "OwnerView", "Slot", "Getter", "ValueSlot");
+	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "ownerView", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
 	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,
@@ -92,7 +92,7 @@ public final class DecoratorGenerator {
 		Map<String, List<String>> subtypes = descendants(subtypeParents);
 		Set<String> facetTypes = facets.stream().map(TypeDefinition::type).collect(Collectors.toSet());
 		List<JavaCode> code = new ArrayList<>();
-		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes, metamodelTypes));
+		code.add(decoratorBase(packageName, classes, targets, declarations, subtypeParents, subtypes, metamodelTypes));
 		code.add(modelDecorator(types, packageName, facadeName, classes, dsl));
 		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, facetTypes, enums);
 		for (TypeDefinition type : decorators) {
@@ -204,6 +204,11 @@ public final class DecoratorGenerator {
 				@Override
 				protected io.quassar.templating.ports.FrameView frameView() {
 					return NodeSupport.frame(mogram, model, types());
+				}
+
+				@Override
+				protected <T extends io.quassar.reader.model.Node> T ownerView(java.lang.Class<T> type, io.quassar.reader.model.Mogram owner) {
+					return NodeSupport.ownerView(type, owner, model);
 				}
 			""";
 	}
@@ -345,14 +350,22 @@ public final class DecoratorGenerator {
 		return names;
 	}
 
-	private JavaCode decoratorBase(String packageName, Map<String, String> classes, List<TypeDefinition> types,
+	private JavaCode decoratorBase(String packageName, Map<String, String> classes, Map<String, String> targets,
+			List<TypeDefinition> types,
 			Map<String, String> parents, Map<String, List<String>> subtypes, List<MetamodelType> metamodelTypes) {
 		StringBuilder cases = new StringBuilder();
 		classes.forEach((type, name) -> cases.append(templates.render("factory-case", Map.of("type", literal(type), "name", name))));
 		return new JavaCode(packageName, SUPPORT, templates.render("decorator", Map.of(
 			"mogramType", MOGRAM, "modelType", MODEL,
 			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes),
-			"hierarchy", hierarchy(metamodelTypes))));
+			"hierarchy", hierarchy(metamodelTypes), "owners", ownerEntries(targets))));
+	}
+
+	private String ownerEntries(Map<String, String> targets) {
+		return targets.entrySet().stream()
+			.map(entry -> "\t\t\tjava.util.Map.entry(" + entry.getValue() + ".class, new OwnerView("
+				+ literal(entry.getKey()) + ", " + entry.getValue() + "::new))")
+			.collect(Collectors.joining(",\n", "\n", "\n\t\t"));
 	}
 
 	private String hierarchy(List<MetamodelType> types) {

@@ -31,6 +31,20 @@ public abstract class Node extends FrameSource {
 		return isNull() ? List.of() : modelTypes();
 	}
 
+	public final <T extends Node> T owner(Class<T> type) {
+		Mogram parent = model.parentOf(mogram);
+		while (!parent.isNull()) {
+			T candidate = ownerView(type, parent);
+			if (candidate.isNotNull()) return candidate;
+			parent = model.parentOf(parent);
+		}
+		return ownerView(type, Mogram.NULL);
+	}
+
+	protected <T extends Node> T ownerView(Class<T> type, Mogram owner) {
+		throw new IllegalArgumentException("Unknown node type: " + type.getName());
+	}
+
 	protected List<String> modelTypes() {
 		return Stream.concat(Stream.of(mogram.type()), mogram.facets().stream()).distinct().toList();
 	}

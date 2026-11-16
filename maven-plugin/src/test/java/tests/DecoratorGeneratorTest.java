@@ -10,6 +10,7 @@ import org.junit.jupiter.api.io.TempDir;
 import io.quassar.reader.domain.ModelReader;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.model.Mogram;
+import io.quassar.reader.model.Node;
 import io.quassar.reader.model.Value;
 import io.quassar.javacode.model.JavaCode;
 import io.quassar.metamodel.model.Metamodel;
@@ -129,6 +130,16 @@ class DecoratorGeneratorTest {
 			assertThat(dashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Display.Projection");
 			assertThat(call(dashboard, "identifier")).isEqualTo("Admin");
 			Object commands = call(target, "commands");
+			Node command = (Node) call(commands, "grouping");
+			var ownerMethod = Node.class.getMethod("owner", Class.class);
+			assertThat(ownerMethod.invoke(command, commands.getClass())).isEqualTo(commands);
+			assertThat(ownerMethod.invoke(command, view.getClass())).isEqualTo(view);
+			assertThat(ownerMethod.invoke(command, container.getClass())).isEqualTo(container);
+			Class<?> toolbar = generated.loader().loadClass("test.generated.Toolbar");
+			Node missingOwner = (Node) ownerMethod.invoke(command, toolbar);
+			assertThat(missingOwner.getClass()).isEqualTo(toolbar);
+			assertThat(missingOwner.isNull()).isTrue();
+			assertThat(((Node) ownerMethod.invoke(view, view.getClass())).isNull()).isTrue();
 			Object grouping = call(commands, "grouping");
 			assertThat(grouping.getClass().getCanonicalName())
 				.isEqualTo("test.generated.Command.CollectionCommand.Grouping");
