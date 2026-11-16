@@ -9,8 +9,8 @@ rule type(decorator)
 			return HIERARCHY.types(MogramTypes.resolve(mogram, model), declared, mogram.facets());
 		}
 
-		static io.quassar.templating.ports.FrameView frame($mogramType~ mogram, $modelType~ model) {
-			return new MogramFrame(mogram, model);
+		static io.quassar.templating.ports.FrameView frame($mogramType~ mogram, $modelType~ model, java.util.List<java.lang.String> types) {
+			return new MogramFrame(mogram, model, types);
 		}
 
 		static java.util.List<io.quassar.templating.ports.FrameView.Slot> groupSlots(java.util.List<$mogramType~> members, $modelType~ model) {
@@ -49,11 +49,11 @@ rule type(decorator)
 
 			@Override
 			protected io.quassar.templating.ports.FrameView frameView() {
-				return frame(mogram, model);
+				return frame(mogram, model, types());
 			}
 		}
 
-		private record MogramFrame($mogramType~ mogram, $modelType~ model) implements io.quassar.templating.ports.FrameView {
+		private record MogramFrame($mogramType~ mogram, $modelType~ model, java.util.List<java.lang.String> types) implements io.quassar.templating.ports.FrameView {
 			public java.lang.Object frameIdentity() {
 				return mogram.isNull() ? null : mogram;
 			}
@@ -63,8 +63,15 @@ rule type(decorator)
 			}
 
 			public java.util.List<java.lang.String> frameTypes() {
-				return java.util.stream.Stream.concat(
-					java.util.stream.Stream.of(mogram.type(), MogramTypes.resolve(mogram, model)), mogram.facets().stream()).distinct().toList();
+				var names = new java.util.LinkedHashSet<java.lang.String>();
+				names.add(mogram.type());
+				names.add(MogramTypes.resolve(mogram, model));
+				names.addAll(mogram.facets());
+				for (var type : types) {
+					names.add(type);
+					names.add(type.substring(type.lastIndexOf('.') + 1));
+				}
+				return java.util.List.copyOf(names);
 			}
 
 			public java.util.List<Slot> frameSlots() {

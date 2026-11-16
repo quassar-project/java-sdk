@@ -55,8 +55,14 @@ class DecoratorGeneratorTest {
 			assertThat(call(grouping, "isNotNull")).isEqualTo(true);
 			assertThat(call(grouping, "isNotNull2")).isEqualTo(false);
 			assertThat(call(commands.get(0), "types")).isEqualTo(List.of(
-				"Command.CollectionCommand.Grouping", "Command.CollectionCommand", "Command"));
+				"Command.CollectionCommand.Grouping", "Command.CollectionCommand", "Command",
+				"Command.Scheduling.Deferred", "Command.Scheduling"));
 			assertThat(call(grouping, "types")).isEqualTo(call(commands.get(0), "types"));
+			assertThat(call(call(commands.get(0), "asDeferred"), "types")).isEqualTo(call(grouping, "types"));
+			var frame = Frames.from(grouping);
+			for (String type : List.of("Grouping", "CollectionCommand", "Command", "Deferred", "Scheduling", "Command.Scheduling.Deferred"))
+				assertThat(frame.is(type)).as("frame type %s", type).isTrue();
+			assertThat(frame.is("Toolbar")).isFalse();
 			assertThat(call(call(commands.get(2), "asGrouping"), "types")).isEqualTo(List.of());
 			assertThat(grouping.getClass().getMethod("limit").getReturnType()).isEqualTo(int.class);
 			assertThat(call(grouping, "limit")).isEqualTo(3);

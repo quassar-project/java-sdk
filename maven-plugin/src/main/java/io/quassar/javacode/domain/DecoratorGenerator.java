@@ -203,7 +203,7 @@ public final class DecoratorGenerator {
 
 				@Override
 				protected io.quassar.templating.ports.FrameView frameView() {
-					return NodeSupport.frame(mogram, model);
+					return NodeSupport.frame(mogram, model, types());
 				}
 			""";
 	}
