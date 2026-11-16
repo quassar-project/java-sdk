@@ -1,0 +1,11 @@
+rule type(enum)
+
+		public enum $name~ {
+			$constants~;
+
+			static $name~ from(java.lang.String word) {
+				return switch (word) {
+	$cases~				default -> null;
+				};
+			}
+		}$NL

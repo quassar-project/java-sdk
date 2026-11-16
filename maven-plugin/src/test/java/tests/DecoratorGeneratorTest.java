@@ -77,7 +77,14 @@ class DecoratorGeneratorTest {
 			assertThat(view.getClass().getMethods()).extracting(Method::getName).doesNotContain("asShared", "isShared");
 			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("asShared", "isShared");
 			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection.Container");
-			assertThat(call(container, "composition")).isEqualTo("Tabs");
+			Object composition = call(container, "composition");
+			assertThat(composition).isInstanceOf(Enum.class).hasToString("TABS");
+			assertThat(composition.getClass().getEnclosingClass()).isEqualTo(container.getClass());
+			assertThat((List<?>) call(container, "modes")).extracting(Object::toString).containsExactly("ONE", "TWO");
+			Object defaultContainer = call(generated.wrap("View", model.get("DefaultContainer")), "asContainer");
+			assertThat(call(defaultContainer, "composition")).hasToString("STACK");
+			Object plainContainer = call(generated.wrap("View", model.get("PlainView")), "asContainer");
+			assertThat(call(plainContainer, "composition")).isNull();
 			assertThat(viewType.getClass().isInstance(container)).isTrue();
 			assertThat((List<?>) call(container, "panels")).hasSize(1);
 			assertThat(call(call(viewType, "asProjection"), "isContainer")).isEqualTo(true);

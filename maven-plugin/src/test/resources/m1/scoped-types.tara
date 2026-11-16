@@ -1,4 +1,4 @@
-View Main is Container(composition="Tabs") Inherited(label="View label")
+View Main is Container(composition=Tabs, modes=One Two) Inherited(label="View label")
 	Commands Controls
 		Grouping GroupByStatus > label = "Group by status"
 	Panel SummaryPanel
@@ -14,3 +14,6 @@ Toolbar MainToolbar
 	Grouping(enabled = true, label = "By status") StatusGrouping
 	Command.CollectionCommand.Grouping FullGrouping > label = "Qualified"
 	Command OtherCommand
+
+View DefaultContainer is Container
+View PlainView

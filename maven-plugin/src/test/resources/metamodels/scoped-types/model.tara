@@ -23,7 +23,8 @@ Concept View
 			Concept Panel
 				def Projection target
 			sub Container
-				def string composition
+				def word:{Selector Tabs Stack} composition = Stack
+				def word[]:{One Two} modes
 
 Concept Widget
 	def View.Projection view

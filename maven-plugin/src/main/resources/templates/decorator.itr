@@ -49,6 +49,12 @@ rule type(decorator)
 			return value.isEmpty() ? java.util.List.of() : java.util.List.of(value);
 		}
 
+		static java.lang.String word($valueType~ value) {
+			if (value instanceof $valueType~.Number number) return number.value().toPlainString();
+			if (value instanceof $valueType~.Bool bool) return java.lang.Boolean.toString(bool.value());
+			return value.isReference() ? value.asReference() : value.asString();
+		}
+
 		static MogramDecorator of($mogramType~ mogram, $modelType~ model) {
 			return switch (MogramTypes.resolve(mogram, model)) {
 	$cases~			default -> new NullObject(model);

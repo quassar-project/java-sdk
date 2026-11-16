@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -76,6 +77,12 @@ public final class DecoratorGenerator {
 			}
 		});
 
+		Map<String, Map<PropertyDefinition, String>> enums = new LinkedHashMap<>();
+		for (TypeDefinition type : decorators) {
+			Map<PropertyDefinition, String> namesForType = enumNames(type, classNames, nested, packageName.isEmpty() ? topLevel : Set.of());
+			enums.put(type.type(), namesForType);
+			nestedNames.addAll(namesForType.values());
+		}
 		Map<String, String> targets = new LinkedHashMap<>();
 		classNames.forEach((type, name) -> targets.put(type, referenceName(name, packageName, nestedNames)));
 		Map<String, String> classes = new LinkedHashMap<>();
@@ -85,10 +92,11 @@ public final class DecoratorGenerator {
 		List<JavaCode> code = new ArrayList<>();
 		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes));
 		code.add(modelDecorator(types, packageName, facadeName, classes, dsl));
+		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, facetTypes, enums);
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
 			code.add(new JavaCode(packageName, classNames.get(type.type()),
-				render(type, classNames, targets, nested, subtypes, facetTypes, DECORATOR, new JavaNames(RESERVED_METHODS), false)));
+				render(type, layout, DECORATOR, new JavaNames(RESERVED_METHODS), false)));
 		}
 		topLevel.addAll(nestedNames);
 		return code.stream().map(source -> JavaImports.format(source, topLevel)).toList();
@@ -139,18 +147,20 @@ public final class DecoratorGenerator {
 			"dsl", dsl.map(value -> "\tprivate static final java.lang.String DSL = " + literal(value) + ";\n").orElse(""))));
 	}
 
-	private String render(TypeDefinition type, Map<String, String> classNames, Map<String, String> classes,
-			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes, Set<String> facetTypes,
-			String base, JavaNames methods, boolean isNested) {
+	private String render(TypeDefinition type, DecoratorLayout layout, String base, JavaNames methods, boolean isNested) {
 		StringBuilder source = new StringBuilder();
-		List<String> descendants = subtypes.getOrDefault(type.type(), List.of());
+		Map<String, String> classes = layout.references();
+		Map<PropertyDefinition, String> enums = layout.enums().get(type.type());
+		List<String> descendants = layout.subtypes().getOrDefault(type.type(), List.of());
 		for (PropertyDefinition property : type.properties()) {
 			String getter = methods.claim(JavaNames.methodName(property.suggestedName()));
-			source.append(method(returnType(property, classes), getter, expression(property, classes)));
+			String enumName = enums.get(property);
+			if (enumName == null) source.append(method(returnType(property, classes), getter, expression(property, classes)));
+			else source.append(enumGetter(property, getter, enumName));
 		}
 		for (String facet : type.facets()) addFacetMethods(source, methods, facet, classes.get(facet));
 		for (String subtype : DECORATOR.equals(base) ? descendants : List.<String>of()) {
-			String condition = facetTypes.contains(subtype) ? facetMatches(subtype)
+			String condition = layout.facetTypes().contains(subtype) ? facetMatches(subtype)
 				: MOGRAM_TYPES + ".matches(" + MOGRAM_TYPES + ".resolve(mogram, model), " + literal(subtype) + ")";
 			addCastMethods(source, methods, simpleName(subtype), classes.get(subtype), condition);
 		}
@@ -167,12 +177,13 @@ public final class DecoratorGenerator {
 					+ ".findFirst().orElse(" + MOGRAM + ".NULL), model)"));
 			else source.append(collectionMethod(decorator, getter, stream));
 		}
-		addFacetSubtypeMethods(source, methods, type, subtypes, classes);
-		for (TypeDefinition child : nested.getOrDefault(type.type(), List.of())) {
+		addFacetSubtypeMethods(source, methods, type, layout.subtypes(), classes);
+		enums.forEach((property, name) -> source.append(enumDeclaration(property, name)));
+		for (TypeDefinition child : layout.nested().getOrDefault(type.type(), List.of())) {
 			boolean specialized = descendants.contains(child.type());
 			String childBase = specialized ? classes.get(type.type()) : DECORATOR;
 			JavaNames childMethods = specialized ? new JavaNames(methods) : new JavaNames(RESERVED_METHODS);
-			String declaration = render(child, classNames, classes, nested, subtypes, facetTypes, childBase, childMethods, true);
+			String declaration = render(child, layout, childBase, childMethods, true);
 			source.append('\n').append(declaration.lines()
 				.map(line -> line.isEmpty() ? line : "\t" + line)
 				.collect(Collectors.joining("\n", "", "\n")));
@@ -180,8 +191,50 @@ public final class DecoratorGenerator {
 		String modifier = isNested ? "static " : "";
 		if (descendants.isEmpty()) modifier += "final ";
 		return templates.render("mogram", Map.of(
-			"name", simpleName(classNames.get(type.type())), "modifier", modifier,
+			"name", simpleName(layout.classNames().get(type.type())), "modifier", modifier,
 			"base", base, "mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString()));
+	}
+
+	private record DecoratorLayout(Map<String, String> classNames, Map<String, String> references,
+			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes, Set<String> facetTypes,
+			Map<String, Map<PropertyDefinition, String>> enums) {
+	}
+
+	private Map<PropertyDefinition, String> enumNames(TypeDefinition type, Map<String, String> classes,
+			Map<String, List<TypeDefinition>> nested, Set<String> topLevel) {
+		Set<String> reserved = new HashSet<>(RESERVED_TYPES);
+		reserved.addAll(topLevel);
+		reserved.addAll(Arrays.asList(classes.get(type.type()).split("\\.")));
+		for (TypeDefinition child : nested.getOrDefault(type.type(), List.of()))
+			reserved.add(simpleName(classes.get(child.type())));
+		JavaNames names = new JavaNames(reserved);
+		Map<PropertyDefinition, String> enums = new LinkedHashMap<>();
+		for (PropertyDefinition property : type.properties())
+			if (!property.constraints().isEmpty() && (property.declaredType().equals("word") || property.declaredType().startsWith("word[")))
+				enums.put(property, names.claim(JavaNames.className(property.suggestedName())));
+		return enums;
+	}
+
+	private String enumGetter(PropertyDefinition property, String getter, String enumName) {
+		String value = propertyValue(property);
+		if (property.type().kind() == Kind.SEQUENCE)
+			return method("java.util.List<" + enumName + ">", getter,
+				DECORATOR + ".values(" + value + ").stream().map(item -> " + enumName + ".from(word(item))).toList()");
+		String token = "word(" + value + ")";
+		if (property.hasDefault())
+			token = value + ".isEmpty() ? " + literal(property.defaultValue()) + " : " + token;
+		return method(enumName, getter, "mogram.isNull() ? null : " + enumName + ".from(" + token + ")");
+	}
+
+	private String enumDeclaration(PropertyDefinition property, String enumName) {
+		JavaNames constants = new JavaNames(Set.of());
+		Map<String, String> options = new LinkedHashMap<>();
+		for (String option : property.constraints())
+			options.computeIfAbsent(option, word -> constants.claim(word.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toUpperCase(Locale.ROOT)));
+		String cases = options.entrySet().stream()
+			.map(option -> "\t\t\t\tcase " + literal(option.getKey()) + " -> " + option.getValue() + ";\n")
+			.collect(Collectors.joining());
+		return templates.render("enum", Map.of("name", enumName, "constants", String.join(", ", options.values()), "cases", cases));
 	}
 
 	private void addFacetSubtypeMethods(StringBuilder source, JavaNames methods, TypeDefinition type,
@@ -288,12 +341,16 @@ public final class DecoratorGenerator {
 			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes))));
 	}
 
-	private String expression(PropertyDefinition property, Map<String, String> classes) {
-		String value = property.name() == null
+	private String propertyValue(PropertyDefinition property) {
+		return property.name() == null
 			? "mogram.properties().stream().filter(property -> property.name() == null)"
 				+ ".skip(" + property.position() + ").findFirst().map(io.quassar.reader.model.Property::value)"
 				+ ".orElse(new " + VALUE + ".Empty())"
 			: "mogram.property(" + literal(property.name()) + ")";
+	}
+
+	private String expression(PropertyDefinition property, Map<String, String> classes) {
+		String value = propertyValue(property);
 		PropertyType type = property.type();
 		if (type.kind() == Kind.REFERENCE) return wrapReference(value, property, classes);
 		if (type.kind() != Kind.SEQUENCE) return value + accessor(type.kind());
