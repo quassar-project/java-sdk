@@ -34,14 +34,14 @@ public abstract class Node extends FrameSource {
 	public final <T extends Node> T ancestor(Class<T> type) {
 		Mogram parent = model.parentOf(mogram);
 		while (!parent.isNull()) {
-			T candidate = ancestorView(type, parent);
+			T candidate = as(type, parent);
 			if (candidate.isNotNull()) return candidate;
 			parent = model.parentOf(parent);
 		}
-		return ancestorView(type, Mogram.NULL);
+		return as(type, Mogram.NULL);
 	}
 
-	protected abstract <T extends Node> T ancestorView(Class<T> type, Mogram ancestor);
+	protected abstract <T extends Node> T as(Class<T> type, Mogram ancestor);
 
 	protected List<String> modelTypes() {
 		return Stream.concat(Stream.of(mogram.type()), mogram.facets().stream()).distinct().toList();

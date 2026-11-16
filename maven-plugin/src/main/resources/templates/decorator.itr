@@ -11,7 +11,7 @@ rule type(decorator)
 		private record AncestorView(java.lang.String name, java.util.function.BiFunction<$mogramType~, $modelType~, io.quassar.reader.model.Node> wrap) {
 		}
 
-		static <T extends io.quassar.reader.model.Node> T ancestorView(java.lang.Class<T> type, $mogramType~ ancestor, $modelType~ model) {
+		static <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type, $mogramType~ ancestor, $modelType~ model) {
 			if (type.equals(io.quassar.reader.model.Node.class)) return type.cast(of(ancestor, model));
 			var view = ANCESTORS.get(type);
 			if (view == null) throw new java.lang.IllegalArgumentException("Unknown node type: " + type.getName());
@@ -67,8 +67,8 @@ rule type(decorator)
 			}
 
 			@Override
-			protected <T extends io.quassar.reader.model.Node> T ancestorView(java.lang.Class<T> type, $mogramType~ ancestor) {
-				return NodeSupport.ancestorView(type, ancestor, model);
+			protected <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type, $mogramType~ ancestor) {
+				return NodeSupport.as(type, ancestor, model);
 			}
 		}
 
