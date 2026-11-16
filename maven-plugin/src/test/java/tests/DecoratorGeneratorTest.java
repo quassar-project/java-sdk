@@ -131,15 +131,15 @@ class DecoratorGeneratorTest {
 			assertThat(call(dashboard, "identifier")).isEqualTo("Admin");
 			Object commands = call(target, "commands");
 			Node command = (Node) call(commands, "grouping");
-			var ownerMethod = Node.class.getMethod("owner", Class.class);
-			assertThat(ownerMethod.invoke(command, commands.getClass())).isEqualTo(commands);
-			assertThat(ownerMethod.invoke(command, view.getClass())).isEqualTo(view);
-			assertThat(ownerMethod.invoke(command, container.getClass())).isEqualTo(container);
+			var ancestorMethod = Node.class.getMethod("ancestor", Class.class);
+			assertThat(ancestorMethod.invoke(command, commands.getClass())).isEqualTo(commands);
+			assertThat(ancestorMethod.invoke(command, view.getClass())).isEqualTo(view);
+			assertThat(ancestorMethod.invoke(command, container.getClass())).isEqualTo(container);
 			Class<?> toolbar = generated.loader().loadClass("test.generated.Toolbar");
-			Node missingOwner = (Node) ownerMethod.invoke(command, toolbar);
-			assertThat(missingOwner.getClass()).isEqualTo(toolbar);
-			assertThat(missingOwner.isNull()).isTrue();
-			assertThat(((Node) ownerMethod.invoke(view, view.getClass())).isNull()).isTrue();
+			Node missingAncestor = (Node) ancestorMethod.invoke(command, toolbar);
+			assertThat(missingAncestor.getClass()).isEqualTo(toolbar);
+			assertThat(missingAncestor.isNull()).isTrue();
+			assertThat(((Node) ancestorMethod.invoke(view, view.getClass())).isNull()).isTrue();
 			Object grouping = call(commands, "grouping");
 			assertThat(grouping.getClass().getCanonicalName())
 				.isEqualTo("test.generated.Command.CollectionCommand.Grouping");

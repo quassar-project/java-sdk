@@ -31,17 +31,17 @@ public abstract class Node extends FrameSource {
 		return isNull() ? List.of() : modelTypes();
 	}
 
-	public final <T extends Node> T owner(Class<T> type) {
+	public final <T extends Node> T ancestor(Class<T> type) {
 		Mogram parent = model.parentOf(mogram);
 		while (!parent.isNull()) {
-			T candidate = ownerView(type, parent);
+			T candidate = ancestorView(type, parent);
 			if (candidate.isNotNull()) return candidate;
 			parent = model.parentOf(parent);
 		}
-		return ownerView(type, Mogram.NULL);
+		return ancestorView(type, Mogram.NULL);
 	}
 
-	protected <T extends Node> T ownerView(Class<T> type, Mogram owner) {
+	protected <T extends Node> T ancestorView(Class<T> type, Mogram ancestor) {
 		throw new IllegalArgumentException("Unknown node type: " + type.getName());
 	}
 

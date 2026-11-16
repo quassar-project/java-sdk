@@ -5,18 +5,18 @@ rule type(decorator)
 
 		private static final io.quassar.reader.model.NodeTypeHierarchy HIERARCHY = new io.quassar.reader.model.NodeTypeHierarchy(java.util.List.of($hierarchy~));
 
-		private static final java.util.Map<java.lang.Class<? extends io.quassar.reader.model.Node>, OwnerView> OWNERS =
-			java.util.Map.ofEntries($owners~);
+		private static final java.util.Map<java.lang.Class<? extends io.quassar.reader.model.Node>, AncestorView> ANCESTORS =
+			java.util.Map.ofEntries($ancestors~);
 
-		private record OwnerView(java.lang.String name, java.util.function.BiFunction<$mogramType~, $modelType~, io.quassar.reader.model.Node> wrap) {
+		private record AncestorView(java.lang.String name, java.util.function.BiFunction<$mogramType~, $modelType~, io.quassar.reader.model.Node> wrap) {
 		}
 
-		static <T extends io.quassar.reader.model.Node> T ownerView(java.lang.Class<T> type, $mogramType~ owner, $modelType~ model) {
-			if (type.equals(io.quassar.reader.model.Node.class)) return type.cast(of(owner, model));
-			var view = OWNERS.get(type);
+		static <T extends io.quassar.reader.model.Node> T ancestorView(java.lang.Class<T> type, $mogramType~ ancestor, $modelType~ model) {
+			if (type.equals(io.quassar.reader.model.Node.class)) return type.cast(of(ancestor, model));
+			var view = ANCESTORS.get(type);
 			if (view == null) throw new java.lang.IllegalArgumentException("Unknown node type: " + type.getName());
-			var match = !owner.isNull() && types(owner, model, view.name()).contains(view.name());
-			return type.cast(view.wrap().apply(match ? owner : $mogramType~.NULL, model));
+			var match = !ancestor.isNull() && types(ancestor, model, view.name()).contains(view.name());
+			return type.cast(view.wrap().apply(match ? ancestor : $mogramType~.NULL, model));
 		}
 
 		static java.util.List<java.lang.String> types($mogramType~ mogram, $modelType~ model, java.lang.String declared) {
@@ -67,8 +67,8 @@ rule type(decorator)
 			}
 
 			@Override
-			protected <T extends io.quassar.reader.model.Node> T ownerView(java.lang.Class<T> type, $mogramType~ owner) {
-				return NodeSupport.ownerView(type, owner, model);
+			protected <T extends io.quassar.reader.model.Node> T ancestorView(java.lang.Class<T> type, $mogramType~ ancestor) {
+				return NodeSupport.ancestorView(type, ancestor, model);
 			}
 		}
 

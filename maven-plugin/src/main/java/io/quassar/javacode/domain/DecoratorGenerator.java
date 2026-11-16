@@ -35,8 +35,8 @@ public final class DecoratorGenerator {
 	private static final String NODE = "io.quassar.reader.model.Node";
 	private static final String SUPPORT = "NodeSupport";
 	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
-	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "OwnerView", "Slot", "Getter", "ValueSlot");
-	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "ownerView", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
+	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "AncestorView", "Slot", "Getter", "ValueSlot");
+	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "ancestorView", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
 	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,
@@ -208,8 +208,8 @@ public final class DecoratorGenerator {
 				}
 
 				@Override
-				protected <T extends io.quassar.reader.model.Node> T ownerView(java.lang.Class<T> type, io.quassar.reader.model.Mogram owner) {
-					return NodeSupport.ownerView(type, owner, model);
+				protected <T extends io.quassar.reader.model.Node> T ancestorView(java.lang.Class<T> type, io.quassar.reader.model.Mogram ancestor) {
+					return NodeSupport.ancestorView(type, ancestor, model);
 				}
 			""";
 	}
@@ -359,12 +359,12 @@ public final class DecoratorGenerator {
 		return new JavaCode(packageName, SUPPORT, templates.render("decorator", Map.of(
 			"mogramType", MOGRAM, "modelType", MODEL,
 			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes),
-			"hierarchy", hierarchy(metamodelTypes), "owners", ownerEntries(targets))));
+			"hierarchy", hierarchy(metamodelTypes), "ancestors", ancestorEntries(targets))));
 	}
 
-	private String ownerEntries(Map<String, String> targets) {
+	private String ancestorEntries(Map<String, String> targets) {
 		return targets.entrySet().stream()
-			.map(entry -> "\t\t\tjava.util.Map.entry(" + entry.getValue() + ".class, new OwnerView("
+			.map(entry -> "\t\t\tjava.util.Map.entry(" + entry.getValue() + ".class, new AncestorView("
 				+ literal(entry.getKey()) + ", " + entry.getValue() + "::new))")
 			.collect(Collectors.joining(",\n", "\n", "\n\t\t"));
 	}
