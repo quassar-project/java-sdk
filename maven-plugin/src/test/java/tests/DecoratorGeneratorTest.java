@@ -30,6 +30,20 @@ class DecoratorGeneratorTest {
 	Path directory;
 
 	@Test
+	void generatesTypedAccessorsForNestedTypesNamedByShortPaths() throws Exception {
+		Metamodel metamodel = Metamodels.load(Path.of(getClass().getResource("/metamodels/scoped-types/").toURI()));
+		Model model = model("scoped-types.tara");
+		try (GeneratedDecorators generated = compile(model, metamodel)) {
+			Object widget = generated.wrap("Widget", model.get("Summary"));
+			Object target = call(widget, "view");
+			assertThat(target.getClass().getSimpleName()).isEqualTo("Projection");
+			assertThat(call(target, "identifier")).isEqualTo("Main");
+			Object commands = call(target, "commands");
+			assertThat(call(call(commands, "grouping"), "label")).isEqualTo("Group by status");
+		}
+	}
+
+	@Test
 	void compilesDecoratorsFromANativeMetamodel() throws Exception {
 		Metamodel metamodel = Metamodels.load(MetamodelFixtures.libraryArchive(directory));
 		Model model = model("observations.tara");

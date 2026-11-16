@@ -8,7 +8,12 @@ rule type(types)
 			if (mogram.isNull() || type.indexOf('.') >= 0) return type;
 			$mogramType~ parent = model.parentOf(mogram);
 			if (parent.isNull()) return type;
-			return switch (resolve(parent, model) + "." + type) {
+			return resolve(type, resolve(parent, model));
+		}
+
+		static java.lang.String resolve(java.lang.String type, java.lang.String parentType) {
+			if (type.indexOf('.') >= 0) return type;
+			return switch (parentType + "." + type) {
 	$aliases~			default -> type;
 			};
 		}

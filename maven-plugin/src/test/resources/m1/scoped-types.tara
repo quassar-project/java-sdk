@@ -1,0 +1,6 @@
+View Main is Projection
+	Commands Controls
+		Grouping GroupByStatus > label = "Group by status"
+
+Widget Summary
+	view = Main

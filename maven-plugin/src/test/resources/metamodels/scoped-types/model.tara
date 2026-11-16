@@ -1,0 +1,17 @@
+dsl metta
+
+Concept Command as component
+	sub CollectionCommand
+		sub Grouping
+			def string label
+
+Concept View
+	facet ViewType
+		sub Projection
+			Concept:Single Commands
+				has:Single Grouping
+			Concept:Single Panel
+				def Projection target
+
+Concept Widget
+	def View.Projection view

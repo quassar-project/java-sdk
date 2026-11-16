@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public final class DecoratorGenerator {
 	private final SourceTemplates templates;
@@ -38,24 +39,35 @@ public final class DecoratorGenerator {
 		Map<String, String> classes = new LinkedHashMap<>();
 		for (TypeDefinition type : types) classes.put(type.type(), names.claim(JavaNames.className(type.type())));
 		Set<String> exposedFacets = new HashSet<>();
-		for (TypeDefinition type : types) exposedFacets.addAll(type.facets());
+		List<TypeDefinition> declarations = Stream.concat(types.stream(), facets.stream()).toList();
+		for (TypeDefinition declaration : declarations) {
+			exposedFacets.addAll(declaration.facets());
+			addTargets(exposedFacets, declaration);
+		}
 		Map<String, String> facetClasses = new LinkedHashMap<>();
 		for (TypeDefinition facet : facets)
 			if (exposedFacets.contains(facet.type()))
 				facetClasses.put(facet.type(), names.claim(JavaNames.className(simpleName(facet.type()))));
+		Map<String, String> targets = new LinkedHashMap<>(classes);
+		targets.putAll(facetClasses);
 		List<JavaCode> code = new ArrayList<>();
 		code.add(decoratorBase(packageName, classes));
-		code.add(mogramTypes(packageName, types));
+		code.add(mogramTypes(packageName, declarations));
 		code.add(modelDecorator(types, packageName, facadeName, classes));
 		for (TypeDefinition type : types)
-			code.add(render(type, classes.get(type.type()), packageName, classes, facetClasses));
+			code.add(render(type, classes.get(type.type()), packageName, targets, facetClasses));
 		for (TypeDefinition facet : facets)
 			if (facetClasses.containsKey(facet.type()))
-				code.add(render(facet, facetClasses.get(facet.type()), packageName, classes, facetClasses));
+				code.add(render(facet, facetClasses.get(facet.type()), packageName, targets, facetClasses));
 		Set<String> declaredTypes = new HashSet<>(classes.values());
 		declaredTypes.addAll(facetClasses.values());
 		declaredTypes.add(facadeName);
 		return code.stream().map(source -> JavaImports.format(source, declaredTypes)).toList();
+	}
+
+	private void addTargets(Set<String> targets, TypeDefinition type) {
+		for (PropertyDefinition property : type.properties()) targets.addAll(property.referenceTypes());
+		for (Composition child : type.children()) targets.add(child.type());
 	}
 
 	public static String modelClassName(String modelName) {
@@ -98,10 +110,11 @@ public final class DecoratorGenerator {
 		for (Composition composition : type.children()) {
 			String child = composition.type();
 			String decorator = classes.get(child);
+			if (decorator == null) throw new IllegalArgumentException("Unknown component " + child + " in " + type.type());
 			boolean single = composition.cardinality().isSingle();
 			String simple = simpleName(child);
 			String getter = memberName(methods, single ? simple : child, single);
-			String match = MOGRAM_TYPES + ".resolve(child, model).equals(" + literal(child) + ")";
+			String match = MOGRAM_TYPES + ".resolve(child.type(), " + literal(type.type()) + ").equals(" + literal(child) + ")";
 			String stream = "mogram.children().stream()\n\t.filter(child -> " + match + ")";
 			if (single)
 				source.append(method(decorator, getter, "new " + decorator + "(" + stream
@@ -195,7 +208,7 @@ public final class DecoratorGenerator {
 	}
 
 	private String referenceType(PropertyDefinition property, Map<String, String> classes) {
-		return property.referenceTypes().size() == 1 ? classes.get(property.referenceTypes().get(0)) : DECORATOR;
+		return property.referenceTypes().size() == 1 ? classes.getOrDefault(property.referenceTypes().get(0), DECORATOR) : DECORATOR;
 	}
 
 	private String scalarType(Kind kind, boolean boxed) {
