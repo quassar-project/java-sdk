@@ -52,6 +52,10 @@ class DecoratorGeneratorTest {
 			assertThat(grouping.getClass().getSuperclass().getSimpleName()).isEqualTo("CollectionCommand");
 			assertThat(commands.get(0).getClass().isInstance(grouping)).isTrue();
 			assertThat(call(grouping, "enabled")).isEqualTo(true);
+			assertThat(call(commands.get(0), "types")).isEqualTo(List.of(
+				"Command.CollectionCommand.Grouping", "Command.CollectionCommand", "Command"));
+			assertThat(call(grouping, "types")).isEqualTo(call(commands.get(0), "types"));
+			assertThat(call(call(commands.get(2), "asGrouping"), "types")).isEqualTo(List.of());
 			assertThat(grouping.getClass().getMethod("limit").getReturnType()).isEqualTo(int.class);
 			assertThat(call(grouping, "limit")).isEqualTo(3);
 			assertThat((List<?>) call(grouping, "thresholds")).isEqualTo(List.of(2, 5));
@@ -80,6 +84,12 @@ class DecoratorGeneratorTest {
 			assertThat(view.getClass().getMethods()).extracting(Method::getName).doesNotContain("asShared", "isShared");
 			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("asShared", "isShared");
 			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection.Container");
+			var types = List.of("View", "View.ViewType.Projection.Container", "View.ViewType.Projection",
+				"View.ViewType", "View.Inherited");
+			assertThat(call(view, "types")).isEqualTo(types);
+			assertThat(call(container, "types")).isEqualTo(types);
+			Object remote = generated.wrap("RemoteView", model.get("Remote"));
+			assertThat(call(remote, "types")).isEqualTo(List.of("RemoteView", "View", "View.Inherited"));
 			Object composition = call(container, "composition");
 			assertThat(composition).isInstanceOf(Enum.class).hasToString("Tabs");
 			assertThat(composition.getClass().getEnclosingClass()).isEqualTo(container.getClass());

@@ -17,3 +17,5 @@ Toolbar MainToolbar
 
 View DefaultContainer is Container
 View PlainView
+
+RemoteView Remote is Inherited

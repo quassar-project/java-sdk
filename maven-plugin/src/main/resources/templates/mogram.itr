@@ -3,4 +3,9 @@ rule type(mogram)
 		$name~($mogramType~ mogram, $modelType~ model) {
 			super(mogram, model);
 		}
-	$frame~$methods~}$NL
+	$frame~
+		@Override
+		protected java.util.List<java.lang.String> modelTypes() {
+			return NodeSupport.types(mogram, model, $typeName~);
+		}
+	$methods~}$NL

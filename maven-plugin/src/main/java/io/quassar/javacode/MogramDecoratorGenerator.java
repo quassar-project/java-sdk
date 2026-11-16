@@ -50,7 +50,7 @@ public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, 
 			.filter(type -> type.declaration() == MetamodelType.Declaration.SUB)
 			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::parent));
 		return new DecoratorGenerator(templates).generate(resolver.resolve(metamodel),
-			resolver.resolveFacets(metamodel), enclosingTypes, subtypeParents, packageName, modelName, dsl());
+			resolver.resolveFacets(metamodel), enclosingTypes, subtypeParents, packageName, modelName, dsl(), metamodel.types());
 	}
 
 	private Optional<String> dsl() {

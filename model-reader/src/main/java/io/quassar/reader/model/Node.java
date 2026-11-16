@@ -2,7 +2,9 @@ package io.quassar.reader.model;
 
 import io.quassar.templating.ports.FrameSource;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public abstract class Node extends FrameSource {
 	protected final Mogram mogram;
@@ -19,6 +21,14 @@ public abstract class Node extends FrameSource {
 
 	public final boolean isNull() {
 		return mogram.isNull();
+	}
+
+	public final List<String> types() {
+		return isNull() ? List.of() : modelTypes();
+	}
+
+	protected List<String> modelTypes() {
+		return Stream.concat(Stream.of(mogram.type()), mogram.facets().stream()).distinct().toList();
 	}
 
 	@Override

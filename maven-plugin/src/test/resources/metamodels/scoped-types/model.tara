@@ -39,3 +39,5 @@ Concept Dashboard
 
 Concept Preview
 	def Dashboard.Projection view
+
+Concept RemoteView extends View

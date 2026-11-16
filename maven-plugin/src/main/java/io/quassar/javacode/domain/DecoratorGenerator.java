@@ -4,6 +4,7 @@ import io.quassar.javacode.ports.SourceTemplates;
 
 import io.quassar.javacode.model.JavaCode;
 import io.quassar.metamodel.model.PropertyDefinition;
+import io.quassar.metamodel.model.MetamodelType;
 import io.quassar.metamodel.model.PropertyType;
 import io.quassar.metamodel.model.PropertyType.Kind;
 import io.quassar.metamodel.model.TypeDefinition;
@@ -35,11 +36,12 @@ public final class DecoratorGenerator {
 	private static final String SUPPORT = "NodeSupport";
 	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
 	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
-	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
+	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "types", "modelTypes", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
 	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,
-			Map<String, String> enclosingTypes, Map<String, String> subtypeParents, String packageName, String modelName, Optional<String> dsl) {
+			Map<String, String> enclosingTypes, Map<String, String> subtypeParents, String packageName, String modelName, Optional<String> dsl,
+			List<MetamodelType> metamodelTypes) {
 		JavaNames names = new JavaNames(RESERVED_TYPES);
 		String facadeName = names.claim(modelClassName(modelName));
 		Set<String> exposedFacets = new HashSet<>(enclosingTypes.keySet());
@@ -90,7 +92,7 @@ public final class DecoratorGenerator {
 		Map<String, List<String>> subtypes = descendants(subtypeParents);
 		Set<String> facetTypes = facets.stream().map(TypeDefinition::type).collect(Collectors.toSet());
 		List<JavaCode> code = new ArrayList<>();
-		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes));
+		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes, metamodelTypes));
 		code.add(modelDecorator(types, packageName, facadeName, classes, dsl));
 		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, facetTypes, enums);
 		for (TypeDefinition type : decorators) {
@@ -193,7 +195,7 @@ public final class DecoratorGenerator {
 		return templates.render("mogram", Map.of(
 			"name", simpleName(layout.classNames().get(type.type())), "modifier", modifier,
 			"base", base, "mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString(),
-			"frame", NODE.equals(base) ? frameMethod() : ""));
+			"frame", NODE.equals(base) ? frameMethod() : "", "typeName", literal(type.type())));
 	}
 
 	private String frameMethod() {
@@ -344,12 +346,20 @@ public final class DecoratorGenerator {
 	}
 
 	private JavaCode decoratorBase(String packageName, Map<String, String> classes, List<TypeDefinition> types,
-			Map<String, String> parents, Map<String, List<String>> subtypes) {
+			Map<String, String> parents, Map<String, List<String>> subtypes, List<MetamodelType> metamodelTypes) {
 		StringBuilder cases = new StringBuilder();
 		classes.forEach((type, name) -> cases.append(templates.render("factory-case", Map.of("type", literal(type), "name", name))));
 		return new JavaCode(packageName, SUPPORT, templates.render("decorator", Map.of(
 			"mogramType", MOGRAM, "modelType", MODEL,
-			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes))));
+			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes),
+			"hierarchy", hierarchy(metamodelTypes))));
+	}
+
+	private String hierarchy(List<MetamodelType> types) {
+		return types.stream().sorted(Comparator.comparing(MetamodelType::name))
+			.map(type -> "\t\t\tnew io.quassar.reader.model.NodeTypeHierarchy.Type(" + literal(type.name())
+				+ ", " + literal(type.parent()) + ", " + literal(type.scope()) + ", " + type.isFacet() + ")")
+			.collect(Collectors.joining(",\n", "\n", "\n\t\t"));
 	}
 
 	private String propertyValue(PropertyDefinition property) {

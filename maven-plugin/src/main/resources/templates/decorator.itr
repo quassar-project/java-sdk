@@ -3,6 +3,12 @@ rule type(decorator)
 		private NodeSupport() {
 		}
 
+		private static final io.quassar.reader.model.NodeTypeHierarchy HIERARCHY = new io.quassar.reader.model.NodeTypeHierarchy(java.util.List.of($hierarchy~));
+
+		static java.util.List<java.lang.String> types($mogramType~ mogram, $modelType~ model, java.lang.String declared) {
+			return HIERARCHY.types(MogramTypes.resolve(mogram, model), declared, mogram.facets());
+		}
+
 		static io.quassar.templating.ports.FrameView frame($mogramType~ mogram, $modelType~ model) {
 			return new MogramFrame(mogram, model);
 		}
