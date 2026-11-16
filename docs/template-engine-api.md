@@ -10,7 +10,7 @@ Add the dependency below **only if your project does not use the Quassar Maven p
 
 ```xml
 <dependency>
-	<groupId>quassar.io</groupId>
+	<groupId>io.quassar</groupId>
 	<artifactId>template-engine</artifactId>
 	<version>1.0.0</version>
 </dependency>

@@ -24,7 +24,7 @@
             <version>2.13.2</version>
         </dependency>
         <dependency>
-            <groupId>quassar.io</groupId>
+            <groupId>io.quassar</groupId>
             <artifactId>model-reader</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -47,7 +47,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>quassar.io</groupId>
+            <groupId>io.quassar</groupId>
             <artifactId>template-engine</artifactId>
             <version>1.0.0</version>
         </dependency>

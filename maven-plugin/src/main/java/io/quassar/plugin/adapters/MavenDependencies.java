@@ -28,12 +28,12 @@ public final class MavenDependencies {
 	}
 
 	public boolean isConfigured(MavenProject project) {
-		return ARTIFACTS.stream().allMatch(artifact -> hasDependency(project, "quassar.io", artifact));
+		return ARTIFACTS.stream().allMatch(artifact -> hasDependency(project, "io.quassar", artifact));
 	}
 
 	private List<DependencySpec> requiredDependencies(MavenProject project, String version) {
 		List<DependencySpec> dependencies = new ArrayList<>();
-		for (String artifact : ARTIFACTS) dependencies.add(new DependencySpec("quassar.io", artifact, version, "compile"));
+		for (String artifact : ARTIFACTS) dependencies.add(new DependencySpec("io.quassar", artifact, version, "compile"));
 		if ("maven-plugin".equals(project.getPackaging())) {
 			dependencies.add(new DependencySpec("org.apache.maven", "maven-plugin-api", "3.9.9", "provided"));
 			dependencies.add(new DependencySpec("org.apache.maven", "maven-core", "3.9.9", "provided"));
