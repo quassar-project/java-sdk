@@ -1,9 +1,9 @@
 rule type(decorator)
-	public abstract class MogramDecorator extends io.quassar.templating.ports.FrameSource {
+	public abstract class Node extends io.quassar.templating.ports.FrameSource {
 		final $mogramType~ mogram;
 		final $modelType~ model;
 
-		MogramDecorator($mogramType~ mogram, $modelType~ model) {
+		Node($mogramType~ mogram, $modelType~ model) {
 			this.mogram = mogram;
 			this.model = model;
 		}
@@ -18,7 +18,7 @@ rule type(decorator)
 
 		@Override
 		public final boolean equals(java.lang.Object other) {
-			if (!(other instanceof MogramDecorator decorator) || getClass() != decorator.getClass()) return false;
+			if (!(other instanceof Node decorator) || getClass() != decorator.getClass()) return false;
 			return mogram.equals(decorator.mogram) && model.equals(decorator.model);
 		}
 
@@ -33,7 +33,7 @@ rule type(decorator)
 		}
 
 		static java.util.List<io.quassar.templating.ports.FrameView.Slot> groupSlots(java.util.List<$mogramType~> members, $modelType~ model) {
-			var groups = new java.util.LinkedHashMap<java.lang.String, java.util.List<MogramDecorator>>();
+			var groups = new java.util.LinkedHashMap<java.lang.String, java.util.List<Node>>();
 			for (var member : members) {
 				var name = member.type().substring(member.type().lastIndexOf('.') + 1).toLowerCase(java.util.Locale.ROOT);
 				groups.computeIfAbsent(name, key -> new java.util.ArrayList<>())
@@ -55,13 +55,13 @@ rule type(decorator)
 			return value.isReference() ? value.asReference() : value.asString();
 		}
 
-		static MogramDecorator of($mogramType~ mogram, $modelType~ model) {
+		static Node of($mogramType~ mogram, $modelType~ model) {
 			return switch (MogramTypes.resolve(mogram, model)) {
 	$cases~			default -> new NullObject(model);
 			};
 		}
 
-		private static final class NullObject extends MogramDecorator {
+		private static final class NullObject extends Node {
 			private NullObject($modelType~ model) {
 				super($mogramType~.NULL, model);
 			}
@@ -72,7 +72,7 @@ rule type(decorator)
 				return mogram.isNull() ? null : mogram;
 			}
 
-			public MogramDecorator frameParent() {
+			public Node frameParent() {
 				return of(model.parentOf(mogram), model);
 			}
 

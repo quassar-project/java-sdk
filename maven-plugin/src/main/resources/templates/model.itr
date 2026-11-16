@@ -35,7 +35,7 @@ rule type(model)
 			}
 
 			public java.util.List<Slot> frameSlots() {
-				return MogramDecorator.groupSlots(model.mograms(), model);
+				return Node.groupSlots(model.mograms(), model);
 			}
 		}
 	$methods~}$NL

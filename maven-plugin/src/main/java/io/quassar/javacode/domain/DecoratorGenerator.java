@@ -32,9 +32,9 @@ public final class DecoratorGenerator {
 	private static final String VALUE = "io.quassar.reader.model.Value";
 	private static final String MOGRAM = "io.quassar.reader.model.Mogram";
 	private static final String MODEL = "io.quassar.reader.model.Model";
-	private static final String DECORATOR = "MogramDecorator";
-	private static final String MOGRAM_TYPES = DECORATOR + ".MogramTypes";
-	private static final Set<String> RESERVED_TYPES = Set.of(DECORATOR, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
+	private static final String NODE = "Node";
+	private static final String MOGRAM_TYPES = NODE + ".MogramTypes";
+	private static final Set<String> RESERVED_TYPES = Set.of(NODE, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
 	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
@@ -96,7 +96,7 @@ public final class DecoratorGenerator {
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
 			code.add(new JavaCode(packageName, classNames.get(type.type()),
-				render(type, layout, DECORATOR, new JavaNames(RESERVED_METHODS), false)));
+				render(type, layout, NODE, new JavaNames(RESERVED_METHODS), false)));
 		}
 		topLevel.addAll(nestedNames);
 		return code.stream().map(source -> JavaImports.format(source, topLevel)).toList();
@@ -159,7 +159,7 @@ public final class DecoratorGenerator {
 			else source.append(enumGetter(property, getter, enumName));
 		}
 		for (String facet : type.facets()) addFacetMethods(source, methods, facet, classes.get(facet));
-		for (String subtype : DECORATOR.equals(base) ? descendants : List.<String>of()) {
+		for (String subtype : NODE.equals(base) ? descendants : List.<String>of()) {
 			String condition = layout.facetTypes().contains(subtype) ? facetMatches(subtype)
 				: MOGRAM_TYPES + ".matches(" + MOGRAM_TYPES + ".resolve(mogram, model), " + literal(subtype) + ")";
 			addCastMethods(source, methods, simpleName(subtype), classes.get(subtype), condition);
@@ -181,7 +181,7 @@ public final class DecoratorGenerator {
 		enums.forEach((property, name) -> source.append(enumDeclaration(property, name)));
 		for (TypeDefinition child : layout.nested().getOrDefault(type.type(), List.of())) {
 			boolean specialized = descendants.contains(child.type());
-			String childBase = specialized ? classes.get(type.type()) : DECORATOR;
+			String childBase = specialized ? classes.get(type.type()) : NODE;
 			JavaNames childMethods = specialized ? new JavaNames(methods) : new JavaNames(RESERVED_METHODS);
 			String declaration = render(child, layout, childBase, childMethods, true);
 			source.append('\n').append(declaration.lines()
@@ -219,7 +219,7 @@ public final class DecoratorGenerator {
 		String value = propertyValue(property);
 		if (property.type().kind() == Kind.SEQUENCE)
 			return method("java.util.List<" + enumName + ">", getter,
-				DECORATOR + ".values(" + value + ").stream().map(item -> " + enumName + ".from(word(item))).toList()");
+				NODE + ".values(" + value + ").stream().map(item -> " + enumName + ".from(word(item))).toList()");
 		String token = "word(" + value + ")";
 		if (property.hasDefault())
 			token = value + ".isEmpty() ? " + literal(property.defaultValue()) + " : " + token;
@@ -336,7 +336,7 @@ public final class DecoratorGenerator {
 			Map<String, String> parents, Map<String, List<String>> subtypes) {
 		StringBuilder cases = new StringBuilder();
 		classes.forEach((type, name) -> cases.append(templates.render("factory-case", Map.of("type", literal(type), "name", name))));
-		return new JavaCode(packageName, DECORATOR, templates.render("decorator", Map.of(
+		return new JavaCode(packageName, NODE, templates.render("decorator", Map.of(
 			"mogramType", MOGRAM, "modelType", MODEL,
 			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes))));
 	}
@@ -354,7 +354,7 @@ public final class DecoratorGenerator {
 		PropertyType type = property.type();
 		if (type.kind() == Kind.REFERENCE) return wrapReference(value, property, classes);
 		if (type.kind() != Kind.SEQUENCE) return value + accessor(type.kind());
-		String expression = DECORATOR + ".values(" + value + ")";
+		String expression = NODE + ".values(" + value + ")";
 		if (type.element() == Kind.REFERENCE)
 			return expression + ".stream().map(value -> " + wrapReference("value", property, classes) + ").toList()";
 		String accessor = accessor(type.element());
@@ -365,7 +365,7 @@ public final class DecoratorGenerator {
 	private String wrapReference(String value, PropertyDefinition property, Map<String, String> classes) {
 		String target = referenceType(property, classes);
 		String mogram = "model.get(" + value + ", mogram)";
-		return target.equals(DECORATOR) ? DECORATOR + ".of(" + mogram + ", model)"
+		return target.equals(NODE) ? NODE + ".of(" + mogram + ", model)"
 			: "new " + target + "(" + mogram + ", model)";
 	}
 
@@ -378,7 +378,7 @@ public final class DecoratorGenerator {
 	}
 
 	private String referenceType(PropertyDefinition property, Map<String, String> classes) {
-		return property.referenceTypes().size() == 1 ? classes.getOrDefault(property.referenceTypes().get(0), DECORATOR) : DECORATOR;
+		return property.referenceTypes().size() == 1 ? classes.getOrDefault(property.referenceTypes().get(0), NODE) : NODE;
 	}
 
 	private String scalarType(Kind kind, boolean boxed) {
