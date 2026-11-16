@@ -27,7 +27,7 @@ If you generated the API with an earlier SDK, delete the previously generated `m
 
 A property with a closed set of words generates a nested Java enum. For example, `def word:{Stack Float} positioning = Stack` generates `Positioning` with `Stack` and `Float`. The getter returns `Positioning`, or a list of enum values for a multiple property. An absent scalar uses its declared default when present and returns `null` otherwise.
 
-A reference without a declared target uses `Node`. References resolve lazily against the loaded model, using their source mogram as context. Missing targets return null decorators with `isNull()` and empty property defaults. Relative references and cycles are supported.
+A reference without a declared target uses `io.quassar.reader.model.Node`, the base class supplied by Model Reader. References resolve lazily against the loaded model, using their source mogram as context. Missing targets return null decorators with `isNull()` and empty property defaults. Relative references and cycles are supported.
 
 A multiple property returns an empty list for an absent value, a singleton list for one value, and a list of all elements for a sequence.
 

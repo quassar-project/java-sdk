@@ -31,9 +31,10 @@ public final class DecoratorGenerator {
 	private static final String VALUE = "io.quassar.reader.model.Value";
 	private static final String MOGRAM = "io.quassar.reader.model.Mogram";
 	private static final String MODEL = "io.quassar.reader.model.Model";
-	private static final String NODE = "Node";
-	private static final String MOGRAM_TYPES = NODE + ".MogramTypes";
-	private static final Set<String> RESERVED_TYPES = Set.of(NODE, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
+	private static final String NODE = "io.quassar.reader.model.Node";
+	private static final String SUPPORT = "NodeSupport";
+	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
+	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
 	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
@@ -191,7 +192,18 @@ public final class DecoratorGenerator {
 		if (descendants.isEmpty()) modifier += "final ";
 		return templates.render("mogram", Map.of(
 			"name", simpleName(layout.classNames().get(type.type())), "modifier", modifier,
-			"base", base, "mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString()));
+			"base", base, "mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString(),
+			"frame", NODE.equals(base) ? frameMethod() : ""));
+	}
+
+	private String frameMethod() {
+		return """
+
+				@Override
+				protected io.quassar.templating.ports.FrameView frameView() {
+					return NodeSupport.frame(mogram, model);
+				}
+			""";
 	}
 
 	private record DecoratorLayout(Map<String, String> classNames, Map<String, String> references,
@@ -218,8 +230,8 @@ public final class DecoratorGenerator {
 		String value = propertyValue(property);
 		if (property.type().kind() == Kind.SEQUENCE)
 			return method("java.util.List<" + enumName + ">", getter,
-				NODE + ".values(" + value + ").stream().map(item -> " + enumName + ".from(word(item))).toList()");
-		String token = "word(" + value + ")";
+				SUPPORT + ".values(" + value + ").stream().map(item -> " + enumName + ".from(" + SUPPORT + ".word(item))).toList()");
+		String token = SUPPORT + ".word(" + value + ")";
 		if (property.hasDefault())
 			token = value + ".isEmpty() ? " + literal(property.defaultValue()) + " : " + token;
 		return method(enumName, getter, "mogram.isNull() ? null : " + enumName + ".from(" + token + ")");
@@ -335,7 +347,7 @@ public final class DecoratorGenerator {
 			Map<String, String> parents, Map<String, List<String>> subtypes) {
 		StringBuilder cases = new StringBuilder();
 		classes.forEach((type, name) -> cases.append(templates.render("factory-case", Map.of("type", literal(type), "name", name))));
-		return new JavaCode(packageName, NODE, templates.render("decorator", Map.of(
+		return new JavaCode(packageName, SUPPORT, templates.render("decorator", Map.of(
 			"mogramType", MOGRAM, "modelType", MODEL,
 			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes))));
 	}
@@ -354,7 +366,7 @@ public final class DecoratorGenerator {
 		if (type.kind() == Kind.REFERENCE) return wrapReference(value, property, classes);
 		if (type.kind() != Kind.SEQUENCE)
 			return value + (isInteger(property) ? ".asNumber().intValueExact()" : accessor(type.kind()));
-		String expression = NODE + ".values(" + value + ")";
+		String expression = SUPPORT + ".values(" + value + ")";
 		if (type.element() == Kind.REFERENCE)
 			return expression + ".stream().map(value -> " + wrapReference("value", property, classes) + ").toList()";
 		if (isInteger(property))
@@ -367,7 +379,7 @@ public final class DecoratorGenerator {
 	private String wrapReference(String value, PropertyDefinition property, Map<String, String> classes) {
 		String target = referenceType(property, classes);
 		String mogram = "model.get(" + value + ", mogram)";
-		return target.equals(NODE) ? NODE + ".of(" + mogram + ", model)"
+		return target.equals(NODE) ? SUPPORT + ".of(" + mogram + ", model)"
 			: "new " + target + "(" + mogram + ", model)";
 	}
 

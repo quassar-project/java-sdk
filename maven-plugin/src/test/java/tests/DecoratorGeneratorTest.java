@@ -342,8 +342,8 @@ class DecoratorGeneratorTest {
 		assertThat(generator.code()).isEqualTo(code);
 		assertThat(code).extracting(JavaCode::className)
 			.contains("Book", "Chapter", "Author", "Note", "Edition")
-			.doesNotContain("MogramTypes");
-		assertThat(code).filteredOn(source -> source.className().equals("Node"))
+			.doesNotContain("MogramTypes", "Node");
+		assertThat(code).filteredOn(source -> source.className().equals("NodeSupport"))
 			.singleElement().extracting(JavaCode::content).asString().contains("static final class MogramTypes");
 		assertThat(code).allMatch(source -> source.packageName().equals("books"));
 		assertThat(code).allSatisfy(source -> assertThat(source.content())
@@ -352,7 +352,7 @@ class DecoratorGeneratorTest {
 		assertThat(code).filteredOn(source -> source.className().equals("Book"))
 			.singleElement().extracting(JavaCode::content).satisfies(content -> assertThat(content)
 				.contains("import io.quassar.reader.model.Mogram;", "import io.quassar.reader.model.Model;",
-					"import java.util.List;", "public final class Book extends Node", "public String title()")
+					"import io.quassar.reader.model.Node;", "import java.util.List;", "public final class Book extends Node", "public String title()")
 				.doesNotContain("java.lang.String", "io.quassar.reader.model.Mogram mogram"));
 	}
 
@@ -426,7 +426,7 @@ class DecoratorGeneratorTest {
 			assertThat(call(missingAuthor, "name")).isEqualTo("");
 			assertThat(call(first, "link").getClass().getSimpleName()).isEqualTo("Author");
 			assertThat(call(second, "link").getClass().getSimpleName()).isEqualTo("Book");
-			assertThat(first.getClass().getMethod("link").getReturnType().getSimpleName()).isEqualTo("Node");
+			assertThat(first.getClass().getMethod("link").getReturnType().getName()).isEqualTo("io.quassar.reader.model.Node");
 			assertThat(call(call(first, "unresolved"), "isNull")).isEqualTo(true);
 		}
 	}

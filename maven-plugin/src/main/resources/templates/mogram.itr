@@ -3,4 +3,4 @@ rule type(mogram)
 		$name~($mogramType~ mogram, $modelType~ model) {
 			super(mogram, model);
 		}
-	$methods~}$NL
+	$frame~$methods~}$NL
