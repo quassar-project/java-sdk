@@ -70,8 +70,7 @@ public final class TranslatorMojo extends AbstractMojo {
 			throw new MojoExecutionException("Set <packaging>maven-plugin</packaging> when using generator mode");
 		URL metamodel = inputModel == null ? input.model : inputModel;
 		String templateDirectory = inputTemplates == null ? input.templates : inputTemplates;
-		var resources = project.getBasedir().toPath().resolve("src/main/resources");
-		var templatePath = templateDirectory == null ? resources : resources.resolve(templateDirectory);
+		var templatePath = project.getBasedir().toPath().resolve(templateDirectory == null ? "templates" : templateDirectory);
 		var templateFiles = new TemplateFiles();
 		List<TemplateDefinition> definitions = templateFiles.read(templatePath);
 

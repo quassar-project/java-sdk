@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,9 +48,7 @@ class MavenConsumerIT {
 			assertThat(jar.getEntry("example/model/LibraryModel.class")).isNotNull();
 			assertThat(jar.getEntry("example/model/DecoratedModel.class")).isNull();
 			assertThat(jar.getEntry("example/Book.class")).isNull();
-			assertThat(jar.getEntry("templates/book-summary.itr")).isNotNull();
-			assertThat(jar.stream().map(ZipEntry::getName).filter(name -> name.endsWith(".itr")))
-				.containsExactly("templates/book-summary.itr");
+			assertThat(jar.stream().map(ZipEntry::getName).filter(name -> name.endsWith(".itr"))).isEmpty();
 			assertThat(jar.stream().map(ZipEntry::getName)
 				.filter(name -> name.startsWith("example/templates/") && name.endsWith(".class")))
 				.containsExactly("example/templates/BookSummaryTemplate.class");
@@ -61,7 +58,7 @@ class MavenConsumerIT {
 				assertThat(dependencies(input)).isEqualTo(expected);
 			}
 		}
-		renderFromJar(withoutTemplates(artifact));
+		renderFromJar(artifact);
 		build(repository, downstream, "compile");
 	}
 
@@ -75,7 +72,7 @@ class MavenConsumerIT {
 		Files.write(generator.resolve("metamodel/manifest.json"), resource("/maven/consumer/metamodel/manifest.json"));
 		Path modelFile = Files.write(directory.resolve("library.tara"), resource("/maven/generator/m1/library.tara"));
 
-		Path templates = Files.createDirectories(generator.resolve("src/main/resources"));
+		Path templates = Files.createDirectories(generator.resolve("templates"));
 		Files.writeString(templates.resolve("generated-model.itr"), """
 			rule type(Model)
 				public class GeneratedModel {
@@ -133,21 +130,6 @@ class MavenConsumerIT {
 		return repository;
 	}
 
-	private Path withoutTemplates(Path artifact) throws IOException {
-		Path compiled = directory.resolve("compiled-templates.jar");
-		try (ZipFile jar = new ZipFile(artifact.toFile());
-			 ZipOutputStream output = new ZipOutputStream(Files.newOutputStream(compiled))) {
-			for (var entry : jar.stream().filter(file -> !file.getName().endsWith(".itr")).toList()) {
-				output.putNextEntry(new ZipEntry(entry.getName()));
-				try (var input = jar.getInputStream(entry)) {
-					input.transferTo(output);
-				}
-				output.closeEntry();
-			}
-		}
-		return compiled;
-	}
-
 	private void renderFromJar(Path artifact) throws Exception {
 		try (URLClassLoader loader = new URLClassLoader(new URL[]{artifact.toUri().toURL()}, getClass().getClassLoader())) {
 			var summary = loader.loadClass("example.Library").getMethod("summary", String.class);
@@ -162,8 +144,8 @@ class MavenConsumerIT {
 		Files.createDirectories(output.getParent());
 		Files.write(output, resource("/maven/" + name + "/" + javaFile));
 		if (name.equals("consumer")) {
-			String template = "src/main/resources/book-summary.itr";
-			Path file = project.resolve("src/main/resources/templates/book-summary.itr");
+			String template = "config/itr/books/book-summary.itr";
+			Path file = project.resolve(template);
 			Files.createDirectories(file.getParent());
 			Files.write(file, resource("/maven/consumer/" + template));
 			Path metamodel = project.resolve("metamodel/library.tara");

@@ -14,7 +14,7 @@
 				<executions><execution><goals><goal>generate</goal></goals></execution></executions>
 				<configuration>
 					<input-model>${project.baseUri}metamodel/</input-model>
-					<input-templates>templates</input-templates>
+					<input-templates>config/itr</input-templates>
 					<mode>interpreter</mode>
 					<output-directory>src/main/generated-api</output-directory>
 					<output-package>example</output-package>

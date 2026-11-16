@@ -37,15 +37,17 @@ class TranslatorMojoTest {
 	}
 
 	@Test
-	void limitsTemplatesToTheConfiguredResourcesSubdirectory() throws Exception {
+	void scansConfiguredProjectDirectoryRecursively() throws Exception {
 		copyTemplate();
-		Path resources = directory.resolve("src/main/resources");
-		Path templates = Files.createDirectory(resources.resolve("templates"));
-		Files.move(resources.resolve("book-summary.itr"), templates.resolve("book-summary.itr"));
+		Path configured = Files.createDirectories(directory.resolve("config/itr/nested/deeper"));
+		Files.move(directory.resolve("templates/book-summary.itr"), configured.resolve("book-summary.itr"));
+		Files.writeString(configured.getParent().resolve("book-title.itr"), "rule type(Book)\n\t$title\n");
+		Files.writeString(configured.resolve("ignored.txt"), "not a template");
+		Path resources = Files.createDirectories(directory.resolve("src/main/resources"));
 		Files.writeString(resources.resolve("outside.itr"), "rule type(Book)\n\t$identifier\n");
 		TranslatorMojo mojo = configuredMojo(project());
 		var input = new TranslatorMojo.Input();
-		input.setTemplates("templates");
+		input.setTemplates("config/itr");
 		parameter(mojo, "mode", "interpreter");
 		parameter(mojo, "input", input);
 
@@ -53,6 +55,7 @@ class TranslatorMojoTest {
 
 		Path generated = directory.resolve("src/main/gen/library/model/templates");
 		assertThat(generated.resolve("BookSummaryTemplate.java")).exists();
+		assertThat(generated.resolve("BookTitleTemplate.java")).exists();
 		assertThat(generated.resolve("OutsideTemplate.java")).doesNotExist();
 	}
 
@@ -70,7 +73,7 @@ class TranslatorMojoTest {
 		Path main = source.resolve("library/model/Interpreter.java");
 		assertThat(main).content().contains("package library.model;", "import library.model.model.LibraryModel;",
 			"LibraryModel.load(", "BookSummaryTemplate.render(model)");
-		assertThat(directory.resolve("src/main/resources/model-json.itr")).doesNotExist();
+		assertThat(directory.resolve("templates/model-json.itr")).doesNotExist();
 
 		Files.writeString(main, "custom main");
 		mojo.execute();
@@ -84,7 +87,7 @@ class TranslatorMojoTest {
 		setModelInput(mojo);
 
 		mojo.execute();
-		Path template = directory.resolve("src/main/resources/model-json.itr");
+		Path template = directory.resolve("templates/model-json.itr");
 		assertThat(template).content().contains("rule type(Model)", "\"book\": [$book...[, ]]", "rule type(Book)",
 			"\"title\": $title+JsonValue");
 		assertThat(directory.resolve("src/main/gen/library/model/templates/ModelJsonTemplate.java")).exists();
@@ -161,12 +164,12 @@ class TranslatorMojoTest {
 		setModelInput(mojo);
 		mojo.execute();
 		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).doesNotExist();
-		assertThat(directory.resolve("src/main/resources/model-json.itr")).doesNotExist();
+		assertThat(directory.resolve("templates/model-json.itr")).doesNotExist();
 	}
 
 	private void copyTemplate() throws Exception {
-		Path templates = Files.createDirectories(directory.resolve("src/main/resources"));
-		try (var input = getClass().getResourceAsStream("/maven/consumer/src/main/resources/book-summary.itr")) {
+		Path templates = Files.createDirectories(directory.resolve("templates"));
+		try (var input = getClass().getResourceAsStream("/maven/consumer/config/itr/books/book-summary.itr")) {
 			Files.copy(input, templates.resolve("book-summary.itr"));
 		}
 	}

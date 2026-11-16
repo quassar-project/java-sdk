@@ -37,14 +37,14 @@ Quassar is a platform for model-driven engineering (MDE). Define a domain-specif
 4. **Set the metamodel.** In `<input-model>`, replace `[code]` with your DSL metamodel code from Quassar.
 5. **Choose how to process models.** Set `<mode>` to `generator` to build a Maven plugin that generates source code from M1 before the consumer project compiles. Set it to `interpreter` to build a Java application that loads M1 and executes its behavior at runtime.
 
-To generate source code from an M1 model, you can write templates that define the target code and use placeholders for values from the model. If you use Quassar Template Engine, write the templates as `.itr` files in your project’s resources. By default, the plugin searches from the project’s resources root. Set `input-templates` to a relative path to limit the search to a subdirectory.
+To generate source code from an M1 model, you can write templates that define the target code and use placeholders for values from the model. If you use Quassar Template Engine, save the `.itr` files in the project’s `templates/` folder. The plugin scans that folder and all its subdirectories. Set `input-templates` to choose a different folder relative to the project root.
 
 During `generate-sources`, the Quassar plugin generates a Java API from the configured M2 metamodel and any `.itr` files it finds and writes the classes under `output-directory` (`src/main/gen` by default). The `output-package` parameter sets their base Java package and defaults to the project's `groupId`. The table shows the generated packages when the project’s `groupId` is `org.workflows` and `output-package` is omitted.
 
 | Generated API | Input | Generated Java package |
 | --- | --- | --- |
 | [Generated Model API](docs/generated-model-api.md) | The M2 metamodel supplied through `input-model` | `org.workflows.model` |
-| [Generated Template API](docs/generated-template-api.md) | The `.itr` files found in the configured resources directory | `org.workflows.templates` |
+| [Generated Template API](docs/generated-template-api.md) | The `.itr` files found recursively in the configured template folder | `org.workflows.templates` |
 
 Your code generator or interpreter loads M1 through the Generated Model API. For template-based code generation, your generator then passes model objects to the Generated Template API to produce source code.
 
@@ -73,7 +73,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
 3. **Write the code generation templates.** Choose any template engine for your generator. Your templates define the source code to produce in Java or another target language.
 
-   If you use Quassar Template Engine, save your `.itr` files in the DSL plugin project’s resources. Run `mvn generate-sources` again to generate their Java classes.
+   If you use Quassar Template Engine, save your `.itr` files under the DSL plugin project’s `templates/` folder. Run `mvn generate-sources` again to generate their Java classes.
 
    Use the [template cookbook](docs/template-engine-cookbook.md) and [syntax reference](docs/template-engine-syntax.md) to write templates. The [Generated Template API](docs/generated-template-api.md) shows how to render a model with the generated classes.
 
@@ -81,7 +81,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    Maven injects the M1 URL from the consumer POM’s `<model>` element inside `<input>` in step 6 into the Mojo’s `input.model` field. Maven also supplies `output` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. Keep the fields and nested `Input` class from the generated Mojo. The snippet shows those fields for context.
 
-   **Workflows example.** Set `input-model` to the download URL of the [sample metamodel (M2)](docs/sample-m2-model.md). Save the example’s `workflow.itr` in your project’s resources and run `mvn generate-sources` to obtain `org.workflows.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Sample templates](docs/sample-templates.md#workflowitr)
+   **Workflows example.** Set `input-model` to the download URL of the [sample metamodel (M2)](docs/sample-m2-model.md). Save the example’s `workflow.itr` under your project’s `templates/` folder and run `mvn generate-sources` to obtain `org.workflows.templates.WorkflowTemplate` with the POM above. The method below uses that class to write one Java file per workflow. [Sample templates](docs/sample-templates.md#workflowitr)
 
 	```java
 	@Parameter(required = true)
@@ -201,7 +201,7 @@ The table lists the available parameters. Only `mode` is required in the Quassar
 | Parameter | Default | Purpose |
 | --- | --- | --- |
 | `input-model` | Unset | M2 URL or local folder or ZIP URL. |
-| `input-templates` | Resources root | Template path relative to the resources root. |
+| `input-templates` | `templates` | Folder relative to the project root. The plugin scans it recursively for `.itr` files. |
 | `mode` | Required | `generator` for a Maven plugin, `interpreter` for a Java app. |
 | `output-directory` | `src/main/gen` | Directory for generated Java sources. |
 | `output-package` | Project `groupId` | Base package for the `.model` and `.templates` APIs. |

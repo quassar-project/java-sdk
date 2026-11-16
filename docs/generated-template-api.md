@@ -8,15 +8,17 @@ During `generate-sources`, the Quassar Maven plugin compiles `.itr` files found 
 
 The plugin adds the `templates` subpackage to the base package set by `output-package`, which defaults to the project's `groupId`. With the default package and a project `groupId` of `org.workflows`, `workflow.itr` generates `org.workflows.templates.WorkflowTemplate` at `src/main/gen/org/workflows/templates/WorkflowTemplate.java` by default.
 
-## Place templates under resources
+## Choose a template folder
 
-During `generate-sources`, the Quassar plugin searches from the project’s resources root. Set `input-templates` to a path relative to that root to limit the search to a subdirectory.
+Put your `.itr` files in `templates/` at the project root. The plugin scans this folder and all its subdirectories. To use another folder, set `input-templates` to its path relative to the directory containing the project’s `pom.xml`.
 
 ```xml
-<input-templates>templates</input-templates>
+<input-templates>solution/templates</input-templates>
 ```
 
-Use `solution/templates` for a nested directory. The generated Java class contains the template rules and can render from the JAR without opening a template resource.
+When upgrading a project that kept templates under `src/main/resources`, move its `.itr` files into the new template folder and update any existing `input-templates` path.
+
+The generated Java class contains the template rules. A standard Maven build packages the generated class in the JAR.
 
 ## Example: Generate Java from a workflow
 

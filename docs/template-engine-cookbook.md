@@ -9,7 +9,7 @@ Choose a recipe for the output you want to produce. Each recipe gives you an inp
 
 ## Prepare the sample input
 
-Save each template in its own `.itr` file under the project’s resources root and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md) · [Sample templates](sample-templates.md)
+Save each template in its own `.itr` file under the project’s `templates/` folder and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md) · [Sample templates](sample-templates.md)
 
 ```java
 import org.workflows.model.WorkflowsModel;
