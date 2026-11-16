@@ -167,6 +167,7 @@ public final class DecoratorGenerator {
 					+ ".findFirst().orElse(" + MOGRAM + ".NULL), model)"));
 			else source.append(collectionMethod(decorator, getter, stream));
 		}
+		addFacetSubtypeMethods(source, methods, type, subtypes, classes);
 		for (TypeDefinition child : nested.getOrDefault(type.type(), List.of())) {
 			String declaration = render(child, classNames, classes, nested, subtypes, facetTypes, true);
 			source.append('\n').append(declaration.lines()
@@ -176,6 +177,25 @@ public final class DecoratorGenerator {
 		return templates.render("mogram", Map.of(
 			"name", simpleName(classNames.get(type.type())), "modifier", isNested ? "static " : "",
 			"mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString()));
+	}
+
+	private void addFacetSubtypeMethods(StringBuilder source, JavaNames methods, TypeDefinition type,
+			Map<String, List<String>> subtypes, Map<String, String> classes) {
+		Set<String> declaredNames = Stream.concat(type.facets().stream(), subtypes.getOrDefault(type.type(), List.of()).stream())
+			.map(this::subtypeMethodName).collect(Collectors.toSet());
+		Map<String, List<String>> facetSubtypes = type.facets().stream()
+			.flatMap(facet -> subtypes.getOrDefault(facet, List.of()).stream())
+			.distinct()
+			.collect(Collectors.groupingBy(this::subtypeMethodName, LinkedHashMap::new, Collectors.toList()));
+		facetSubtypes.forEach((name, candidates) -> {
+			if (declaredNames.contains(name) || candidates.size() != 1) return;
+			String subtype = candidates.get(0);
+			addCastMethods(source, methods, name, classes.get(subtype), facetMatches(subtype));
+		});
+	}
+
+	private String subtypeMethodName(String type) {
+		return JavaNames.className(simpleName(type));
 	}
 
 	private void addFacetMethods(StringBuilder source, JavaNames methods, String facet, String decorator) {

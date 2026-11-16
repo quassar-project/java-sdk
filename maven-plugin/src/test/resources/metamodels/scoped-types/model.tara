@@ -11,7 +11,11 @@ Concept Toolbar
 Concept View
 	facet Inherited
 		def string label
+	facet Alternate
+		sub Shared
 	facet ViewType
+		sub Shared
+		sub Reference
 		sub Projection
 			Concept:Single Commands
 				has:Single Grouping

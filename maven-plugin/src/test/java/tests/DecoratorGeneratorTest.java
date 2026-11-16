@@ -61,6 +61,13 @@ class DecoratorGeneratorTest {
 			assertThat(call(viewType, "isProjection")).isEqualTo(true);
 			assertThat(call(viewType, "isContainer")).isEqualTo(true);
 			Object container = call(viewType, "asContainer");
+			assertThat(call(view, "isContainer")).isEqualTo(true);
+			assertThat(call(view, "asContainer")).isEqualTo(container);
+			assertThat(call(view, "isProjection")).isEqualTo(true);
+			assertThat(call(view, "isReference")).isEqualTo(false);
+			assertThat(call(call(view, "asReference"), "isNull")).isEqualTo(true);
+			assertThat(view.getClass().getMethods()).extracting(Method::getName).doesNotContain("asShared", "isShared");
+			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("asShared", "isShared");
 			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection.Container");
 			assertThat(call(container, "composition")).isEqualTo("Tabs");
 			assertThat(call(call(viewType, "asProjection"), "isContainer")).isEqualTo(true);

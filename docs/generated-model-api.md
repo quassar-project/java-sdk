@@ -57,4 +57,4 @@ For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is
 
 Subtypes declared with `sub` generate `is<Type>()` and `as<Type>()` on ancestor decorators, including ancestors several levels up. If `Download` is a subtype of `CollectionCommand` under `Command`, `command.asDownload()` returns a `Command.CollectionCommand.Download` decorator.
 
-The same methods are available on facet decorators. If `Container` specializes `Projection` under `ViewType`, `view.asViewType().asContainer()` returns the typed decorator directly. When the mogram has a different type or facet, the result returns `true` from `isNull()`.
+The same methods are available on facet decorators. If `Container` specializes `Projection` under `ViewType`, `view.asContainer()` returns the typed decorator directly. You can also use `view.asViewType().asContainer()`. If two facets declare a subtype with the same accessor name, select the facet first. When the mogram has a different type or facet, the result returns `true` from `isNull()`.
