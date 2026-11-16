@@ -36,7 +36,7 @@ public final class DecoratorGenerator {
 	private static final String SUPPORT = "NodeSupport";
 	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
 	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
-	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "types", "modelTypes", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
+	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
 	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,

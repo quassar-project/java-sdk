@@ -52,6 +52,8 @@ class DecoratorGeneratorTest {
 			assertThat(grouping.getClass().getSuperclass().getSimpleName()).isEqualTo("CollectionCommand");
 			assertThat(commands.get(0).getClass().isInstance(grouping)).isTrue();
 			assertThat(call(grouping, "enabled")).isEqualTo(true);
+			assertThat(call(grouping, "isNotNull")).isEqualTo(true);
+			assertThat(call(grouping, "isNotNull2")).isEqualTo(false);
 			assertThat(call(commands.get(0), "types")).isEqualTo(List.of(
 				"Command.CollectionCommand.Grouping", "Command.CollectionCommand", "Command"));
 			assertThat(call(grouping, "types")).isEqualTo(call(commands.get(0), "types"));
@@ -61,7 +63,9 @@ class DecoratorGeneratorTest {
 			assertThat((List<?>) call(grouping, "thresholds")).isEqualTo(List.of(2, 5));
 			assertThat(call(call(commands.get(1), "asGrouping"), "label")).isEqualTo("Qualified");
 			assertThat(call(commands.get(2), "isGrouping")).isEqualTo(false);
-			assertThat(call(call(commands.get(2), "asGrouping"), "isNull")).isEqualTo(true);
+			Object missing = call(commands.get(2), "asGrouping");
+			assertThat(call(missing, "isNull")).isEqualTo(true);
+			assertThat(call(missing, "isNotNull")).isEqualTo(false);
 		}
 	}
 

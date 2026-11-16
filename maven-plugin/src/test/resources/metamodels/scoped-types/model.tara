@@ -5,6 +5,7 @@ Concept Command as component
 	sub CollectionCommand
 		sub Grouping
 			def string label
+			def boolean isNotNull
 			def int limit
 			def integer[] thresholds
 

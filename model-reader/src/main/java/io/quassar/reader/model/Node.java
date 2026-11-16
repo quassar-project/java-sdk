@@ -23,6 +23,10 @@ public abstract class Node extends FrameSource {
 		return mogram.isNull();
 	}
 
+	public final boolean isNotNull() {
+		return !isNull();
+	}
+
 	public final List<String> types() {
 		return isNull() ? List.of() : modelTypes();
 	}

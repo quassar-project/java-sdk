@@ -33,7 +33,7 @@ A multiple property returns an empty list for an absent value, a singleton list 
 
 ## Use the generated model
 
-A root or child with a maximum cardinality of one has a singular getter that returns its decorator. For example, `Concept:Single:Required EntryPoint` generates `workflow.entryPoint()`. If the root were declared as `Concept:{1..1} Workflow`, the model would expose `model.workflow()`. If a single mogram is absent, the getter returns a decorator with `isNull()` set to `true`. Repeated children return lists.
+A root or child with a maximum cardinality of one has a singular getter that returns its decorator. For example, `Concept:Single:Required EntryPoint` generates `workflow.entryPoint()`. If the root were declared as `Concept:{1..1} Workflow`, the model would expose `model.workflow()`. If a single mogram is absent, the getter returns a decorator with `isNull()` set to `true`. Use `isNotNull()` to check whether a decorator represents an existing mogram. Repeated children return lists.
 
 The model facade exposes only root mograms. Concepts declared as components and concepts declared inside another concept are reached through their parent decorators.
 
