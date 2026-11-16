@@ -2,6 +2,7 @@ package tests;
 
 import io.quassar.reader.Models;
 import io.quassar.reader.ModelRelease;
+import io.quassar.reader.model.Resource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.*;
@@ -43,7 +44,13 @@ class ReaderEntryModesTest {
         for (var model : List.of(Models.load(home), Models.load(zip), Models.load(zip.toUri()),
                 Models.load(zip, "Concept Product\n\tdef double price"))) {
             assertEquals(Set.of("example.tara", "icon.bin"), model.resourceNames());
-            try (var input = model.resource("icon.bin")) { assertArrayEquals(new byte[]{0, -1, 3}, input.readAllBytes()); }
+            assertEquals(List.of("example.tara", "icon.bin"), model.resources().stream().map(Resource::name).toList());
+            Resource icon = model.resource("icon.bin");
+            assertEquals("icon.bin", icon.name());
+            try (var first = icon.open(); var second = icon.open()) {
+                assertEquals(0, first.read());
+                assertArrayEquals(new byte[]{0, -1, 3}, second.readAllBytes());
+            }
             assertThrows(FileNotFoundException.class, () -> model.resource("absent"));
         }
     }

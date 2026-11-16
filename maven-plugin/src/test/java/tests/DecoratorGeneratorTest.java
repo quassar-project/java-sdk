@@ -11,6 +11,7 @@ import io.quassar.reader.domain.ModelReader;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.model.Mogram;
 import io.quassar.reader.model.Node;
+import io.quassar.reader.model.Resource;
 import io.quassar.reader.model.Value;
 import io.quassar.javacode.model.JavaCode;
 import io.quassar.metamodel.model.Metamodel;
@@ -560,7 +561,12 @@ class DecoratorGeneratorTest {
 			Object loaded = load.invoke(null, release);
 			assertThat((List<?>) call(loaded, "books")).hasSize(1);
 			assertThat(call(loaded, "resourceNames")).isEqualTo(java.util.Set.of("images/icon.bin"));
-			try (var input = (InputStream) facade.getMethod("resource", String.class).invoke(loaded, "images/icon.bin")) {
+			var resourceMethod = facade.getMethod("resource", String.class);
+			assertThat(resourceMethod.getReturnType()).isEqualTo(Resource.class);
+			Resource resource = (Resource) resourceMethod.invoke(loaded, "images/icon.bin");
+			assertThat(resource.name()).isEqualTo("images/icon.bin");
+			assertThat(call(loaded, "resources")).isEqualTo(List.of(resource));
+			try (var input = resource.open()) {
 				assertThat(input.readAllBytes()).containsExactly(0, -1, 3);
 			}
 			Path zip = directory.resolve("m1.zip");

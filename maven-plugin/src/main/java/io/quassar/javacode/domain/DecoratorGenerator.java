@@ -135,6 +135,7 @@ public final class DecoratorGenerator {
 			source.append(templates.render("load", Map.of("name", name, "sourceType", sourceType, "load", load)));
 		JavaNames methods = new JavaNames(RESERVED_METHODS);
 		methods.claim("resourceNames");
+		methods.claim("resources");
 		for (TypeDefinition type : types) {
 			if (!type.root()) continue;
 			String decorator = classes.get(type.type());

@@ -10,7 +10,11 @@ rule type(model)
 			return model.resourceNames();
 		}
 
-		public java.io.InputStream resource(java.lang.String name) throws java.io.FileNotFoundException {
+		public java.util.List<io.quassar.reader.model.Resource> resources() {
+			return model.resources();
+		}
+
+		public io.quassar.reader.model.Resource resource(java.lang.String name) throws java.io.FileNotFoundException {
 			return model.resource(name);
 		}
 

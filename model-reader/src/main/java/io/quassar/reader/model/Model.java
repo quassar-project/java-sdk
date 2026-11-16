@@ -1,34 +1,32 @@
 package io.quassar.reader.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.*;
 
 public final class Model {
 	private final List<Mogram> mograms;
 	private final Index index;
-	private final Map<String, byte[]> resources;
+	private final Map<String, Resource> resources;
 
 	public Model(List<Mogram> mograms) {
 		this(mograms, Map.of());
 	}
 
-	private Model(List<Mogram> mograms, Map<String, byte[]> resources) {
+	private Model(List<Mogram> mograms, Map<String, Resource> resources) {
 		this.mograms = List.copyOf(mograms);
 		this.index = Index.of(this.mograms);
 		this.resources = resources;
 	}
 
-	private Model(Model model, Map<String, byte[]> resources) {
+	private Model(Model model, Map<String, Resource> resources) {
 		this.mograms = model.mograms;
 		this.index = model.index;
 		this.resources = resources;
 	}
 
 	public Model withResources(Map<String, byte[]> resources) {
-		Map<String, byte[]> copy = new TreeMap<>();
-		resources.forEach((name, bytes) -> copy.put(name, bytes.clone()));
+		Map<String, Resource> copy = new TreeMap<>();
+		resources.forEach((name, bytes) -> copy.put(name, new Resource(name, bytes)));
 		return new Model(this, Collections.unmodifiableMap(copy));
 	}
 
@@ -40,10 +38,14 @@ public final class Model {
 		return resources.keySet();
 	}
 
-	public InputStream resource(String name) throws FileNotFoundException {
-		byte[] bytes = resources.get(Objects.requireNonNull(name));
-		if (bytes == null) throw new FileNotFoundException("Resource not found: " + name);
-		return new ByteArrayInputStream(bytes);
+	public List<Resource> resources() {
+		return List.copyOf(resources.values());
+	}
+
+	public Resource resource(String name) throws FileNotFoundException {
+		Resource resource = resources.get(Objects.requireNonNull(name));
+		if (resource == null) throw new FileNotFoundException("Resource not found: " + name);
+		return resource;
 	}
 
 	public List<Mogram> mograms() {

@@ -24,7 +24,7 @@ public final class ModelRelease {
     public Model model() { return model; }
     public String metadata() { return metadata; }
     public Set<String> resourceNames() { return model.resourceNames(); }
-    public InputStream resource(String name) throws IOException { return model.resource(name); }
+    public InputStream resource(String name) throws IOException { return model.resource(name).open(); }
 
     public static ModelRelease open(Path path) throws IOException {
         if (!Files.isDirectory(path)) {
