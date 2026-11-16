@@ -131,6 +131,9 @@ class DecoratorGeneratorTest {
 			assertThat(call(dashboard, "identifier")).isEqualTo("Admin");
 			Object commands = call(target, "commands");
 			Node command = (Node) call(commands, "grouping");
+			var asMethod = Node.class.getMethod("as", Class.class);
+			assertThat(asMethod.invoke(view, container.getClass())).isEqualTo(container);
+			assertThat(((Node) asMethod.invoke(command, view.getClass())).isNull()).isTrue();
 			var ancestorMethod = Node.class.getMethod("ancestor", Class.class);
 			assertThat(ancestorMethod.invoke(command, commands.getClass())).isEqualTo(commands);
 			assertThat(ancestorMethod.invoke(command, view.getClass())).isEqualTo(view);

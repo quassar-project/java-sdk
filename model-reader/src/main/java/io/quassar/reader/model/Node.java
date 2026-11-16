@@ -32,16 +32,22 @@ public abstract class Node extends FrameSource {
 	}
 
 	public final <T extends Node> T ancestor(Class<T> type) {
-		Mogram parent = model.parentOf(mogram);
-		while (!parent.isNull()) {
-			T candidate = as(type, parent);
+		Node parent = parent();
+		while (parent.isNotNull()) {
+			T candidate = parent.as(type);
 			if (candidate.isNotNull()) return candidate;
-			parent = model.parentOf(parent);
+			parent = parent.parent();
 		}
-		return as(type, Mogram.NULL);
+		return parent.as(type);
 	}
 
-	protected abstract <T extends Node> T as(Class<T> type, Mogram ancestor);
+	public abstract <T extends Node> T as(Class<T> type);
+
+	private Node parent() {
+		return wrap(model.parentOf(mogram));
+	}
+
+	protected abstract Node wrap(Mogram mogram);
 
 	protected List<String> modelTypes() {
 		return Stream.concat(Stream.of(mogram.type()), mogram.facets().stream()).distinct().toList();

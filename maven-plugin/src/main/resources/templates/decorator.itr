@@ -11,12 +11,12 @@ rule type(decorator)
 		private record AncestorView(java.lang.String name, java.util.function.BiFunction<$mogramType~, $modelType~, io.quassar.reader.model.Node> wrap) {
 		}
 
-		static <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type, $mogramType~ ancestor, $modelType~ model) {
-			if (type.equals(io.quassar.reader.model.Node.class)) return type.cast(of(ancestor, model));
+		static <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type, $mogramType~ mogram, $modelType~ model) {
+			if (type.equals(io.quassar.reader.model.Node.class)) return type.cast(wrap(mogram, model));
 			var view = ANCESTORS.get(type);
 			if (view == null) throw new java.lang.IllegalArgumentException("Unknown node type: " + type.getName());
-			var match = !ancestor.isNull() && types(ancestor, model, view.name()).contains(view.name());
-			return type.cast(view.wrap().apply(match ? ancestor : $mogramType~.NULL, model));
+			var match = !mogram.isNull() && types(mogram, model, view.name()).contains(view.name());
+			return type.cast(view.wrap().apply(match ? mogram : $mogramType~.NULL, model));
 		}
 
 		static java.util.List<java.lang.String> types($mogramType~ mogram, $modelType~ model, java.lang.String declared) {
@@ -51,14 +51,22 @@ rule type(decorator)
 		}
 
 		static io.quassar.reader.model.Node of($mogramType~ mogram, $modelType~ model) {
+			return of(mogram, model, $mogramType~.NULL);
+		}
+
+		static io.quassar.reader.model.Node wrap($mogramType~ mogram, $modelType~ model) {
+			return of(mogram, model, mogram);
+		}
+
+		private static io.quassar.reader.model.Node of($mogramType~ mogram, $modelType~ model, $mogramType~ fallback) {
 			return switch (MogramTypes.resolve(mogram, model)) {
-	$cases~			default -> new NullObject(model);
+	$cases~			default -> new GenericNode(fallback, model);
 			};
 		}
 
-		private static final class NullObject extends io.quassar.reader.model.Node {
-			private NullObject($modelType~ model) {
-				super($mogramType~.NULL, model);
+		private static final class GenericNode extends io.quassar.reader.model.Node {
+			private GenericNode($mogramType~ mogram, $modelType~ model) {
+				super(mogram, model);
 			}
 
 			@Override
@@ -67,8 +75,18 @@ rule type(decorator)
 			}
 
 			@Override
-			protected <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type, $mogramType~ ancestor) {
-				return NodeSupport.as(type, ancestor, model);
+			protected java.util.List<java.lang.String> modelTypes() {
+				return NodeSupport.types(mogram, model, "");
+			}
+
+			@Override
+			public <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type) {
+				return NodeSupport.as(type, mogram, model);
+			}
+
+			@Override
+			protected io.quassar.reader.model.Node wrap($mogramType~ mogram) {
+				return NodeSupport.wrap(mogram, model);
 			}
 		}
 

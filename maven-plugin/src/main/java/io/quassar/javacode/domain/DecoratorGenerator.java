@@ -35,8 +35,8 @@ public final class DecoratorGenerator {
 	private static final String NODE = "io.quassar.reader.model.Node";
 	private static final String SUPPORT = "NodeSupport";
 	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
-	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "NullObject", "MogramFrame", "ModelFrame", "AncestorView", "Slot", "Getter", "ValueSlot");
-	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "as", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
+	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "GenericNode", "MogramFrame", "ModelFrame", "AncestorView", "Slot", "Getter", "ValueSlot");
+	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "as", "wrap", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
 	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,
@@ -208,8 +208,13 @@ public final class DecoratorGenerator {
 				}
 
 				@Override
-				protected <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type, io.quassar.reader.model.Mogram ancestor) {
-					return NodeSupport.as(type, ancestor, model);
+				public <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type) {
+					return NodeSupport.as(type, mogram, model);
+				}
+
+				@Override
+				protected io.quassar.reader.model.Node wrap(io.quassar.reader.model.Mogram mogram) {
+					return NodeSupport.wrap(mogram, model);
 				}
 			""";
 	}
