@@ -47,6 +47,10 @@ class ReaderEntryModesTest {
             assertEquals(List.of("example.tara", "icon.bin"), model.resources().stream().map(Resource::name).toList());
             Resource icon = model.resource("icon.bin");
             assertEquals("icon.bin", icon.name());
+            byte[] content = icon.bytes();
+            assertArrayEquals(new byte[]{0, -1, 3}, content);
+            content[0] = 42;
+            assertArrayEquals(new byte[]{0, -1, 3}, icon.bytes());
             try (var first = icon.open(); var second = icon.open()) {
                 assertEquals(0, first.read());
                 assertArrayEquals(new byte[]{0, -1, 3}, second.readAllBytes());

@@ -16,6 +16,10 @@ public final class Resource {
 		return name;
 	}
 
+	public byte[] bytes() {
+		return bytes.clone();
+	}
+
 	public InputStream open() {
 		return new ByteArrayInputStream(bytes);
 	}
