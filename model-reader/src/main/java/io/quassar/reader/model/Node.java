@@ -41,9 +41,7 @@ public abstract class Node extends FrameSource {
 		return ancestorView(type, Mogram.NULL);
 	}
 
-	protected <T extends Node> T ancestorView(Class<T> type, Mogram ancestor) {
-		throw new IllegalArgumentException("Unknown node type: " + type.getName());
-	}
+	protected abstract <T extends Node> T ancestorView(Class<T> type, Mogram ancestor);
 
 	protected List<String> modelTypes() {
 		return Stream.concat(Stream.of(mogram.type()), mogram.facets().stream()).distinct().toList();
