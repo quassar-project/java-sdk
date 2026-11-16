@@ -101,6 +101,8 @@ var bundled = Models.load(WorkflowExample.class.getResource("/workflows.tara"));
 
 Replace `[code]` with your M1 model code. A folder or ZIP can contain several Tara files. The reader combines them so references can cross file boundaries. For typed accessors such as `step.label()`, see the [Generated Model API](generated-model-api.md).
 
+Use `model.resourceNames()` to list files bundled under the model's `resources/` directory and `model.resource("icons/logo.svg")` to open one as an `InputStream`. Names are relative to `resources/`. Close the stream after reading it. A missing file raises `FileNotFoundException`.
+
 ## Load a release
 
 Use `ModelRelease` when you also need metadata, resources, or authenticated downloads.

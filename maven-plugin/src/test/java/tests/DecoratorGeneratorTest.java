@@ -547,16 +547,23 @@ class DecoratorGeneratorTest {
 		var metamodel = new Metamodel(MetamodelFixtures.library().types(), Optional.of(manifest));
 		Path release = Files.createDirectory(directory.resolve("m1"));
 		Files.writeString(release.resolve("books.tara"), "Book Atlas\n");
+		Path images = Files.createDirectories(release.resolve("resources/images"));
+		Files.write(images.resolve("icon.bin"), new byte[]{0, -1, 3});
 		Path metadata = release.resolve("manifest.json");
 		Files.writeString(metadata, "{\"dsl\":\"monet:visora:1.8.2\"}");
 		try (GeneratedDecorators generated = compile(model("observations.tara"), metamodel)) {
 			var facade = generated.modelDecorator().getClass();
 			var load = facade.getMethod("load", Path.class);
-			assertThat((List<?>) call(load.invoke(null, release), "books")).hasSize(1);
+			Object loaded = load.invoke(null, release);
+			assertThat((List<?>) call(loaded, "books")).hasSize(1);
+			assertThat(call(loaded, "resourceNames")).isEqualTo(java.util.Set.of("images/icon.bin"));
+			try (var input = (InputStream) facade.getMethod("resource", String.class).invoke(loaded, "images/icon.bin")) {
+				assertThat(input.readAllBytes()).containsExactly(0, -1, 3);
+			}
 			Path zip = directory.resolve("m1.zip");
 			try (var archive = new java.util.zip.ZipOutputStream(Files.newOutputStream(zip))) {
-				for (Path file : List.of(release.resolve("books.tara"), metadata)) {
-					archive.putNextEntry(new java.util.zip.ZipEntry(file.getFileName().toString()));
+				for (Path file : List.of(release.resolve("books.tara"), metadata, images.resolve("icon.bin"))) {
+					archive.putNextEntry(new java.util.zip.ZipEntry(release.relativize(file).toString()));
 					Files.copy(file, archive);
 					archive.closeEntry();
 				}

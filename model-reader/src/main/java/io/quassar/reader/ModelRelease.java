@@ -11,33 +11,20 @@ import java.util.zip.*;
 public final class ModelRelease {
     private final Model model;
     private final String metadata;
-    private final Map<String, byte[]> resources;
 
-    private ModelRelease(Map<String, String> sources, String metadata, Map<String, byte[]> resources) throws IOException {
-        if (sources.isEmpty()) throw new IOException("Release contains no .tara model files");
-        model = Models.read(new io.quassar.reader.adapters.TextSource(new ArrayList<>(sources.values())));
-        this.metadata = metadata;
-        this.resources = resources;
-    }
-
-    private ModelRelease(Model model, String metadata, Map<String, byte[]> resources) {
+    private ModelRelease(Model model, String metadata) {
         this.model = model;
         this.metadata = metadata;
-        this.resources = resources;
     }
 
     public ModelRelease withDefaults(io.quassar.reader.domain.EffectiveValueResolver resolver) throws IOException {
-        return new ModelRelease(resolver.resolve(model), metadata, resources);
+        return new ModelRelease(resolver.resolve(model), metadata);
     }
 
     public Model model() { return model; }
     public String metadata() { return metadata; }
-    public Set<String> resourceNames() { return Collections.unmodifiableSet(resources.keySet()); }
-    public InputStream resource(String name) throws IOException {
-        byte[] bytes = resources.get(name);
-        if (bytes == null) throw new FileNotFoundException("Resource not found: " + name);
-        return new ByteArrayInputStream(bytes);
-    }
+    public Set<String> resourceNames() { return model.resourceNames(); }
+    public InputStream resource(String name) throws IOException { return model.resource(name); }
 
     public static ModelRelease open(Path path) throws IOException {
         if (!Files.isDirectory(path)) {
@@ -101,6 +88,8 @@ public final class ModelRelease {
             else if (name.equals("manifest.json")) metadata = new String(entry.getValue(), StandardCharsets.UTF_8);
             else if (name.endsWith(".tara")) sources.put(name, new String(entry.getValue(), StandardCharsets.UTF_8));
         }
-        return new ModelRelease(sources, metadata, resources);
+        if (sources.isEmpty()) throw new IOException("Release contains no .tara model files");
+        Model model = Models.read(new io.quassar.reader.adapters.TextSource(new ArrayList<>(sources.values())));
+        return new ModelRelease(model.withResources(resources), metadata);
     }
 }

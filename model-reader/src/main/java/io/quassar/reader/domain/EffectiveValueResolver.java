@@ -34,7 +34,7 @@ public final class EffectiveValueResolver {
     public Model resolve(Model model) throws IOException {
         List<Mogram> roots = new ArrayList<>();
         for (var root : model.mograms()) roots.add(resolve(root, find(root.type(), "")));
-        return new Model(roots);
+        return model.withMograms(roots);
     }
 
     private Mogram resolve(Mogram mogram, MetamodelType type) throws IOException {

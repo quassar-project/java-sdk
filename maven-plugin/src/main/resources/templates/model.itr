@@ -6,6 +6,14 @@ rule type(model)
 			this.model = model;
 		}
 
+		public java.util.Set<java.lang.String> resourceNames() {
+			return model.resourceNames();
+		}
+
+		public java.io.InputStream resource(java.lang.String name) throws java.io.FileNotFoundException {
+			return model.resource(name);
+		}
+
 		@Override
 		public boolean equals(java.lang.Object other) {
 			return other instanceof $name~ facade && model.equals(facade.model);

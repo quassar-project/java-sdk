@@ -134,6 +134,7 @@ public final class DecoratorGenerator {
 		for (String sourceType : List.of("java.nio.file.Path", "java.net.URL", "java.net.URI"))
 			source.append(templates.render("load", Map.of("name", name, "sourceType", sourceType, "load", load)));
 		JavaNames methods = new JavaNames(RESERVED_METHODS);
+		methods.claim("resourceNames");
 		for (TypeDefinition type : types) {
 			if (!type.root()) continue;
 			String decorator = classes.get(type.type());

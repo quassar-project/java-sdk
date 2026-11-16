@@ -67,3 +67,6 @@ The same methods are available on facet decorators. If `Container` specializes `
 Call `node.types()` to get the concrete concept and its ancestors, followed by each active facet and its ancestors. Names are qualified as in M2, duplicates are removed, and a null decorator returns an empty list. For example, a grouping command returns `Command.CollectionCommand.Grouping`, `Command.CollectionCommand`, and `Command`, including when accessed through the base command decorator. The list also includes any active facet and its ancestors on that same command. Template type conditions can match these ancestors by their qualified or simple names.
 
 Use `node.owner(Workflow.class)` to find the nearest ancestor of the requested type. The search starts at the parent and follows containment. A concept ancestor matches its own type, any of its supertypes, and its active facets and their supertypes. If no such ancestor exists, the method returns a null decorator of the requested type.
+
+
+Use `model.resourceNames()` to list files bundled under the model's `resources/` directory and `model.resource("icons/logo.svg")` to open one as an `InputStream`. Names are relative to `resources/`. Close the stream after reading it. A missing file raises `FileNotFoundException`.

@@ -40,6 +40,12 @@ class ReaderEntryModesTest {
         assertEquals("{\"id\":\"inventory\"}", release.metadata());
         try (var input = release.resource("icon.bin")) { assertArrayEquals(new byte[]{0,-1,3}, input.readAllBytes()); }
         assertThrows(FileNotFoundException.class, () -> release.resource("absent"));
+        for (var model : List.of(Models.load(home), Models.load(zip), Models.load(zip.toUri()),
+                Models.load(zip, "Concept Product\n\tdef double price"))) {
+            assertEquals(Set.of("example.tara", "icon.bin"), model.resourceNames());
+            try (var input = model.resource("icon.bin")) { assertArrayEquals(new byte[]{0, -1, 3}, input.readAllBytes()); }
+            assertThrows(FileNotFoundException.class, () -> model.resource("absent"));
+        }
     }
 
     @Test void malformedEmptyAndTraversalArchivesFail() throws Exception {
