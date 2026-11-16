@@ -1,8 +1,5 @@
 package io.quassar.reader.model;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 public final class Resource {
 	private final String name;
 	private final byte[] bytes;
@@ -18,9 +15,5 @@ public final class Resource {
 
 	public byte[] bytes() {
 		return bytes.clone();
-	}
-
-	public InputStream open() {
-		return new ByteArrayInputStream(bytes);
 	}
 }

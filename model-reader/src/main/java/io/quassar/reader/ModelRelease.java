@@ -1,6 +1,7 @@
 package io.quassar.reader;
 
 import io.quassar.reader.model.Model;
+import io.quassar.reader.model.Resource;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +25,7 @@ public final class ModelRelease {
     public Model model() { return model; }
     public String metadata() { return metadata; }
     public Set<String> resourceNames() { return model.resourceNames(); }
-    public InputStream resource(String name) throws IOException { return model.resource(name).open(); }
+    public Resource resource(String name) throws FileNotFoundException { return model.resource(name); }
 
     public static ModelRelease open(Path path) throws IOException {
         if (!Files.isDirectory(path)) {

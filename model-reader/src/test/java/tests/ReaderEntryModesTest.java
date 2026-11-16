@@ -39,7 +39,7 @@ class ReaderEntryModesTest {
         assertEquals(2, release.model().mograms().size());
         assertEquals(ModelRelease.open(home).model().mograms(), release.model().mograms());
         assertEquals("{\"id\":\"inventory\"}", release.metadata());
-        try (var input = release.resource("icon.bin")) { assertArrayEquals(new byte[]{0,-1,3}, input.readAllBytes()); }
+        assertArrayEquals(new byte[]{0, -1, 3}, release.resource("icon.bin").bytes());
         assertThrows(FileNotFoundException.class, () -> release.resource("absent"));
         for (var model : List.of(Models.load(home), Models.load(zip), Models.load(zip.toUri()),
                 Models.load(zip, "Concept Product\n\tdef double price"))) {
@@ -51,10 +51,6 @@ class ReaderEntryModesTest {
             assertArrayEquals(new byte[]{0, -1, 3}, content);
             content[0] = 42;
             assertArrayEquals(new byte[]{0, -1, 3}, icon.bytes());
-            try (var first = icon.open(); var second = icon.open()) {
-                assertEquals(0, first.read());
-                assertArrayEquals(new byte[]{0, -1, 3}, second.readAllBytes());
-            }
             assertThrows(FileNotFoundException.class, () -> model.resource("absent"));
         }
     }

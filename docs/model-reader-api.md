@@ -101,7 +101,7 @@ var bundled = Models.load(WorkflowExample.class.getResource("/workflows.tara"));
 
 Replace `[code]` with your M1 model code. A folder or ZIP can contain several Tara files. The reader combines them so references can cross file boundaries. For typed accessors such as `step.label()`, see the [Generated Model API](generated-model-api.md).
 
-Use `model.resources()` to list the bundled resources or `model.resource("icons/logo.svg")` to get one by name. Each `Resource` has a `name()` relative to `resources/` and a `bytes()` method that returns a copy of its contents. Use `open()` for an `InputStream` and close it after reading. A missing file raises `FileNotFoundException`.
+Use `model.resources()` to list the bundled resources or `model.resource("icons/logo.svg")` to get one by name. Each `Resource` has a `name()` relative to `resources/` and a `bytes()` method that returns a copy of its contents. A missing file raises `FileNotFoundException`.
 
 ## Load a release
 
@@ -111,9 +111,7 @@ Use `ModelRelease` when you also need metadata, resources, or authenticated down
 var release = io.quassar.reader.ModelRelease.open(Path.of("release.zip"));
 var model = release.model();
 var metadata = release.metadata();
-try (var input = release.resource("icons/logo.svg")) {
-	var bytes = input.readAllBytes();
-}
+byte[] logo = release.resource("icons/logo.svg").bytes();
 var downloaded = io.quassar.reader.ModelRelease.download(url, token);
 ```
 

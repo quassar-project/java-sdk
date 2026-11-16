@@ -566,9 +566,7 @@ class DecoratorGeneratorTest {
 			Resource resource = (Resource) resourceMethod.invoke(loaded, "images/icon.bin");
 			assertThat(resource.name()).isEqualTo("images/icon.bin");
 			assertThat(call(loaded, "resources")).isEqualTo(List.of(resource));
-			try (var input = resource.open()) {
-				assertThat(input.readAllBytes()).containsExactly(0, -1, 3);
-			}
+			assertThat(resource.bytes()).containsExactly(0, -1, 3);
 			Path zip = directory.resolve("m1.zip");
 			try (var archive = new java.util.zip.ZipOutputStream(Files.newOutputStream(zip))) {
 				for (Path file : List.of(release.resolve("books.tara"), metadata, images.resolve("icon.bin"))) {

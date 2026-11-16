@@ -69,4 +69,4 @@ Call `node.types()` to get the concrete concept and its ancestors, followed by e
 Use `node.as(Workflow.class)` to view the current node as the requested type. Use `node.ancestor(Workflow.class)` to find the nearest ancestor of the requested type. The search starts at the parent and follows containment. A concept ancestor matches its own type, any of its supertypes, and its active facets and their supertypes. If no such ancestor exists, the method returns a null decorator of the requested type.
 
 
-Use `model.resources()` to list the bundled resources or `model.resource("icons/logo.svg")` to get one by name. Each `Resource` has a `name()` relative to `resources/` and a `bytes()` method that returns a copy of its contents. Use `open()` for an `InputStream` and close it after reading. A missing file raises `FileNotFoundException`.
+Use `model.resources()` to list the bundled resources or `model.resource("icons/logo.svg")` to get one by name. Each `Resource` has a `name()` relative to `resources/` and a `bytes()` method that returns a copy of its contents. A missing file raises `FileNotFoundException`.

@@ -37,7 +37,7 @@ class EffectiveValueResolverTest {
         var release = ModelRelease.open(folder).withDefaults(new EffectiveValueResolver(META));
         assertEquals(expected.mograms(), release.model().mograms());
         assertEquals("{}", release.metadata());
-        try (var input = release.resource("logo.svg")) { assertEquals("<svg/>", new String(input.readAllBytes())); }
+        assertEquals("<svg/>", new String(release.resource("logo.svg").bytes()));
     }
 
     @Test void appliedFacetDefaultsAreUsedButUnappliedOnesAreNot() throws Exception {
