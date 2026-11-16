@@ -44,6 +44,9 @@ class DecoratorGeneratorTest {
 			Object target = call(widget, "view");
 			assertThat(target.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection");
 			assertThat(call(target, "identifier")).isEqualTo("Main");
+			Object panel = ((List<?>) call(target, "panels")).get(0);
+			assertThat(panel.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection.Panel");
+			assertThat(call(panel, "identifier")).isEqualTo("SummaryPanel");
 			Object preview = generated.wrap("Preview", model.get("AdminPreview"));
 			Object dashboard = call(preview, "view");
 			assertThat(dashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Display.Projection");
@@ -80,7 +83,7 @@ class DecoratorGeneratorTest {
 			assertThat(library.getClass().getSimpleName()).isEqualTo("Library");
 			assertThat(call(library, "identifier")).isEqualTo("Central");
 			Object catalogue = call(library, "catalogue");
-			assertThat(catalogue.getClass().getSimpleName()).isEqualTo("LibraryCatalogue");
+			assertThat(catalogue.getClass().getCanonicalName()).isEqualTo("test.generated.Library.Catalogue");
 			assertThat(call(catalogue, "endpoint")).isEqualTo("https://library.example/catalogue");
 			assertThat((List<?>) call(library, "books")).hasSize(2);
 			assertThat(Frames.from(facade).frames("library").next().frames("catalogue").hasNext()).isTrue();

@@ -10,7 +10,7 @@ The plugin adds the `model` subpackage to the base package set by `output-packag
 
 The examples below use the [sample Workflows metamodel](sample-m2-model.md).
 
-A facet or a subtype declared with `sub` is generated as a static class inside its enclosing decorator. For example, `View.Inherited` and `Dashboard.Inherited` keep the same facet name under different concepts. A subtype under a facet keeps both levels, as in `View.ViewType.Projection`.
+Concepts, facets, and subtypes declared inside another type generate static classes inside the enclosing decorator. For example, the `EntryPoint` declared inside `Workflow` generates `Workflow.EntryPoint`. The `workflow.entryPoint()` getter returns that type.
 
 If you generated the API with an earlier SDK, delete the previously generated `model` package from the output directory before regenerating it.
 

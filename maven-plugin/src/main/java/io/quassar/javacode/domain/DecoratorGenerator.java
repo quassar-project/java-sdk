@@ -144,8 +144,7 @@ public final class DecoratorGenerator {
 			String decorator = classes.get(child);
 			if (decorator == null) throw new IllegalArgumentException("Unknown component " + child + " in " + type.type());
 			boolean single = composition.cardinality().isSingle();
-			String simple = simpleName(child);
-			String getter = memberName(methods, single ? simple : child, single);
+			String getter = memberName(methods, simpleName(child), single);
 			String match = MOGRAM_TYPES + ".resolve(child.type(), " + literal(type.type()) + ").equals(" + literal(child) + ")";
 			String stream = "mogram.children().stream()\n\t.filter(child -> " + match + ")";
 			if (single)

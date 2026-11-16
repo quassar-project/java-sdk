@@ -1,6 +1,7 @@
 View Main is Projection Inherited(label="View label")
 	Commands Controls
 		Grouping GroupByStatus > label = "Group by status"
+	Panel SummaryPanel
 
 Widget Summary
 	view = Main
