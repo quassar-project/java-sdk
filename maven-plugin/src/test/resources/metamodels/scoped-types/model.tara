@@ -5,6 +5,9 @@ Concept Command as component
 		sub Grouping
 			def string label
 
+Concept Toolbar
+	has Command
+
 Concept View
 	facet Inherited
 		def string label
@@ -14,6 +17,8 @@ Concept View
 				has:Single Grouping
 			Concept Panel
 				def Projection target
+			sub Container
+				def string composition
 
 Concept Widget
 	def View.Projection view

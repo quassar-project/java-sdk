@@ -32,11 +32,39 @@ class DecoratorGeneratorTest {
 	Path directory;
 
 	@Test
+	void castsCommandsDirectlyToTheirConcreteSubtype() throws Exception {
+		Metamodel metamodel = Metamodels.load(Path.of(getClass().getResource("/metamodels/scoped-types/").toURI()));
+		Model model = model("scoped-types.tara");
+		try (GeneratedDecorators generated = compile(model, metamodel)) {
+			Object toolbar = generated.wrap("Toolbar", model.get("MainToolbar"));
+			List<?> commands = (List<?>) call(toolbar, "commands");
+			assertThat(commands).hasSize(3);
+			Object grouping = call(commands.get(0), "asGrouping");
+			assertThat(call(commands.get(0), "isCollectionCommand")).isEqualTo(true);
+			assertThat(call(commands.get(0), "isGrouping")).isEqualTo(true);
+			assertThat(grouping.getClass().getCanonicalName()).isEqualTo("test.generated.Command.CollectionCommand.Grouping");
+			assertThat(call(grouping, "label")).isEqualTo("By status");
+			assertThat(call(call(commands.get(1), "asGrouping"), "label")).isEqualTo("Qualified");
+			assertThat(call(commands.get(2), "isGrouping")).isEqualTo(false);
+			assertThat(call(call(commands.get(2), "asGrouping"), "isNull")).isEqualTo(true);
+		}
+	}
+
+	@Test
 	void generatesTypedAccessorsForNestedTypesNamedByShortPaths() throws Exception {
 		Metamodel metamodel = Metamodels.load(Path.of(getClass().getResource("/metamodels/scoped-types/").toURI()));
 		Model model = model("scoped-types.tara");
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
-			Object inheritedView = call(generated.wrap("View", model.get("Main")), "asInherited");
+			Object view = generated.wrap("View", model.get("Main"));
+			assertThat(call(view, "isViewType")).isEqualTo(true);
+			Object viewType = call(view, "asViewType");
+			assertThat(call(viewType, "isProjection")).isEqualTo(true);
+			assertThat(call(viewType, "isContainer")).isEqualTo(true);
+			Object container = call(viewType, "asContainer");
+			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection.Container");
+			assertThat(call(container, "composition")).isEqualTo("Tabs");
+			assertThat(call(call(viewType, "asProjection"), "isContainer")).isEqualTo(true);
+			Object inheritedView = call(view, "asInherited");
 			Object inheritedDashboard = call(generated.wrap("Dashboard", model.get("Admin")), "asInherited");
 			assertThat(inheritedView.getClass().getCanonicalName()).isEqualTo("test.generated.View.Inherited");
 			assertThat(inheritedDashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Inherited");

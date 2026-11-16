@@ -17,4 +17,11 @@ rule type(types)
 		$aliases~				default -> type;
 				};
 			}
+
+			static boolean matches(java.lang.String actual, java.lang.String expected) {
+				if (actual.equals(expected)) return true;
+				return switch (expected) {
+		$subtypes~				default -> false;
+				};
+			}
 		}$NL

@@ -1,4 +1,4 @@
-View Main is Projection Inherited(label="View label")
+View Main is Container(composition="Tabs") Inherited(label="View label")
 	Commands Controls
 		Grouping GroupByStatus > label = "Group by status"
 	Panel SummaryPanel
@@ -9,3 +9,8 @@ Widget Summary
 Dashboard Admin is Projection Inherited(caption="Dashboard caption")
 Preview AdminPreview
 	view = Admin
+
+Toolbar MainToolbar
+	Grouping StatusGrouping > label = "By status"
+	Command.CollectionCommand.Grouping FullGrouping > label = "Qualified"
+	Command OtherCommand

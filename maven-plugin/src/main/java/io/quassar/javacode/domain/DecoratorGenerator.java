@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +37,7 @@ public final class DecoratorGenerator {
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
 	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,
-			Map<String, String> enclosingTypes, String packageName, String modelName) {
+			Map<String, String> enclosingTypes, Map<String, String> subtypeParents, String packageName, String modelName) {
 		JavaNames names = new JavaNames(RESERVED_TYPES);
 		String facadeName = names.claim(modelClassName(modelName));
 		Set<String> exposedFacets = new HashSet<>(enclosingTypes.keySet());
@@ -78,16 +79,26 @@ public final class DecoratorGenerator {
 		classNames.forEach((type, name) -> targets.put(type, referenceName(name, packageName, nestedNames)));
 		Map<String, String> classes = new LinkedHashMap<>();
 		for (TypeDefinition type : types) classes.put(type.type(), targets.get(type.type()));
+		Map<String, List<String>> subtypes = descendants(subtypeParents);
+		Set<String> facetTypes = facets.stream().map(TypeDefinition::type).collect(Collectors.toSet());
 		List<JavaCode> code = new ArrayList<>();
-		code.add(decoratorBase(packageName, classes, declarations));
+		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes));
 		code.add(modelDecorator(types, packageName, facadeName, classes));
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
 			code.add(new JavaCode(packageName, classNames.get(type.type()),
-				render(type, classNames, targets, nested, false)));
+				render(type, classNames, targets, nested, subtypes, facetTypes, false)));
 		}
 		topLevel.addAll(nestedNames);
 		return code.stream().map(source -> JavaImports.format(source, topLevel)).toList();
+	}
+
+	private Map<String, List<String>> descendants(Map<String, String> parents) {
+		Map<String, List<String>> descendants = new LinkedHashMap<>();
+		for (String subtype : parents.keySet().stream().sorted().toList())
+			for (String parent = parents.get(subtype); parent != null; parent = parents.get(parent))
+				descendants.computeIfAbsent(parent, ignored -> new ArrayList<>()).add(subtype);
+		return descendants;
 	}
 
 	private String referenceName(String name, String packageName, Set<String> nestedNames) {
@@ -116,7 +127,7 @@ public final class DecoratorGenerator {
 			String decorator = classes.get(type.type());
 			boolean single = type.rootCardinality().isSingle();
 			String getter = memberName(methods, type.type(), single);
-			String filter = ".type(" + literal(type.type()) + ")";
+			String filter = ".where(mogram -> " + MOGRAM_TYPES + ".matches(mogram.type(), " + literal(type.type()) + "))";
 			if (single)
 				source.append(method(decorator, getter, "new " + decorator + "(model.roots()" + filter + ".first(), model)"));
 			else source.append(collectionMethod(decorator, getter, "model.roots()" + filter + ".stream()"));
@@ -130,7 +141,7 @@ public final class DecoratorGenerator {
 	}
 
 	private String render(TypeDefinition type, Map<String, String> classNames, Map<String, String> classes,
-			Map<String, List<TypeDefinition>> nested, boolean isNested) {
+			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes, Set<String> facetTypes, boolean isNested) {
 		StringBuilder source = new StringBuilder();
 		JavaNames methods = new JavaNames(RESERVED_METHODS);
 		for (PropertyDefinition property : type.properties()) {
@@ -138,13 +149,18 @@ public final class DecoratorGenerator {
 			source.append(method(returnType(property, classes), getter, expression(property, classes)));
 		}
 		for (String facet : type.facets()) addFacetMethods(source, methods, facet, classes.get(facet));
+		for (String subtype : subtypes.getOrDefault(type.type(), List.of())) {
+			String condition = facetTypes.contains(subtype) ? facetMatches(subtype)
+				: MOGRAM_TYPES + ".matches(" + MOGRAM_TYPES + ".resolve(mogram, model), " + literal(subtype) + ")";
+			addCastMethods(source, methods, simpleName(subtype), classes.get(subtype), condition);
+		}
 		for (Composition composition : type.children()) {
 			String child = composition.type();
 			String decorator = classes.get(child);
 			if (decorator == null) throw new IllegalArgumentException("Unknown component " + child + " in " + type.type());
 			boolean single = composition.cardinality().isSingle();
 			String getter = memberName(methods, simpleName(child), single);
-			String match = MOGRAM_TYPES + ".resolve(child.type(), " + literal(type.type()) + ").equals(" + literal(child) + ")";
+			String match = MOGRAM_TYPES + ".matches(" + MOGRAM_TYPES + ".resolve(child.type(), " + literal(type.type()) + "), " + literal(child) + ")";
 			String stream = "mogram.children().stream()\n\t.filter(child -> " + match + ")";
 			if (single)
 				source.append(method(decorator, getter, "new " + decorator + "(" + stream
@@ -152,7 +168,7 @@ public final class DecoratorGenerator {
 			else source.append(collectionMethod(decorator, getter, stream));
 		}
 		for (TypeDefinition child : nested.getOrDefault(type.type(), List.of())) {
-			String declaration = render(child, classNames, classes, nested, true);
+			String declaration = render(child, classNames, classes, nested, subtypes, facetTypes, true);
 			source.append('\n').append(declaration.lines()
 				.map(line -> line.isEmpty() ? line : "\t" + line)
 				.collect(Collectors.joining("\n", "", "\n")));
@@ -164,10 +180,18 @@ public final class DecoratorGenerator {
 
 	private void addFacetMethods(StringBuilder source, JavaNames methods, String facet, String decorator) {
 		String simple = simpleName(facet);
-		String suffix = JavaNames.className(simple);
-		String check = methods.claim("is" + suffix);
-		String condition = "mogram.facets().contains(" + literal(facet) + ")";
+		String condition = facetMatches(facet);
 		if (!simple.equals(facet)) condition += " || mogram.facets().contains(" + literal(simple) + ")";
+		addCastMethods(source, methods, simple, decorator, condition);
+	}
+
+	private String facetMatches(String facet) {
+		return "mogram.facets().stream().anyMatch(facet -> " + MOGRAM_TYPES + ".matches(facet, " + literal(facet) + "))";
+	}
+
+	private void addCastMethods(StringBuilder source, JavaNames methods, String name, String decorator, String condition) {
+		String suffix = JavaNames.className(name);
+		String check = methods.claim("is" + suffix);
 		source.append(method("boolean", check, condition));
 		source.append(method(decorator, methods.claim("as" + suffix),
 			"new " + decorator + "(" + check + "() ? mogram : " + MOGRAM + ".NULL, model)"));
@@ -187,7 +211,7 @@ public final class DecoratorGenerator {
 			+ "\n\t.map(mogram -> new " + decorator + "(mogram, model))\n\t.toList()");
 	}
 
-	private String mogramTypes(List<TypeDefinition> types) {
+	private String mogramTypes(List<TypeDefinition> types, Map<String, String> parents, Map<String, List<String>> subtypes) {
 		StringBuilder aliases = new StringBuilder();
 		for (TypeDefinition type : types) {
 			Set<String> names = new HashSet<>();
@@ -199,15 +223,44 @@ public final class DecoratorGenerator {
 						.append(" -> ").append(literal(child.type())).append(";\n");
 			}
 		}
-		return templates.render("types", Map.of("mogramType", MOGRAM, "modelType", MODEL, "aliases", aliases.toString()));
+		return templates.render("types", Map.of("mogramType", MOGRAM, "modelType", MODEL, "aliases", aliases.toString(),
+			"subtypes", subtypeMatches(parents, subtypes)));
 	}
 
-	private JavaCode decoratorBase(String packageName, Map<String, String> classes, List<TypeDefinition> types) {
+	private String subtypeMatches(Map<String, String> parents, Map<String, List<String>> subtypes) {
+		StringBuilder matches = new StringBuilder();
+		for (String type : Stream.concat(parents.keySet().stream(), subtypes.keySet().stream()).distinct().sorted().toList()) {
+			Set<String> aliases = new LinkedHashSet<>();
+			if (parents.containsKey(type)) aliases.addAll(subtypeNames(type, parents, subtypes));
+			for (String subtype : subtypes.getOrDefault(type, List.of())) aliases.addAll(subtypeNames(subtype, parents, subtypes));
+			matches.append("\t\t\t\tcase ").append(literal(type)).append(" -> switch (actual) {\n")
+				.append("\t\t\t\t\tcase ").append(aliases.stream().map(this::literal).collect(Collectors.joining(", ")))
+				.append(" -> true;\n\t\t\t\t\tdefault -> false;\n\t\t\t\t};\n");
+		}
+		return matches.toString();
+	}
+
+	private List<String> subtypeNames(String type, Map<String, String> parents, Map<String, List<String>> subtypes) {
+		String root = type;
+		while (parents.containsKey(root)) root = parents.get(root);
+		List<String> family = subtypes.get(root);
+		List<String> names = new ArrayList<>();
+		names.add(type);
+		for (int dot = type.indexOf('.'); dot >= 0; dot = type.indexOf('.', dot + 1)) {
+			String suffix = type.substring(dot);
+			if (family.stream().filter(candidate -> candidate.endsWith(suffix)).limit(2).count() == 1)
+				names.add(suffix.substring(1));
+		}
+		return names;
+	}
+
+	private JavaCode decoratorBase(String packageName, Map<String, String> classes, List<TypeDefinition> types,
+			Map<String, String> parents, Map<String, List<String>> subtypes) {
 		StringBuilder cases = new StringBuilder();
 		classes.forEach((type, name) -> cases.append(templates.render("factory-case", Map.of("type", literal(type), "name", name))));
 		return new JavaCode(packageName, DECORATOR, templates.render("decorator", Map.of(
 			"mogramType", MOGRAM, "modelType", MODEL,
-			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types))));
+			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes))));
 	}
 
 	private String expression(PropertyDefinition property, Map<String, String> classes) {

@@ -54,3 +54,7 @@ var fallbackActions = step.fallbackActions();
 Model collection methods return root mograms of the declared type. Child collection methods return direct children of the declared type. References resolve against the loaded model.
 
 For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.asScheduled()` returns its typed view. Read the schedule with `step.asScheduled().schedule()`. When the facet is absent, the view returns `true` from `isNull()`.
+
+Subtypes declared with `sub` generate `is<Type>()` and `as<Type>()` on ancestor decorators, including ancestors several levels up. If `Download` is a subtype of `CollectionCommand` under `Command`, `command.asDownload()` returns a `Command.CollectionCommand.Download` decorator.
+
+The same methods are available on facet decorators. If `Container` specializes `Projection` under `ViewType`, `view.asViewType().asContainer()` returns the typed decorator directly. When the mogram has a different type or facet, the result returns `true` from `isNull()`.

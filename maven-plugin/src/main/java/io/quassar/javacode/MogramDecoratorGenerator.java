@@ -45,8 +45,11 @@ public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, 
 		var enclosingTypes = metamodel.types().stream()
 			.filter(type -> !type.scope().isEmpty())
 			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::scope));
+		var subtypeParents = metamodel.types().stream()
+			.filter(type -> type.declaration() == MetamodelType.Declaration.SUB)
+			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::parent));
 		return new DecoratorGenerator(templates).generate(resolver.resolve(metamodel),
-			resolver.resolveFacets(metamodel), enclosingTypes, packageName, modelName);
+			resolver.resolveFacets(metamodel), enclosingTypes, subtypeParents, packageName, modelName);
 	}
 
 	public List<Path> writeTo(Path directory) throws IOException {
