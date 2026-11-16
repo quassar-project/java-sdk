@@ -4,3 +4,7 @@ View Main is Projection
 
 Widget Summary
 	view = Main
+
+Dashboard Admin is Projection
+Preview AdminPreview
+	view = Admin

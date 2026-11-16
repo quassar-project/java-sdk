@@ -10,11 +10,14 @@ import io.quassar.metamodel.model.TypeDefinition;
 import io.quassar.metamodel.model.Composition;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class DecoratorGenerator {
@@ -32,37 +35,67 @@ public final class DecoratorGenerator {
 	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
-	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets, String packageName, String modelName) {
+	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,
+			Map<String, String> enclosingTypes, String packageName, String modelName) {
 		JavaNames names = new JavaNames(RESERVED_TYPES);
-		String facadeName = modelClassName(modelName);
-		names.claim(facadeName);
-		Map<String, String> classes = new LinkedHashMap<>();
-		for (TypeDefinition type : types) classes.put(type.type(), names.claim(JavaNames.className(type.type())));
-		Set<String> exposedFacets = new HashSet<>();
+		String facadeName = names.claim(modelClassName(modelName));
+		Set<String> exposedFacets = new HashSet<>(enclosingTypes.keySet());
+		exposedFacets.addAll(enclosingTypes.values());
 		List<TypeDefinition> declarations = Stream.concat(types.stream(), facets.stream()).toList();
 		for (TypeDefinition declaration : declarations) {
 			exposedFacets.addAll(declaration.facets());
 			addTargets(exposedFacets, declaration);
 		}
-		Map<String, String> facetClasses = new LinkedHashMap<>();
-		for (TypeDefinition facet : facets)
-			if (exposedFacets.contains(facet.type()))
-				facetClasses.put(facet.type(), names.claim(JavaNames.className(simpleName(facet.type()))));
-		Map<String, String> targets = new LinkedHashMap<>(classes);
-		targets.putAll(facetClasses);
+
+		List<TypeDefinition> decorators = Stream.concat(types.stream(),
+			facets.stream().filter(facet -> exposedFacets.contains(facet.type()))).toList();
+		Map<String, String> classNames = new LinkedHashMap<>();
+		for (TypeDefinition type : decorators) {
+			if (enclosingTypes.containsKey(type.type())) continue;
+			String name = exposedFacets.contains(type.type()) && !types.contains(type) ? simpleName(type.type()) : type.type();
+			classNames.put(type.type(), names.claim(JavaNames.className(name)));
+		}
+		Map<String, List<TypeDefinition>> nested = decorators.stream()
+			.filter(type -> enclosingTypes.containsKey(type.type()))
+			.sorted(Comparator.comparing(TypeDefinition::type))
+			.collect(Collectors.groupingBy(type -> enclosingTypes.get(type.type()), LinkedHashMap::new, Collectors.toList()));
+		Set<String> topLevel = new HashSet<>(classNames.values());
+		topLevel.add(facadeName);
+		Set<String> nestedNames = new HashSet<>();
+		nested.forEach((owner, children) -> {
+			String parent = classNames.get(owner);
+			Set<String> reserved = new HashSet<>(RESERVED_TYPES);
+			reserved.addAll(Arrays.asList(parent.split("\\.")));
+			if (packageName.isEmpty()) reserved.addAll(topLevel);
+			JavaNames scoped = new JavaNames(reserved);
+			for (TypeDefinition child : children) {
+				String name = scoped.claim(JavaNames.className(simpleName(child.type())));
+				nestedNames.add(name);
+				classNames.put(child.type(), parent + "." + name);
+			}
+		});
+
+		Map<String, String> targets = new LinkedHashMap<>();
+		classNames.forEach((type, name) -> targets.put(type, referenceName(name, packageName, nestedNames)));
+		Map<String, String> classes = new LinkedHashMap<>();
+		for (TypeDefinition type : types) classes.put(type.type(), targets.get(type.type()));
 		List<JavaCode> code = new ArrayList<>();
 		code.add(decoratorBase(packageName, classes));
 		code.add(mogramTypes(packageName, declarations));
 		code.add(modelDecorator(types, packageName, facadeName, classes));
-		for (TypeDefinition type : types)
-			code.add(render(type, classes.get(type.type()), packageName, targets, facetClasses));
-		for (TypeDefinition facet : facets)
-			if (facetClasses.containsKey(facet.type()))
-				code.add(render(facet, facetClasses.get(facet.type()), packageName, targets, facetClasses));
-		Set<String> declaredTypes = new HashSet<>(classes.values());
-		declaredTypes.addAll(facetClasses.values());
-		declaredTypes.add(facadeName);
-		return code.stream().map(source -> JavaImports.format(source, declaredTypes)).toList();
+		for (TypeDefinition type : decorators) {
+			if (enclosingTypes.containsKey(type.type())) continue;
+			code.add(new JavaCode(packageName, classNames.get(type.type()),
+				render(type, classNames, targets, nested, false)));
+		}
+		topLevel.addAll(nestedNames);
+		return code.stream().map(source -> JavaImports.format(source, topLevel)).toList();
+	}
+
+	private String referenceName(String name, String packageName, Set<String> nestedNames) {
+		int separator = name.indexOf('.');
+		String topLevel = separator < 0 ? name : name.substring(0, separator);
+		return nestedNames.contains(topLevel) ? packageName + "." + name : name;
 	}
 
 	private void addTargets(Set<String> targets, TypeDefinition type) {
@@ -98,15 +131,15 @@ public final class DecoratorGenerator {
 		return templates.render("load", Map.of("name", modelName, "sourceType", sourceType));
 	}
 
-	private JavaCode render(TypeDefinition type, String name, String packageName, Map<String, String> classes,
-			Map<String, String> facetClasses) {
+	private String render(TypeDefinition type, Map<String, String> classNames, Map<String, String> classes,
+			Map<String, List<TypeDefinition>> nested, boolean isNested) {
 		StringBuilder source = new StringBuilder();
 		JavaNames methods = new JavaNames(RESERVED_METHODS);
 		for (PropertyDefinition property : type.properties()) {
 			String getter = methods.claim(JavaNames.methodName(property.suggestedName()));
 			source.append(method(returnType(property, classes), getter, expression(property, classes)));
 		}
-		for (String facet : type.facets()) addFacetMethods(source, methods, facet, facetClasses.get(facet));
+		for (String facet : type.facets()) addFacetMethods(source, methods, facet, classes.get(facet));
 		for (Composition composition : type.children()) {
 			String child = composition.type();
 			String decorator = classes.get(child);
@@ -121,9 +154,15 @@ public final class DecoratorGenerator {
 					+ ".findFirst().orElse(" + MOGRAM + ".NULL), model)"));
 			else source.append(collectionMethod(decorator, getter, stream));
 		}
-		return new JavaCode(packageName, name, templates.render("mogram", Map.of(
-			"name", name, "mogramType", MOGRAM,
-			"modelType", MODEL, "methods", source.toString())));
+		for (TypeDefinition child : nested.getOrDefault(type.type(), List.of())) {
+			String declaration = render(child, classNames, classes, nested, true);
+			source.append('\n').append(declaration.lines()
+				.map(line -> line.isEmpty() ? line : "\t" + line)
+				.collect(Collectors.joining("\n", "", "\n")));
+		}
+		return templates.render("mogram", Map.of(
+			"name", simpleName(classNames.get(type.type())), "modifier", isNested ? "static " : "",
+			"mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString()));
 	}
 
 	private void addFacetMethods(StringBuilder source, JavaNames methods, String facet, String decorator) {

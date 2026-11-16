@@ -15,3 +15,10 @@ Concept View
 
 Concept Widget
 	def View.Projection view
+
+Concept Dashboard
+	facet Display
+		sub Projection
+
+Concept Preview
+	def Dashboard.Projection view

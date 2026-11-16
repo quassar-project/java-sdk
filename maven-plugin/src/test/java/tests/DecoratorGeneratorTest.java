@@ -36,10 +36,17 @@ class DecoratorGeneratorTest {
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
 			Object widget = generated.wrap("Widget", model.get("Summary"));
 			Object target = call(widget, "view");
-			assertThat(target.getClass().getSimpleName()).isEqualTo("Projection");
+			assertThat(target.getClass().getCanonicalName()).isEqualTo("test.generated.ViewType.Projection");
 			assertThat(call(target, "identifier")).isEqualTo("Main");
+			Object preview = generated.wrap("Preview", model.get("AdminPreview"));
+			Object dashboard = call(preview, "view");
+			assertThat(dashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Display.Projection");
+			assertThat(call(dashboard, "identifier")).isEqualTo("Admin");
 			Object commands = call(target, "commands");
-			assertThat(call(call(commands, "grouping"), "label")).isEqualTo("Group by status");
+			Object grouping = call(commands, "grouping");
+			assertThat(grouping.getClass().getCanonicalName())
+				.isEqualTo("test.generated.Command.CollectionCommand.Grouping");
+			assertThat(call(grouping, "label")).isEqualTo("Group by status");
 		}
 	}
 

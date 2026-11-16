@@ -10,6 +10,10 @@ The plugin adds the `model` subpackage to the base package set by `output-packag
 
 The examples below use the [sample Workflows metamodel](sample-m2-model.md).
 
+A subtype declared with `sub` is generated as a static class inside its enclosing decorator. For example, a `Projection` subtype under `ViewType` has Java type `ViewType.Projection`. Another decorator can declare its own `Projection`.
+
+If you generated the API with an earlier SDK, delete the previously generated `model` package from the output directory before regenerating it.
+
 ## Property types
 
 | Metamodel declaration | Java getter |

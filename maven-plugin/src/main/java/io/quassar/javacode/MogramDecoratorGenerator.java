@@ -6,10 +6,12 @@ import io.quassar.javacode.domain.DecoratorGenerator;
 import io.quassar.metamodel.domain.MetamodelResolver;
 import io.quassar.javacode.model.JavaCode;
 import io.quassar.metamodel.model.Metamodel;
+import io.quassar.metamodel.model.MetamodelType;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, String modelName) {
 	public static MogramDecoratorGenerator from(Metamodel metamodel) {
@@ -32,8 +34,11 @@ public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, 
 	public List<JavaCode> code() {
 		var templates = new ResourceTemplates(MogramDecoratorGenerator.class, List.of("model", "mogram", "method", "load", "factory-case", "decorator", "types"));
 		var resolver = new MetamodelResolver();
+		var enclosingTypes = metamodel.types().stream()
+			.filter(type -> type.declaration() == MetamodelType.Declaration.SUB)
+			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::scope));
 		return new DecoratorGenerator(templates).generate(resolver.resolve(metamodel),
-			resolver.resolveFacets(metamodel), packageName, modelName);
+			resolver.resolveFacets(metamodel), enclosingTypes, packageName, modelName);
 	}
 
 	public List<Path> writeTo(Path directory) throws IOException {
