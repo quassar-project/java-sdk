@@ -57,6 +57,6 @@ Model collection methods return root mograms of the declared type. Child collect
 
 For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.asScheduled()` returns its typed view. Read the schedule with `step.asScheduled().schedule()`. When the facet is absent, the view returns `true` from `isNull()`.
 
-Subtypes declared with `sub` generate `is<Type>()` and `as<Type>()` on ancestor decorators, including ancestors several levels up. If `Download` is a subtype of `CollectionCommand` under `Command`, `command.asDownload()` returns a `Command.CollectionCommand.Download` decorator.
+A decorator for a type declared with `sub` extends the parent decorator and inherits its accessors. These subtypes generate `is<Type>()` and `as<Type>()` on ancestor decorators, including ancestors several levels up. If `Download` is a subtype of `CollectionCommand` under `Command`, `command.asDownload()` returns a `Command.CollectionCommand.Download` decorator.
 
 The same methods are available on facet decorators. If `Container` specializes `Projection` under `ViewType`, `view.asContainer()` returns the typed decorator directly. You can also use `view.asViewType().asContainer()`. If two facets declare a subtype with the same accessor name, select the facet first. When the mogram has a different type or facet, the result returns `true` from `isNull()`.

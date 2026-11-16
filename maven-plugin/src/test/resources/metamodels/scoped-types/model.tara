@@ -1,6 +1,7 @@
 dsl metta
 
 Concept Command as component
+	def boolean enabled
 	sub CollectionCommand
 		sub Grouping
 			def string label

@@ -1,5 +1,5 @@
 rule type(mogram)
-	public $modifier~final class $name~ extends MogramDecorator {
+	public $modifier~class $name~ extends $base~ {
 		$name~($mogramType~ mogram, $modelType~ model) {
 			super(mogram, model);
 		}

@@ -88,7 +88,7 @@ public final class DecoratorGenerator {
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
 			code.add(new JavaCode(packageName, classNames.get(type.type()),
-				render(type, classNames, targets, nested, subtypes, facetTypes, false)));
+				render(type, classNames, targets, nested, subtypes, facetTypes, DECORATOR, new JavaNames(RESERVED_METHODS), false)));
 		}
 		topLevel.addAll(nestedNames);
 		return code.stream().map(source -> JavaImports.format(source, topLevel)).toList();
@@ -140,15 +140,16 @@ public final class DecoratorGenerator {
 	}
 
 	private String render(TypeDefinition type, Map<String, String> classNames, Map<String, String> classes,
-			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes, Set<String> facetTypes, boolean isNested) {
+			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes, Set<String> facetTypes,
+			String base, JavaNames methods, boolean isNested) {
 		StringBuilder source = new StringBuilder();
-		JavaNames methods = new JavaNames(RESERVED_METHODS);
+		List<String> descendants = subtypes.getOrDefault(type.type(), List.of());
 		for (PropertyDefinition property : type.properties()) {
 			String getter = methods.claim(JavaNames.methodName(property.suggestedName()));
 			source.append(method(returnType(property, classes), getter, expression(property, classes)));
 		}
 		for (String facet : type.facets()) addFacetMethods(source, methods, facet, classes.get(facet));
-		for (String subtype : subtypes.getOrDefault(type.type(), List.of())) {
+		for (String subtype : DECORATOR.equals(base) ? descendants : List.<String>of()) {
 			String condition = facetTypes.contains(subtype) ? facetMatches(subtype)
 				: MOGRAM_TYPES + ".matches(" + MOGRAM_TYPES + ".resolve(mogram, model), " + literal(subtype) + ")";
 			addCastMethods(source, methods, simpleName(subtype), classes.get(subtype), condition);
@@ -168,14 +169,19 @@ public final class DecoratorGenerator {
 		}
 		addFacetSubtypeMethods(source, methods, type, subtypes, classes);
 		for (TypeDefinition child : nested.getOrDefault(type.type(), List.of())) {
-			String declaration = render(child, classNames, classes, nested, subtypes, facetTypes, true);
+			boolean specialized = descendants.contains(child.type());
+			String childBase = specialized ? classes.get(type.type()) : DECORATOR;
+			JavaNames childMethods = specialized ? new JavaNames(methods) : new JavaNames(RESERVED_METHODS);
+			String declaration = render(child, classNames, classes, nested, subtypes, facetTypes, childBase, childMethods, true);
 			source.append('\n').append(declaration.lines()
 				.map(line -> line.isEmpty() ? line : "\t" + line)
 				.collect(Collectors.joining("\n", "", "\n")));
 		}
+		String modifier = isNested ? "static " : "";
+		if (descendants.isEmpty()) modifier += "final ";
 		return templates.render("mogram", Map.of(
-			"name", simpleName(classNames.get(type.type())), "modifier", isNested ? "static " : "",
-			"mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString()));
+			"name", simpleName(classNames.get(type.type())), "modifier", modifier,
+			"base", base, "mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString()));
 	}
 
 	private void addFacetSubtypeMethods(StringBuilder source, JavaNames methods, TypeDefinition type,

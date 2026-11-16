@@ -11,6 +11,10 @@ public final class JavaNames {
 		used = new HashSet<>(reserved);
 	}
 
+	JavaNames(JavaNames inherited) {
+		this(inherited.used);
+	}
+
 	String claim(String suggestion) {
 		String name = identifier(suggestion);
 		String candidate = name;

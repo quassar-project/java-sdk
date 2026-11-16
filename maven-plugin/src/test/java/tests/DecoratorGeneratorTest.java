@@ -49,6 +49,9 @@ class DecoratorGeneratorTest {
 			assertThat(call(commands.get(0), "isGrouping")).isEqualTo(true);
 			assertThat(grouping.getClass().getCanonicalName()).isEqualTo("test.generated.Command.CollectionCommand.Grouping");
 			assertThat(call(grouping, "label")).isEqualTo("By status");
+			assertThat(grouping.getClass().getSuperclass().getSimpleName()).isEqualTo("CollectionCommand");
+			assertThat(commands.get(0).getClass().isInstance(grouping)).isTrue();
+			assertThat(call(grouping, "enabled")).isEqualTo(true);
 			assertThat(call(call(commands.get(1), "asGrouping"), "label")).isEqualTo("Qualified");
 			assertThat(call(commands.get(2), "isGrouping")).isEqualTo(false);
 			assertThat(call(call(commands.get(2), "asGrouping"), "isNull")).isEqualTo(true);
@@ -75,6 +78,8 @@ class DecoratorGeneratorTest {
 			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("asShared", "isShared");
 			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection.Container");
 			assertThat(call(container, "composition")).isEqualTo("Tabs");
+			assertThat(viewType.getClass().isInstance(container)).isTrue();
+			assertThat((List<?>) call(container, "panels")).hasSize(1);
 			assertThat(call(call(viewType, "asProjection"), "isContainer")).isEqualTo(true);
 			Object inheritedView = call(view, "asInherited");
 			Object inheritedDashboard = call(generated.wrap("Dashboard", model.get("Admin")), "asInherited");
