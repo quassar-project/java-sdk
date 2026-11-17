@@ -84,10 +84,24 @@ import io.quassar.templating.model.Template;
 import static io.quassar.templating.model.outputs.Outputs.placeholder;
 import static io.quassar.templating.model.predicates.Predicates.allTypes;
 
-Template template = new Template()
+Template template = Template.create()
 	.add(new Rule().condition(allTypes("Step")).output(placeholder("identifier")))
 	.add(new Rule().condition(allTypes("Action")).output(placeholder("name")));
 ```
+
+### Compose templates
+
+Use `include(...)` to append another template's rules at any point in the chain.
+
+```java
+Template template = Template.create()
+	.include(projectOverrides)
+	.add(extraRule)
+	.include(baseTemplate)
+	.include(sharedRules);
+```
+
+The first matching rule wins. Use `Template.create(configuration)` to set the locale and line separator for the composed template.
 
 ### Create a frame from an object
 

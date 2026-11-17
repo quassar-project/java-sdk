@@ -26,6 +26,19 @@ public class Template {
 		this.rules = rules;
 	}
 
+	public static Template create() {
+		return create(new Configuration());
+	}
+
+	public static Template create(Configuration configuration) {
+		return new Template(configuration);
+	}
+
+	public Template include(Template template) {
+		rules.addAll(template.ruleSet());
+		return this;
+	}
+
 	public Template add(Rule rule) {
 		rules.add(rule);
 		return this;
@@ -40,9 +53,8 @@ public class Template {
 	}
 
 	public static Template compose(Template first, Template... templates) {
-		Template result = new Template();
-		first.ruleSet().forEach(result::add);
-		for (Template template : templates) template.ruleSet().forEach(result::add);
+		Template result = create().include(first);
+		for (Template template : templates) result.include(template);
 		return result;
 	}
 

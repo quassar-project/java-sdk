@@ -29,7 +29,7 @@ final class TemplateModelBuilder extends ItrParserBaseListener {
 	private static final String NL_SEPARATOR = "$NL";
 	private static final String TAB_SEPARATOR = "$TAB";
 
-	private final Template template = new Template();
+	private final Template template = Template.create();
 
 	private static final System.Logger LOGGER = System.getLogger(TemplateModelBuilder.class.getName());
 	private Rule currentRule;

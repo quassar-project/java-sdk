@@ -1,5 +1,6 @@
 package tests;
 
+import io.quassar.templating.TemplateEngine;
 import io.quassar.templating.adapters.reflection.ReflectiveFrameBuilder;
 import io.quassar.templating.model.Template;
 import tests.fixtures.Author;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 import static tests.TestTemplates.engine;
 import static tests.TestTemplates.expected;
@@ -26,6 +28,21 @@ public class TemplatesTest {
 		assertThat(template.add(rules.get(0)).add(rules.get(1))).isSameAs(template);
 		assertThat(template.ruleSet()).containsExactly(rules.get(0), rules.get(1));
 		assertThat(Template.EMPTY.ruleSet()).isEmpty();
+	}
+
+	@Test
+	public void composesTemplatesAndRulesInOrderWithTheRequestedConfiguration() {
+		var labels = TestTemplates.read("rendering/book-label");
+		var json = TestTemplates.read("rendering/book-json");
+		var extraRule = TestTemplates.read("rendering/library-xml").ruleSet().get(0);
+		var configuration = new Template.Configuration(Locale.FRENCH, Template.Configuration.LineSeparator.CRLF);
+		var template = Template.create(configuration).include(labels).add(extraRule).include(json);
+
+		assertThat(template.configuration()).isEqualTo(configuration);
+		assertThat(template.ruleSet()).containsExactly(labels.ruleSet().get(0), extraRule, json.ruleSet().get(0));
+		assertThat(labels.ruleSet()).hasSize(1);
+		var book = new ReflectiveFrameBuilder("Book").add("title", "Don Quixote");
+		assertThat(TemplateEngine.with(template).render(book)).isEqualTo("Book: Don Quixote");
 	}
 
 	@Test

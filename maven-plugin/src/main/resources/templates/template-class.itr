@@ -9,7 +9,7 @@ rule type(templateclass)
 	import static io.quassar.templating.model.predicates.Predicates.*;
 
 	public final class $name~ {
-		private static final Template TEMPLATE = new Template()$rules~;
+		private static final Template TEMPLATE = Template.create()$rules~;
 
 		private $name~() {
 		}
