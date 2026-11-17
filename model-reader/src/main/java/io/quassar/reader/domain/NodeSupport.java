@@ -81,6 +81,14 @@ public final class NodeSupport {
 		return false;
 	}
 
+	public boolean is(Class<? extends Node> type, Mogram mogram, Model model) {
+		if (type.equals(Node.class)) return !mogram.isNull();
+		String name = NodeFactory.type(type);
+		Type declaration = declarations.get(name);
+		return declaration != null && declaration.decorator() == type && !mogram.isNull()
+			&& types(mogram, model).contains(name);
+	}
+
 	public <T extends Node> T as(Class<T> type, Mogram mogram, Model model) {
 		if (type.equals(Node.class)) return type.cast(wrap(mogram, model));
 		String name = NodeFactory.type(type);

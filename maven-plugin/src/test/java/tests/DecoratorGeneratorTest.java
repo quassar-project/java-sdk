@@ -39,6 +39,22 @@ class DecoratorGeneratorTest {
 	Path directory;
 
 	@Test
+	void classChecksDistinguishGeneratedApisWithTheSameTypeNames() throws Exception {
+		var metamodel = MetamodelFixtures.library();
+		Model model = model("observations.tara");
+		try (GeneratedDecorators first = compile(model, metamodel);
+			 GeneratedDecorators second = GeneratedDecorators.compile(model, metamodel, directory.resolve("other-api"))) {
+			Node book = (Node) first.wrap("Book", model.get("FirstBook"));
+			Class<? extends Node> foreignBook = second.loader().loadClass("test.generated.Book").asSubclass(Node.class);
+			assertThat(book.is("Book")).isTrue();
+			assertThat(book.is(book.getClass())).isTrue();
+			assertThat(book.is(foreignBook)).isFalse();
+			assertThatThrownBy(() -> book.as(foreignBook)).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("Unknown node type");
+		}
+	}
+
+	@Test
 	void typeChecksAndConversionsAreIndependentOfTheDecorator() throws Exception {
 		var metamodel = Metamodels.load(Path.of(getClass().getResource("/metamodels/scoped-types/").toURI()));
 		Model model = model("scoped-types.tara");
