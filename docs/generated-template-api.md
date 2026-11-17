@@ -2,6 +2,14 @@
 
 Call a generated template class's static `render` method with a model decorator to produce the text defined by the template. [Quassar Maven plugin setup](../README.md#use-your-models-from-java)
 
+Generated classes extend `Template`. Call `WorkflowTemplate.create()` to get a fresh instance for composition.
+
+```java
+Template combined = Template.create()
+	.include(projectOverrides)
+	.include(WorkflowTemplate.create());
+```
+
 ## Generation inputs and output
 
 During `generate-sources`, the Quassar Maven plugin compiles `.itr` files found under `input-templates` into Java classes under `output-directory` (`src/main/gen` by default).

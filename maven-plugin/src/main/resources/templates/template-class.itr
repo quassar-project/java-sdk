@@ -8,10 +8,14 @@ rule type(templateclass)
 	import static io.quassar.templating.model.outputs.Outputs.*;
 	import static io.quassar.templating.model.predicates.Predicates.*;
 
-	public final class $name~ {
-		private static final Template TEMPLATE = Template.create()$rules~;
+	public final class $name~ extends Template {
+		private static final Template TEMPLATE = create();
 
 		private $name~() {
+	$rules~	}
+
+		public static $name~ create() {
+			return new $name~();
 		}
 
 		public static String render(Object object) {

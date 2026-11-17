@@ -1,5 +1,7 @@
 package tests;
 
+import io.quassar.templating.model.Template;
+
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.junit.jupiter.api.Test;
@@ -134,6 +136,15 @@ class MavenConsumerIT {
 		try (URLClassLoader loader = new URLClassLoader(new URL[]{artifact.toUri().toURL()}, getClass().getClassLoader())) {
 			var summary = loader.loadClass("example.Library").getMethod("summary", String.class);
 			assertThat(summary.invoke(null, "A generated book")).isEqualTo("Book: A GENERATED BOOK (édition \"papier\")");
+			var create = loader.loadClass("example.templates.BookSummaryTemplate").getMethod("create");
+			var first = (Template) create.invoke(null);
+			var second = (Template) create.invoke(null);
+			assertThat(first).isNotSameAs(second);
+			var rules = second.ruleSet();
+			assertThat(rules).isNotEmpty();
+			first.include(second);
+			assertThat(first.ruleSet()).hasSize(rules.size() * 2);
+			assertThat(second.ruleSet()).isEqualTo(rules);
 		}
 	}
 

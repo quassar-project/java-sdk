@@ -41,7 +41,7 @@ public final class TemplateGenerator {
 			StringBuilder methods = new StringBuilder();
 			for (int index = 0; index < rules.size(); index++) {
 				String method = "rule" + (index + 1);
-				additions.append("\n\t\t.add(").append(method).append("())");
+				additions.append("\t\tadd(").append(method).append("());\n");
 				methods.append("\n\tprivate static Rule ").append(method).append("() {\n\t\treturn ")
 					.append(java.rule(rules.get(index))).append(";\n\t}\n");
 			}
