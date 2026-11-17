@@ -1,5 +1,7 @@
 package io.quassar.reader.model;
 
+import io.quassar.reader.domain.NodeSupport;
+
 import java.io.FileNotFoundException;
 import java.util.*;
 
@@ -7,31 +9,43 @@ public final class Model {
 	private final List<Mogram> mograms;
 	private final Index index;
 	private final Map<String, Resource> resources;
+	private final NodeSupport support;
 
 	public Model(List<Mogram> mograms) {
-		this(mograms, Map.of());
+		this(mograms, Map.of(), new NodeSupport(List.of()));
 	}
 
-	private Model(List<Mogram> mograms, Map<String, Resource> resources) {
+	private Model(List<Mogram> mograms, Map<String, Resource> resources, NodeSupport support) {
 		this.mograms = List.copyOf(mograms);
 		this.index = Index.of(this.mograms);
 		this.resources = resources;
+		this.support = support;
 	}
 
-	private Model(Model model, Map<String, Resource> resources) {
+	private Model(Model model, Map<String, Resource> resources, NodeSupport support) {
 		this.mograms = model.mograms;
 		this.index = model.index;
 		this.resources = resources;
+		this.support = support;
 	}
 
 	public Model withResources(Map<String, byte[]> resources) {
 		Map<String, Resource> copy = new TreeMap<>();
 		resources.forEach((name, bytes) -> copy.put(name, new Resource(name, bytes)));
-		return new Model(this, Collections.unmodifiableMap(copy));
+		return new Model(this, Collections.unmodifiableMap(copy), support);
 	}
 
 	public Model withMograms(List<Mogram> mograms) {
-		return new Model(mograms, resources);
+		return new Model(mograms, resources, support);
+	}
+
+	public Model withSupport(NodeSupport support) {
+		if (this.support == support) return this;
+		return new Model(this, resources, support);
+	}
+
+	NodeSupport support() {
+		return support;
 	}
 
 	public Set<String> resourceNames() {

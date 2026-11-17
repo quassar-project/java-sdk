@@ -3,7 +3,7 @@ rule type(model)
 	$dsl~	private final $modelType~ model;
 
 		public $name~($modelType~ model) {
-			this.model = model;
+			this.model = model.withSupport(ModelTypes.TYPES);
 		}
 
 		public java.util.Set<java.lang.String> resourceNames() {

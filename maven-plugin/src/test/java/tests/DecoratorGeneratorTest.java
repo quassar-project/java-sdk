@@ -52,6 +52,11 @@ class DecoratorGeneratorTest {
 					"Main.SummaryPanel", "View.Projection.Panel", "MainToolbar.StatusGrouping", "Command").entrySet()) {
 				Node original = (Node) generated.wrap(example.getValue().replace('.', '$'), model.get(example.getKey()));
 				assertThat(original.isNotNull()).as(example.getKey()).isTrue();
+				Model copy = generated.model().withResources(java.util.Map.of("check.bin", new byte[]{1}))
+					.withMograms(model.mograms());
+				Node copied = io.quassar.reader.domain.NodeFactory.create(original.getClass(), model.get(example.getKey()), copy);
+				assertThat(copied.types()).as(example.getKey()).isEqualTo(original.types());
+				assertThat(copied.as(Node.class).types()).as(example.getKey()).isEqualTo(original.types());
 				List<Node> views = new java.util.ArrayList<>();
 				views.add(original);
 				for (Class<? extends Node> target : targets)

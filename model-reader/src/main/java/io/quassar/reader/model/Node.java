@@ -2,7 +2,6 @@ package io.quassar.reader.model;
 
 import io.quassar.templating.ports.FrameSource;
 import io.quassar.reader.domain.NodeFactory;
-import io.quassar.reader.domain.NodeSupport;
 import io.quassar.templating.ports.FrameView;
 
 import java.util.List;
@@ -11,12 +10,10 @@ import java.util.Objects;
 public abstract class Node extends FrameSource {
 	protected final Mogram mogram;
 	protected final Model model;
-	private final NodeSupport support;
 
-	protected Node(Mogram mogram, Model model, NodeSupport support) {
+	protected Node(Mogram mogram, Model model) {
 		this.mogram = mogram;
 		this.model = model;
-		this.support = support;
 	}
 
 	public final String identifier() {
@@ -32,7 +29,7 @@ public abstract class Node extends FrameSource {
 	}
 
 	public final List<String> types() {
-		return isNull() ? List.of() : support.types(mogram, model);
+		return isNull() ? List.of() : model.support().types(mogram, model);
 	}
 
 	public final boolean is(String type) {
@@ -54,16 +51,16 @@ public abstract class Node extends FrameSource {
 	}
 
 	public final <T extends Node> T as(Class<T> type) {
-		return support.as(type, mogram, model);
+		return model.support().as(type, mogram, model);
 	}
 
 	private Node parent() {
-		return support.wrap(model.parentOf(mogram), model);
+		return model.support().wrap(model.parentOf(mogram), model);
 	}
 
 	@Override
 	protected final FrameView frameView() {
-		return support.frame(mogram, model, types());
+		return model.support().frame(mogram, model, types());
 	}
 
 	@Override

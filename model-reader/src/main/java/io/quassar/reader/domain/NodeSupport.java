@@ -135,13 +135,13 @@ public final class NodeSupport {
 
 	private Node of(Mogram mogram, Model model, Mogram fallback) {
 		Type type = declarations.get(resolve(mogram, model));
-		if (type == null || type.facet()) return new GenericNode(fallback, model, this);
+		if (type == null || type.facet()) return new GenericNode(fallback, model);
 		return NodeFactory.create(type.decorator(), mogram, model);
 	}
 
 	private static final class GenericNode extends Node {
-		private GenericNode(Mogram mogram, Model model, NodeSupport support) {
-			super(mogram, model, support);
+		private GenericNode(Mogram mogram, Model model) {
+			super(mogram, model);
 		}
 	}
 

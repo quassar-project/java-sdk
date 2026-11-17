@@ -5,6 +5,7 @@ import io.quassar.metamodel.model.Metamodel;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.model.Mogram;
 import io.quassar.reader.model.Node;
+import io.quassar.reader.domain.NodeSupport;
 import io.quassar.templating.TemplateEngine;
 
 import javax.tools.ToolProvider;
@@ -31,7 +32,10 @@ public record GeneratedDecorators(URLClassLoader loader, Model model) implements
 		ByteArrayOutputStream errors = new ByteArrayOutputStream();
 		int result = ToolProvider.getSystemJavaCompiler().run(null, null, errors, args.toArray(String[]::new));
 		assertThat(result).withFailMessage(errors.toString()).isZero();
-		return new GeneratedDecorators(new URLClassLoader(new URL[]{classes.toUri().toURL()}, Mogram.class.getClassLoader()), model);
+		var loader = new URLClassLoader(new URL[]{classes.toUri().toURL()}, Mogram.class.getClassLoader());
+		var support = loader.loadClass("test.generated.ModelTypes").getDeclaredField("TYPES");
+		support.setAccessible(true);
+		return new GeneratedDecorators(loader, model.withSupport((NodeSupport) support.get(null)));
 	}
 
 	public Object wrap(String type, Mogram mogram) throws Exception {

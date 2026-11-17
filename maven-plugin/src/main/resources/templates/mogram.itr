@@ -3,6 +3,6 @@ rule type(mogram)
 		private static final java.lang.String TYPE = $typeName~;
 
 		$name~($mogramType~ mogram, $modelType~ model) {
-			super($superArguments~);
+			super(mogram, model);
 		}
 	$methods~}$NL

@@ -191,7 +191,6 @@ public final class DecoratorGenerator {
 		return templates.render("mogram", Map.of(
 			"name", simpleName(layout.classNames().get(type.type())), "modifier", modifier,
 			"base", base, "mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString(),
-			"superArguments", NODE.equals(base) ? "mogram, model, ModelTypes.TYPES" : "mogram, model",
 			"typeName", literal(type.type())));
 	}
 
