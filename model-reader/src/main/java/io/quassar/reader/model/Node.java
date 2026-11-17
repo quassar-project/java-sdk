@@ -47,8 +47,7 @@ public abstract class Node extends FrameSource {
 	public final <T extends Node> T ancestor(Class<T> type) {
 		Node parent = parent();
 		while (parent.isNotNull()) {
-			T candidate = parent.as(type);
-			if (candidate.isNotNull()) return candidate;
+			if (parent.is(type)) return parent.as(type);
 			parent = parent.parent();
 		}
 		return parent.as(type);
