@@ -3,11 +3,6 @@ rule type(mogram)
 		private static final java.lang.String TYPE = $typeName~;
 
 		$name~($mogramType~ mogram, $modelType~ model) {
-			super(mogram, model);
-		}
-	$frame~
-		@Override
-		protected java.util.List<java.lang.String> modelTypes() {
-			return NodeSupport.types(mogram, model, TYPE);
+			super($superArguments~);
 		}
 	$methods~}$NL

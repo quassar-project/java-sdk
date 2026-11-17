@@ -407,9 +407,10 @@ class DecoratorGeneratorTest {
 		assertThat(generator.code()).isEqualTo(code);
 		assertThat(code).extracting(JavaCode::className)
 			.contains("Book", "Chapter", "Author", "Note", "Edition")
-			.doesNotContain("MogramTypes", "Node");
-		assertThat(code).filteredOn(source -> source.className().equals("NodeSupport"))
-			.singleElement().extracting(JavaCode::content).asString().contains("static final class MogramTypes");
+			.doesNotContain("MogramTypes", "Node", "NodeSupport");
+		assertThat(code).filteredOn(source -> source.className().equals("ModelTypes"))
+			.singleElement().extracting(JavaCode::content).asString().contains("NodeSupport", "NodeSupport.Type")
+			.doesNotContain("switch (", "frameSlots()", " as(", " wrap(", " of(");
 		assertThat(code).allMatch(source -> source.packageName().equals("books"));
 		assertThat(code).allSatisfy(source -> assertThat(source.content())
 			.doesNotContain("io.quassar.templating.annotations", "FRAME_CHILDREN", "FRAME_PROPERTIES",

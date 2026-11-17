@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,9 +33,10 @@ public final class DecoratorGenerator {
 	private static final String MODEL = "io.quassar.reader.model.Model";
 	private static final String NODE = "io.quassar.reader.model.Node";
 	private static final String RESOURCE = "io.quassar.reader.model.Resource";
-	private static final String SUPPORT = "NodeSupport";
-	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
-	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "GenericNode", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
+	private static final String SUPPORT = "io.quassar.reader.domain.NodeSupport";
+	private static final String SCHEMA = "ModelTypes";
+	private static final String MODEL_TYPES = SCHEMA + ".TYPES";
+	private static final Set<String> RESERVED_TYPES = Set.of("Node", "NodeSupport", SCHEMA, "MogramTypes", "GenericNode", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
 	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "as", "wrap", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
@@ -92,7 +92,7 @@ public final class DecoratorGenerator {
 		for (TypeDefinition type : types) classes.put(type.type(), targets.get(type.type()));
 		Map<String, List<String>> subtypes = descendants(subtypeParents);
 		List<JavaCode> code = new ArrayList<>();
-		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes, metamodelTypes));
+		code.add(decoratorBase(packageName, targets, declarations, metamodelTypes));
 		code.add(modelDecorator(types, packageName, facadeName, classes, dsl));
 		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, enums, subtypeParents);
 		for (TypeDefinition type : decorators) {
@@ -141,7 +141,7 @@ public final class DecoratorGenerator {
 			String decorator = classes.get(type.type());
 			boolean single = type.rootCardinality().isSingle();
 			String getter = memberName(methods, type.type(), single);
-			String filter = ".where(mogram -> " + MOGRAM_TYPES + ".matches(mogram.type(), " + literal(type.type()) + "))";
+			String filter = ".where(mogram -> " + MODEL_TYPES + ".matches(mogram.type(), " + literal(type.type()) + "))";
 			if (single)
 				source.append(method(decorator, getter, "new " + decorator + "(model.roots()" + filter + ".first(), model)"));
 			else source.append(collectionMethod(decorator, getter, "model.roots()" + filter + ".stream()"));
@@ -169,7 +169,7 @@ public final class DecoratorGenerator {
 			if (decorator == null) throw new IllegalArgumentException("Unknown component " + child + " in " + type.type());
 			boolean single = composition.cardinality().isSingle();
 			String getter = memberName(methods, simpleName(child), single);
-			String match = MOGRAM_TYPES + ".matches(" + MOGRAM_TYPES + ".resolve(child.type(), " + literal(type.type()) + "), " + literal(child) + ")";
+			String match = MODEL_TYPES + ".matches(" + MODEL_TYPES + ".resolve(child.type(), " + literal(type.type()) + "), " + literal(child) + ")";
 			String stream = "mogram.children().stream()\n\t.filter(child -> " + match + ")";
 			if (single)
 				source.append(method(decorator, getter, "new " + decorator + "(" + stream
@@ -191,27 +191,8 @@ public final class DecoratorGenerator {
 		return templates.render("mogram", Map.of(
 			"name", simpleName(layout.classNames().get(type.type())), "modifier", modifier,
 			"base", base, "mogramType", MOGRAM, "modelType", MODEL, "methods", source.toString(),
-			"frame", frameMethod(), "typeName", literal(type.type())));
-	}
-
-	private String frameMethod() {
-		return """
-
-				@Override
-				protected io.quassar.templating.ports.FrameView frameView() {
-					return NodeSupport.frame(mogram, model, types());
-				}
-
-				@Override
-				public <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type) {
-					return NodeSupport.as(type, mogram, model);
-				}
-
-				@Override
-				protected io.quassar.reader.model.Node wrap(io.quassar.reader.model.Mogram mogram) {
-					return NodeSupport.wrap(mogram, model);
-				}
-			""";
+			"superArguments", NODE.equals(base) ? "mogram, model, ModelTypes.TYPES" : "mogram, model",
+			"typeName", literal(type.type())));
 	}
 
 	private record DecoratorLayout(Map<String, String> classNames, Map<String, String> references,
@@ -270,65 +251,18 @@ public final class DecoratorGenerator {
 			+ "\n\t.map(mogram -> new " + decorator + "(mogram, model))\n\t.toList()");
 	}
 
-	private String mogramTypes(List<TypeDefinition> types, Map<String, String> parents, Map<String, List<String>> subtypes) {
-		StringBuilder aliases = new StringBuilder();
-		for (TypeDefinition type : types) {
-			Set<String> names = new HashSet<>();
-			for (Composition child : type.children()) names.add(child.type());
-			for (Composition child : type.children()) {
-				String simple = simpleName(child.type());
-				if (names.add(simple))
-					aliases.append("\t\t\t\tcase ").append(literal(type.type() + "." + simple))
-						.append(" -> ").append(literal(child.type())).append(";\n");
-			}
-		}
-		return templates.render("types", Map.of("mogramType", MOGRAM, "modelType", MODEL, "aliases", aliases.toString(),
-			"subtypes", subtypeMatches(parents, subtypes)));
-	}
-
-	private String subtypeMatches(Map<String, String> parents, Map<String, List<String>> subtypes) {
-		StringBuilder matches = new StringBuilder();
-		for (String type : Stream.concat(parents.keySet().stream(), subtypes.keySet().stream()).distinct().sorted().toList()) {
-			Set<String> aliases = new LinkedHashSet<>();
-			if (parents.containsKey(type)) aliases.addAll(subtypeNames(type, parents, subtypes));
-			for (String subtype : subtypes.getOrDefault(type, List.of())) aliases.addAll(subtypeNames(subtype, parents, subtypes));
-			matches.append("\t\t\t\tcase ").append(literal(type)).append(" -> switch (actual) {\n")
-				.append("\t\t\t\t\tcase ").append(aliases.stream().map(this::literal).collect(Collectors.joining(", ")))
-				.append(" -> true;\n\t\t\t\t\tdefault -> false;\n\t\t\t\t};\n");
-		}
-		return matches.toString();
-	}
-
-	private List<String> subtypeNames(String type, Map<String, String> parents, Map<String, List<String>> subtypes) {
-		String root = type;
-		while (parents.containsKey(root)) root = parents.get(root);
-		List<String> family = subtypes.get(root);
-		List<String> names = new ArrayList<>();
-		names.add(type);
-		for (int dot = type.indexOf('.'); dot >= 0; dot = type.indexOf('.', dot + 1)) {
-			String suffix = type.substring(dot);
-			if (family.stream().filter(candidate -> candidate.endsWith(suffix)).limit(2).count() == 1)
-				names.add(suffix.substring(1));
-		}
-		return names;
-	}
-
 	private JavaCode decoratorBase(String packageName, Map<String, String> classes,
-			List<TypeDefinition> types,
-			Map<String, String> parents, Map<String, List<String>> subtypes, List<MetamodelType> metamodelTypes) {
-		StringBuilder cases = new StringBuilder();
-		classes.forEach((type, name) -> cases.append(templates.render("factory-case", Map.of("type", literal(type), "name", name))));
-		return new JavaCode(packageName, SUPPORT, templates.render("decorator", Map.of(
-			"mogramType", MOGRAM, "modelType", MODEL,
-			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes),
-			"hierarchy", hierarchy(metamodelTypes))));
-	}
-
-	private String hierarchy(List<MetamodelType> types) {
-		return types.stream().sorted(Comparator.comparing(MetamodelType::name))
-			.map(type -> "\t\t\tnew io.quassar.reader.model.NodeTypeHierarchy.Type(" + literal(type.name())
-				+ ", " + literal(type.parent()) + ", " + literal(type.scope()) + ", " + type.isFacet() + ")")
-			.collect(Collectors.joining(",\n", "\n", "\n\t\t"));
+			List<TypeDefinition> types, List<MetamodelType> metamodelTypes) {
+		Map<String, TypeDefinition> definitions = types.stream().collect(Collectors.toMap(TypeDefinition::type, type -> type));
+		String hierarchy = metamodelTypes.stream().sorted(Comparator.comparing(MetamodelType::name))
+			.map(type -> {
+				String children = definitions.get(type.name()).children().stream().map(Composition::type)
+					.map(this::literal).collect(Collectors.joining(", "));
+				return "\t\tnew io.quassar.reader.domain.NodeSupport.Type(" + literal(type.name()) + ", "
+					+ literal(type.parent()) + ", " + literal(type.scope()) + ", " + type.isFacet()
+					+ ", java.util.List.of(" + children + "), " + classes.get(type.name()) + ".class)";
+			}).collect(Collectors.joining(",\n", "\n", "\n\t"));
+		return new JavaCode(packageName, SCHEMA, templates.render("decorator", Map.of("hierarchy", hierarchy)));
 	}
 
 	private String propertyValue(PropertyDefinition property) {
@@ -362,7 +296,7 @@ public final class DecoratorGenerator {
 	private String wrapReference(String value, PropertyDefinition property, Map<String, String> classes) {
 		String target = referenceType(property, classes);
 		String mogram = "model.get(" + value + ", mogram)";
-		return target.equals(NODE) ? SUPPORT + ".of(" + mogram + ", model)"
+		return target.equals(NODE) ? MODEL_TYPES + ".of(" + mogram + ", model)"
 			: "new " + target + "(" + mogram + ", model)";
 	}
 

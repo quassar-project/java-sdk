@@ -2,18 +2,21 @@ package io.quassar.reader.model;
 
 import io.quassar.templating.ports.FrameSource;
 import io.quassar.reader.domain.NodeFactory;
+import io.quassar.reader.domain.NodeSupport;
+import io.quassar.templating.ports.FrameView;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public abstract class Node extends FrameSource {
 	protected final Mogram mogram;
 	protected final Model model;
+	private final NodeSupport support;
 
-	protected Node(Mogram mogram, Model model) {
+	protected Node(Mogram mogram, Model model, NodeSupport support) {
 		this.mogram = mogram;
 		this.model = model;
+		this.support = support;
 	}
 
 	public final String identifier() {
@@ -51,16 +54,21 @@ public abstract class Node extends FrameSource {
 		return parent.as(type);
 	}
 
-	public abstract <T extends Node> T as(Class<T> type);
-
-	private Node parent() {
-		return wrap(model.parentOf(mogram));
+	public final <T extends Node> T as(Class<T> type) {
+		return support.as(type, mogram, model);
 	}
 
-	protected abstract Node wrap(Mogram mogram);
+	private Node parent() {
+		return support.wrap(model.parentOf(mogram), model);
+	}
+
+	@Override
+	protected final FrameView frameView() {
+		return support.frame(mogram, model, types());
+	}
 
 	protected List<String> modelTypes() {
-		return Stream.concat(Stream.of(mogram.type()), mogram.facets().stream()).distinct().toList();
+		return support.types(mogram, model, support.declaredType(getClass()));
 	}
 
 	@Override

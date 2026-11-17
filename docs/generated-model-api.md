@@ -8,6 +8,8 @@ Set `input-model` to the M2 download URL. During `generate-sources`, the Quassar
 
 The plugin adds the `model` subpackage to the base package set by `output-package`, which defaults to the project's `groupId`. With the default package and a project `groupId` of `org.workflows` and the `Workflows` metamodel, the model class is `org.workflows.model.WorkflowsModel` and its default output path is `src/main/gen/org/workflows/model/WorkflowsModel.java`. Use it to load M1 when your generator or interpreter runs. The facade uses the last segment of a qualified metamodel name. For example, `MONET.VISORA` generates `VisoraModel`.
 
+The generated `ModelTypes` class describes the DSL types, scopes, inheritance, children, and corresponding Java classes. Model Reader uses this description for conversions, ancestor navigation, type queries, and template frames.
+
 The examples below use the [sample Workflows metamodel](sample-m2-model.md).
 
 Concepts and facets declared inside another type generate static classes inside the enclosing decorator. A `sub` shares the scope of its parent type. For example, a root `Widget` with `sub Header` generates `Header extends Widget`; a `Projection` under the facet `View.ViewType` generates `View.Projection extends View.ViewType`. For example, the `EntryPoint` declared inside `Workflow` generates `Workflow.EntryPoint`. The `workflow.entryPoint()` getter returns that type.
