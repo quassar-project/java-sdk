@@ -26,7 +26,7 @@ rule type(startermojo) and attribute(model)
 			try {
 				var loadedModel = $model~.load(input.model);
 				var directory = output.toPath().toAbsolutePath();
-				Files.createDirectories(directory);<<$NL~				Files.writeString(directory.resolve("GeneratedModel.java"), $renderer~.render(loadedModel));>>
+				Files.createDirectories(directory);<<$NL~				Files.writeString(directory.resolve("GeneratedModel.java"), $renderer~.create().render(loadedModel));>>
 				project.addCompileSourceRoot(directory.toString());
 			} catch (IOException exception) {
 				throw new MojoExecutionException("Could not generate " + output, exception);

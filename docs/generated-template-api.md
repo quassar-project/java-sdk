@@ -1,6 +1,6 @@
 # Generated Template API
 
-Call a generated template class's static `render` method with a model decorator to produce the text defined by the template. [Quassar Maven plugin setup](../README.md#use-your-models-from-java)
+Create a generated template instance and call `render` with a model decorator to produce the text defined by the template. [Quassar Maven plugin setup](../README.md#use-your-models-from-java)
 
 Generated classes extend `Template`. Call `WorkflowTemplate.create()` to get a fresh instance for composition.
 
@@ -8,6 +8,7 @@ Generated classes extend `Template`. Call `WorkflowTemplate.create()` to get a f
 Template combined = Template.create()
 	.include(projectOverrides)
 	.include(WorkflowTemplate.create());
+String output = combined.render(workflow);
 ```
 
 ## Generation inputs and output
@@ -32,7 +33,7 @@ The generated Java class contains the template rules. A standard Maven build pac
 
 This example uses a DSL called Workflows. Its metamodel (M2) defines workflows, steps, and actions. The sample model (M1) contains a workflow named `OrderFulfillment`. Rendering that workflow produces a Java class whose `actions()` method lists all primary actions in model order, including those of disabled steps. [Sample metamodel (M2)](sample-m2-model.md) · [Sample model (M1)](sample-m1-model.md)
 
-With the generated classes `org.workflows.model.WorkflowsModel` and `org.workflows.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.render(workflow)`. The generated class applies the rules from the [sample workflow template](sample-templates.md#workflowitr).
+With the generated classes `org.workflows.model.WorkflowsModel` and `org.workflows.templates.WorkflowTemplate` already available, load M1 and pass a workflow to `WorkflowTemplate.create().render(workflow)`. The generated class applies the rules from the [sample workflow template](sample-templates.md#workflowitr).
 
 Save this program as `GenerateWorkflow.java` and replace `[code]` with the code of your M1 model in Quassar.
 
@@ -48,7 +49,7 @@ public class GenerateWorkflow {
 	public static void main(String[] args) throws Exception {
 		var model = WorkflowsModel.load(URI.create("https://quassar.io/models/[code]"));
 		var workflow = model.workflows().get(0);
-		String source = WorkflowTemplate.render(workflow);
+		String source = WorkflowTemplate.create().render(workflow);
 
 		Files.writeString(Path.of(workflow.identifier() + "Workflow.java"), source);
 	}

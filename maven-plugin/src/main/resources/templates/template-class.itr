@@ -1,7 +1,6 @@
 rule type(templateclass)
 	package $package~;
 
-	import io.quassar.templating.TemplateEngine;
 	import io.quassar.templating.model.Rule;
 	import io.quassar.templating.model.Template;
 
@@ -9,16 +8,10 @@ rule type(templateclass)
 	import static io.quassar.templating.model.predicates.Predicates.*;
 
 	public final class $name~ extends Template {
-		private static final Template TEMPLATE = create();
-
 		private $name~() {
 	$rules~	}
 
 		public static $name~ create() {
 			return new $name~();
-		}
-
-		public static String render(Object object) {
-			return TemplateEngine.with(TEMPLATE).render(object);
 		}
 	}

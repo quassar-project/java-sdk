@@ -1,6 +1,5 @@
 package tests;
 
-import io.quassar.templating.TemplateEngine;
 import io.quassar.templating.adapters.reflection.ReflectiveFrameBuilder;
 import io.quassar.templating.model.Template;
 import tests.fixtures.Author;
@@ -42,7 +41,7 @@ public class TemplatesTest {
 		assertThat(template.ruleSet()).containsExactly(labels.ruleSet().get(0), extraRule, json.ruleSet().get(0));
 		assertThat(labels.ruleSet()).hasSize(1);
 		var book = new ReflectiveFrameBuilder("Book").add("title", "Don Quixote");
-		assertThat(TemplateEngine.with(template).render(book)).isEqualTo("Book: Don Quixote");
+		assertThat(template.render(book)).isEqualTo("Book: Don Quixote");
 	}
 
 	@Test

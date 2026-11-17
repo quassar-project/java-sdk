@@ -77,7 +77,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
    Use the [template cookbook](docs/template-engine-cookbook.md) and [syntax reference](docs/template-engine-syntax.md) to write templates. The [Generated Template API](docs/generated-template-api.md) shows how to render a model with the generated classes.
 
-4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the M1 URL from the consumer POM. With Quassar Template Engine, call the generated template class’s `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
+4. **Load the model and render the templates.** In the Mojo’s `generate` goal, load M1 through the generated model API using the M1 URL from the consumer POM. With Quassar Template Engine, create a generated template instance and call its `render` method with that model, then write the resulting files to the consumer project’s generated sources directory.
 
    Maven injects the M1 URL from the consumer POM’s `<model>` element inside `<input>` in step 6 into the Mojo’s `input.model` field. Maven also supplies `output` and injects the current consumer project into `project` through `${project}`. The Mojo uses it to register the generated sources. Keep the fields and nested `Input` class from the generated Mojo. The snippet shows those fields for context.
 
@@ -100,7 +100,7 @@ Model (M1) → Your Maven plugin → Source code in the generated sources direct
 
 		for (var workflow : workflows.workflows()) {
 			var filename = workflow.identifier() + "Workflow.java";
-			String code = WorkflowTemplate.render(workflow);
+			String code = WorkflowTemplate.create().render(workflow);
 			Files.writeString(directory.resolve(filename), code);
 		}
 

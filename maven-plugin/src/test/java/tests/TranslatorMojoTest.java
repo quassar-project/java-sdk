@@ -33,7 +33,7 @@ class TranslatorMojoTest {
 		assertThat(directory.resolve("src/main/gen/library/model/templates/BookSummaryTemplate.java"))
 			.content().contains("class BookSummaryTemplate extends Template", "public static BookSummaryTemplate create()")
 			.containsPattern("(?m)^\\t\\tadd\\(Rule\\.create\\(\\)\\.condition.*\\.output.*\\);$")
-			.doesNotContain("rule1()");
+			.doesNotContain("rule1()", "static final Template TEMPLATE");
 		assertThat(directory.resolve("target/generated-resources/metta/library/model/templates/BookSummaryTemplate.itr")).doesNotExist();
 		assertThat(directory.resolve("src/main/gen/library/model/model")).doesNotExist();
 		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).exists();
@@ -75,7 +75,7 @@ class TranslatorMojoTest {
 		mojo.execute();
 		Path main = source.resolve("library/model/Interpreter.java");
 		assertThat(main).content().contains("package library.model;", "import library.model.model.LibraryModel;",
-			"LibraryModel.load(", "BookSummaryTemplate.render(model)");
+			"LibraryModel.load(", "BookSummaryTemplate.create().render(model)");
 		assertThat(directory.resolve("templates/model-json.itr")).doesNotExist();
 
 		Files.writeString(main, "custom main");
@@ -95,7 +95,7 @@ class TranslatorMojoTest {
 			"\"title\": $title+JsonValue");
 		assertThat(directory.resolve("src/main/gen/library/model/templates/ModelJsonTemplate.java")).exists();
 		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java"))
-			.content().contains("ModelJsonTemplate.render(model)");
+			.content().contains("ModelJsonTemplate.create().render(model)");
 
 		String edited = "rule type(Model)\n\t{\"edited\": true}\n";
 		Files.writeString(template, edited);

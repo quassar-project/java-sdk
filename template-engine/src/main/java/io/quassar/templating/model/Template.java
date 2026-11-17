@@ -1,5 +1,7 @@
 package io.quassar.templating.model;
 
+import io.quassar.templating.TemplateEngine;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -42,6 +44,10 @@ public class Template {
 	public Template add(Rule rule) {
 		rules.add(rule);
 		return this;
+	}
+
+	public String render(Object object) {
+		return TemplateEngine.with(this).render(object);
 	}
 
 	public List<Rule> ruleSet() {

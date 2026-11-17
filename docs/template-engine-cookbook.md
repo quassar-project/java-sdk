@@ -9,7 +9,7 @@ Choose a recipe for the output you want to produce. Each recipe gives you an inp
 
 ## Prepare the sample input
 
-Save each template in its own `.itr` file under the project’s `templates/` folder and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Call the corresponding generated template class's `render` method with `workflow` or `step`. [Generated Template API](generated-template-api.md) · [Sample templates](sample-templates.md)
+Save each template in its own `.itr` file under the project’s `templates/` folder and run `mvn generate-sources` to have the Quassar Maven plugin compile it. Create an instance of the corresponding generated template and call `render` with `workflow` or `step`. [Generated Template API](generated-template-api.md) · [Sample templates](sample-templates.md)
 
 ```java
 import org.workflows.model.WorkflowsModel;
@@ -173,7 +173,7 @@ Notify warehouse (OrderFulfillment)
 
 ## Generate Java from a workflow
 
-Render `workflow` to generate a Java class that lists the actions in model order. Save the rules as `workflow.itr` and call `WorkflowTemplate.render(workflow)`. [Sample template](sample-templates.md#workflowitr) · [Save the rendered Java source](generated-template-api.md#example-generate-java-from-a-workflow)
+Render `workflow` to generate a Java class that lists the actions in model order. Save the rules as `workflow.itr` and call `WorkflowTemplate.create().render(workflow)`. [Sample template](sample-templates.md#workflowitr) · [Save the rendered Java source](generated-template-api.md#example-generate-java-from-a-workflow)
 
 ```java
 import java.util.List;
@@ -187,7 +187,7 @@ public final class OrderFulfillmentWorkflow {
 
 ## Generate a Java step configuration
 
-Save this as `step-config.itr` and render a step with `StepConfigTemplate.render(step)`. The first rule handles enabled steps. The second supplies a zero timeout for disabled steps.
+Save this as `step-config.itr` and render a step with `StepConfigTemplate.create().render(step)`. The first rule handles enabled steps. The second supplies a zero timeout for disabled steps.
 
 ```itr
 rule type(Step) and attribute(enabled, true)
@@ -211,7 +211,7 @@ public record ConfirmConfig() {
 
 ## Generate a Java record
 
-Save this as `step-action-config.itr` and call `StepActionConfigTemplate.render(step)`. The generated record holds the step settings that a Java workflow runner can read through typed accessors.
+Save this as `step-action-config.itr` and call `StepActionConfigTemplate.create().render(step)`. The generated record holds the step settings that a Java workflow runner can read through typed accessors.
 
 ```itr
 rule type(Step)

@@ -5,7 +5,7 @@ rule type(interpreter) and attribute(model)
 	public final class $className~ {
 		public static void main(String[] args) throws IOException {
 			Path source = Path.of(args.length == 0 ? "m1" : args[0]);
-			var model = $model~.load(source);<<$NL~		System.out.println($renderer~.render(model));>>
+			var model = $model~.load(source);<<$NL~		System.out.println($renderer~.create().render(model));>>
 		}
 	}$NL
 
