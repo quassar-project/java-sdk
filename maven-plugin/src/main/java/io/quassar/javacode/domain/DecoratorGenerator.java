@@ -91,11 +91,10 @@ public final class DecoratorGenerator {
 		Map<String, String> classes = new LinkedHashMap<>();
 		for (TypeDefinition type : types) classes.put(type.type(), targets.get(type.type()));
 		Map<String, List<String>> subtypes = descendants(subtypeParents);
-		Set<String> facetTypes = facets.stream().map(TypeDefinition::type).collect(Collectors.toSet());
 		List<JavaCode> code = new ArrayList<>();
 		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes, metamodelTypes));
 		code.add(modelDecorator(types, packageName, facadeName, classes, dsl));
-		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, facetTypes, enums, subtypeParents);
+		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, enums, subtypeParents);
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
 			code.add(new JavaCode(packageName, classNames.get(type.type()),
@@ -163,12 +162,7 @@ public final class DecoratorGenerator {
 			if (enumName == null) source.append(method(returnType(property, classes), getter, expression(property, classes)));
 			else source.append(enumGetter(property, getter, enumName));
 		}
-		for (String facet : type.facets()) addFacetMethods(source, methods, facet);
-		for (String subtype : descendants) {
-			String condition = layout.facetTypes().contains(subtype) ? facetMatches(subtype)
-				: MOGRAM_TYPES + ".matches(" + MOGRAM_TYPES + ".resolve(mogram, model), " + literal(subtype) + ")";
-			addTypeCheck(source, methods, simpleName(subtype), condition);
-		}
+
 		for (Composition composition : type.children()) {
 			String child = composition.type();
 			String decorator = classes.get(child);
@@ -182,7 +176,6 @@ public final class DecoratorGenerator {
 					+ ".findFirst().orElse(" + MOGRAM + ".NULL), model)"));
 			else source.append(collectionMethod(decorator, getter, stream));
 		}
-		addFacetSubtypeMethods(source, methods, type, layout.subtypes());
 		enums.forEach((property, name) -> source.append(enumDeclaration(property, name)));
 		for (TypeDefinition child : layout.nested().getOrDefault(type.type(), List.of())) {
 			boolean specialized = layout.parents().containsKey(child.type());
@@ -222,7 +215,7 @@ public final class DecoratorGenerator {
 	}
 
 	private record DecoratorLayout(Map<String, String> classNames, Map<String, String> references,
-			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes, Set<String> facetTypes,
+			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes,
 			Map<String, Map<PropertyDefinition, String>> enums, Map<String, String> parents) {
 	}
 
@@ -261,41 +254,6 @@ public final class DecoratorGenerator {
 			.map(option -> "\t\t\t\tcase " + literal(option.getKey()) + " -> " + option.getValue() + ";\n")
 			.collect(Collectors.joining());
 		return templates.render("enum", Map.of("name", enumName, "constants", String.join(", ", options.values()), "cases", cases));
-	}
-
-	private void addFacetSubtypeMethods(StringBuilder source, JavaNames methods, TypeDefinition type,
-			Map<String, List<String>> subtypes) {
-		Set<String> declaredNames = Stream.concat(type.facets().stream(), subtypes.getOrDefault(type.type(), List.of()).stream())
-			.map(this::subtypeMethodName).collect(Collectors.toSet());
-		Map<String, List<String>> facetSubtypes = type.facets().stream()
-			.flatMap(facet -> subtypes.getOrDefault(facet, List.of()).stream())
-			.distinct()
-			.collect(Collectors.groupingBy(this::subtypeMethodName, LinkedHashMap::new, Collectors.toList()));
-		facetSubtypes.forEach((name, candidates) -> {
-			if (declaredNames.contains(name) || candidates.size() != 1) return;
-			String subtype = candidates.get(0);
-			addTypeCheck(source, methods, name, facetMatches(subtype));
-		});
-	}
-
-	private String subtypeMethodName(String type) {
-		return JavaNames.className(simpleName(type));
-	}
-
-	private void addFacetMethods(StringBuilder source, JavaNames methods, String facet) {
-		String simple = simpleName(facet);
-		String condition = facetMatches(facet);
-		if (!simple.equals(facet)) condition += " || mogram.facets().contains(" + literal(simple) + ")";
-		addTypeCheck(source, methods, simple, condition);
-	}
-
-	private String facetMatches(String facet) {
-		return "mogram.facets().stream().anyMatch(facet -> " + MOGRAM_TYPES + ".matches(facet, " + literal(facet) + "))";
-	}
-
-	private void addTypeCheck(StringBuilder source, JavaNames methods, String name, String condition) {
-		String check = methods.claim("is" + JavaNames.className(name));
-		source.append(method("boolean", check, condition));
 	}
 
 	private String simpleName(String name) {

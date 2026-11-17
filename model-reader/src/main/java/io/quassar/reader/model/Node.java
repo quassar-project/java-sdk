@@ -1,6 +1,7 @@
 package io.quassar.reader.model;
 
 import io.quassar.templating.ports.FrameSource;
+import io.quassar.reader.domain.NodeFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +30,15 @@ public abstract class Node extends FrameSource {
 
 	public final List<String> types() {
 		return isNull() ? List.of() : modelTypes();
+	}
+
+	public final boolean is(String type) {
+		return types().stream().anyMatch(name -> name.equals(type) || name.endsWith("." + type));
+	}
+
+	public final boolean is(Class<? extends Node> type) {
+		if (type.equals(Node.class)) return isNotNull();
+		return types().contains(NodeFactory.type(type));
 	}
 
 	public final <T extends Node> T ancestor(Class<T> type) {

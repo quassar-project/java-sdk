@@ -47,8 +47,8 @@ class DecoratorGeneratorTest {
 			List<?> commands = (List<?>) call(toolbar, "commands");
 			assertThat(commands).hasSize(3);
 			Object grouping = generated.as(commands.get(0), "Grouping");
-			assertThat(call(commands.get(0), "isCollectionCommand")).isEqualTo(true);
-			assertThat(call(commands.get(0), "isGrouping")).isEqualTo(true);
+			assertThat(((Node) commands.get(0)).is("CollectionCommand")).isEqualTo(true);
+			assertThat(((Node) commands.get(0)).is("Grouping")).isEqualTo(true);
 			assertThat(grouping.getClass().getCanonicalName()).isEqualTo("test.generated.Grouping");
 			assertThat(call(grouping, "label")).isEqualTo("By status");
 			assertThat(grouping.getClass().getSuperclass().getSimpleName()).isEqualTo("CollectionCommand");
@@ -70,7 +70,7 @@ class DecoratorGeneratorTest {
 			assertThat(call(grouping, "limit")).isEqualTo(3);
 			assertThat((List<?>) call(grouping, "thresholds")).isEqualTo(List.of(2, 5));
 			assertThat(call(generated.as(commands.get(1), "Grouping"), "label")).isEqualTo("Qualified");
-			assertThat(call(commands.get(2), "isGrouping")).isEqualTo(false);
+			assertThat(((Node) commands.get(2)).is("Grouping")).isEqualTo(false);
 			Object missing = generated.as(commands.get(2), "Grouping");
 			assertThat(call(missing, "isNull")).isEqualTo(true);
 			assertThat(call(missing, "isNotNull")).isEqualTo(false);
@@ -83,20 +83,25 @@ class DecoratorGeneratorTest {
 		Model model = model("scoped-types.tara");
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
 			Object view = generated.wrap("View", model.get("Main"));
-			assertThat(call(view, "isViewType")).isEqualTo(true);
+			assertThat(((Node) view).is("ViewType")).isEqualTo(true);
 			Object viewType = generated.as(view, "View.ViewType");
-			assertThat(call(viewType, "isProjection")).isEqualTo(true);
-			assertThat(call(viewType, "isContainer")).isEqualTo(true);
+			assertThat(((Node) viewType).is("Projection")).isEqualTo(true);
+			assertThat(((Node) viewType).is("Container")).isEqualTo(true);
 			Object container = generated.as(viewType, "View.Container");
 			assertThat(view.getClass().getMethods()).extracting(Method::getName)
-				.contains("as", "isContainer").doesNotContain("asContainer", "asProjection", "asViewType");
-			assertThat(call(view, "isContainer")).isEqualTo(true);
+				.contains("as", "is").doesNotContain("asContainer", "asProjection", "asViewType", "isContainer", "isProjection", "isViewType");
+			assertThat(((Node) view).is("Container")).isEqualTo(true);
 			assertThat(generated.as(view, "View.Container")).isEqualTo(container);
-			assertThat(call(view, "isProjection")).isEqualTo(true);
-			assertThat(call(view, "isReference")).isEqualTo(false);
+			assertThat(((Node) view).is(container.getClass().asSubclass(Node.class))).isTrue();
+			assertThat(((Node) view).is("View.Container")).isTrue();
+			assertThat(((Node) view).is("Other.Container")).isFalse();
+			assertThat(((Node) view).is(Node.class)).isTrue();
+			assertThat(generated.as(view, "View.Reference").is("Reference")).isFalse();
+			assertThat(((Node) view).is("Projection")).isEqualTo(true);
+			assertThat(((Node) view).is("Reference")).isEqualTo(false);
 			assertThat(call(generated.as(view, "View.Reference"), "isNull")).isEqualTo(true);
-			assertThat(view.getClass().getMethods()).extracting(Method::getName).contains("isShared").doesNotContain("asShared");
-			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("isShared").doesNotContain("asShared");
+			assertThat(view.getClass().getMethods()).extracting(Method::getName).contains("is").doesNotContain("asShared", "isShared");
+			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("is").doesNotContain("asShared", "isShared");
 			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.Container");
 			var types = List.of("View", "View.Container", "View.Projection",
 				"View.ViewType", "View.Inherited");
@@ -114,7 +119,7 @@ class DecoratorGeneratorTest {
 			assertThat(call(plainContainer, "composition")).isNull();
 			assertThat(viewType.getClass().isInstance(container)).isTrue();
 			assertThat((List<?>) call(container, "panels")).hasSize(1);
-			assertThat(call(generated.as(viewType, "View.Projection"), "isContainer")).isEqualTo(true);
+			assertThat(((Node) generated.as(viewType, "View.Projection")).is("Container")).isEqualTo(true);
 			Object inheritedView = generated.as(view, "View.Inherited");
 			Object inheritedDashboard = generated.as(generated.wrap("Dashboard", model.get("Admin")), "Dashboard.Inherited");
 			assertThat(inheritedView.getClass().getCanonicalName()).isEqualTo("test.generated.View.Inherited");
@@ -239,7 +244,7 @@ class DecoratorGeneratorTest {
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
 			Object book = generated.wrap("Book", model.get("Paper"));
 			assertThat(book.getClass().getMethods()).extracting(Method::getName).doesNotContain("isbn");
-			assertThat(call(book, "isPrinted")).isEqualTo(true);
+			assertThat(((Node) book).is("Printed")).isEqualTo(true);
 			Object printed = generated.as(book, "Book.Printed");
 			assertThat(printed.getClass().getMethods()).extracting(Method::getName).doesNotContain("title");
 			assertThat(printed.getClass().getSimpleName()).isEqualTo("Printed");
@@ -247,7 +252,7 @@ class DecoratorGeneratorTest {
 			assertThat(call(printed, "identifier")).isEqualTo("Paper");
 
 			Object digital = generated.wrap("Book", model.get("Digital"));
-			assertThat(call(digital, "isPrinted")).isEqualTo(false);
+			assertThat(((Node) digital).is("Printed")).isEqualTo(false);
 			Object missing = generated.as(digital, "Book.Printed");
 			assertThat(call(missing, "isNull")).isEqualTo(true);
 			assertThat(call(missing, "isbn")).isEqualTo("");
@@ -268,8 +273,8 @@ class DecoratorGeneratorTest {
 			assertThat(call(book, "available")).isEqualTo(true);
 			assertThat(call(call(book, "author"), "identifier")).isEqualTo("Lucia");
 			assertThat(call(generated.as(book, "Printed"), "isbn")).isEqualTo("9780000000001");
-			assertThat(call(book, "isPrinted")).isEqualTo(true);
-			assertThat(call(book, "isDigital")).isEqualTo(false);
+			assertThat(((Node) book).is("Printed")).isEqualTo(true);
+			assertThat(((Node) book).is("Digital")).isEqualTo(false);
 		}
 	}
 
@@ -357,7 +362,7 @@ class DecoratorGeneratorTest {
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
 			Object chapter = generated.wrap("Chapter", model.get("Glossary"));
 			assertThat(call(call(chapter, "value1"), "identifier")).isEqualTo("Subjects");
-			assertThat(call(chapter, "isIndexed")).isEqualTo(true);
+			assertThat(((Node) chapter).is("Indexed")).isEqualTo(true);
 			Object note = generated.wrap("Note", model.get("Annotation"));
 			assertThat(call(note, "value1")).isEqualTo("Opening note");
 			assertThat(call(note, "value2")).isEqualTo(new BigDecimal("3"));
@@ -434,8 +439,8 @@ class DecoratorGeneratorTest {
 				assertThat(call(generated.as(named, "Printed"), "isbn")).isEqualTo("9780000000001");
 				assertThat(call(named, "available")).isEqualTo(true);
 				assertThat(call(call(generated.as(named, "Edited"), "editor"), "identifier")).isEqualTo("Lucia");
-				assertThat(call(named, "isPrinted")).isEqualTo(true);
-				assertThat(call(named, "isEdited")).isEqualTo(true);
+				assertThat(((Node) named).is("Printed")).isEqualTo(true);
+				assertThat(((Node) named).is("Edited")).isEqualTo(true);
 			}
 		}
 	}
