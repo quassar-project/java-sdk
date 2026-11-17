@@ -59,7 +59,7 @@ public class Template {
 	}
 
 	protected Rule rule() {
-		return new Rule();
+		return Rule.create();
 	}
 
 	public record Configuration(Locale locale, LineSeparator separator) {

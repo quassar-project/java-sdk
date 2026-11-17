@@ -21,4 +21,4 @@ rule type(templateclass)
 		public static String render(Object object) {
 			return TemplateEngine.with(TEMPLATE).render(object);
 		}
-	$methods~}
+	}

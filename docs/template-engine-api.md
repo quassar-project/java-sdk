@@ -85,8 +85,8 @@ import static io.quassar.templating.model.outputs.Outputs.placeholder;
 import static io.quassar.templating.model.predicates.Predicates.allTypes;
 
 Template template = Template.create()
-	.add(new Rule().condition(allTypes("Step")).output(placeholder("identifier")))
-	.add(new Rule().condition(allTypes("Action")).output(placeholder("name")));
+	.add(Rule.create().condition(allTypes("Step")).output(placeholder("identifier")))
+	.add(Rule.create().condition(allTypes("Action")).output(placeholder("name")));
 ```
 
 ### Compose templates

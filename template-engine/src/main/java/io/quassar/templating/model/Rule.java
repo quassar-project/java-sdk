@@ -13,6 +13,10 @@ public class Rule {
 	private LogicalExpression condition;
 	private final List<Output> outputs = new ArrayList<>();
 
+	public static Rule create() {
+		return new Rule();
+	}
+
 	public Rule condition(LogicalExpression expression) {
 		this.condition = expression;
 		return this;

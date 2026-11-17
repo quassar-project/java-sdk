@@ -31,7 +31,9 @@ class TranslatorMojoTest {
 		assertThat(project.getCompileSourceRoots()).contains(directory.resolve("src/main/gen").toString());
 
 		assertThat(directory.resolve("src/main/gen/library/model/templates/BookSummaryTemplate.java"))
-			.content().contains("class BookSummaryTemplate extends Template", "public static BookSummaryTemplate create()");
+			.content().contains("class BookSummaryTemplate extends Template", "public static BookSummaryTemplate create()")
+			.containsPattern("(?m)^\\t\\tadd\\(Rule\\.create\\(\\)\\.condition.*\\.output.*\\);$")
+			.doesNotContain("rule1()");
 		assertThat(directory.resolve("target/generated-resources/metta/library/model/templates/BookSummaryTemplate.itr")).doesNotExist();
 		assertThat(directory.resolve("src/main/gen/library/model/model")).doesNotExist();
 		assertThat(directory.resolve("src/main/java/library/model/Interpreter.java")).exists();

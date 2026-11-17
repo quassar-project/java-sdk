@@ -41,7 +41,7 @@ final class TemplateModelBuilder extends ItrParserBaseListener {
 
 	@Override
 	public void enterSignature(SignatureContext ctx) {
-		currentRule = new Rule().condition(process(ctx.condition()));
+		currentRule = Rule.create().condition(process(ctx.condition()));
 		template.add(currentRule);
 	}
 

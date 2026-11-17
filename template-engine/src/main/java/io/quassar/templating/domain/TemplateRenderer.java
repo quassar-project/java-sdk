@@ -71,8 +71,8 @@ public final class TemplateRenderer {
 	}
 
 	private class Display {
-		private static final Rule THIS_OUTPUT = new Rule().output(Placeholder.This);
-		private static final Rule EMPTY_RULE = new Rule().output();
+		private static final Rule THIS_OUTPUT = Rule.create().output(Placeholder.This);
+		private static final Rule EMPTY_RULE = Rule.create().output();
 		private final Trigger trigger;
 		private final Canvas canvas;
 

@@ -19,9 +19,9 @@ import java.util.stream.Stream;
 
 final class TemplateRules {
 	String rule(Rule rule) {
-		String body = rule.outputs().map(this::output).collect(Collectors.joining(",\n\t\t\t\t"));
-		String declaration = "new Rule().condition(" + condition(rule.condition()) + ")";
-		return body.isEmpty() ? declaration : declaration + "\n\t\t\t.output(\n\t\t\t\t" + body + ")";
+		String body = rule.outputs().map(this::output).collect(Collectors.joining(", "));
+		String declaration = "Rule.create().condition(" + condition(rule.condition()) + ")";
+		return body.isEmpty() ? declaration : declaration + ".output(" + body + ")";
 	}
 
 	private String condition(LogicalExpression condition) {

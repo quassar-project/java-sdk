@@ -38,15 +38,10 @@ public final class TemplateGenerator {
 		try {
 			TemplateRules java = new TemplateRules();
 			StringBuilder additions = new StringBuilder();
-			StringBuilder methods = new StringBuilder();
-			for (int index = 0; index < rules.size(); index++) {
-				String method = "rule" + (index + 1);
-				additions.append("\t\tadd(").append(method).append("());\n");
-				methods.append("\n\tprivate static Rule ").append(method).append("() {\n\t\treturn ")
-					.append(java.rule(rules.get(index))).append(";\n\t}\n");
-			}
+			for (Rule rule : rules)
+				additions.append("\t\tadd(").append(java.rule(rule)).append(");\n");
 			return templates.render("template-class", Map.of("package", packageName, "name", name,
-				"rules", additions.toString(), "methods", methods.toString()));
+				"rules", additions.toString()));
 		} catch (IllegalArgumentException exception) {
 			throw new TemplateReadException(definition.filename() + ": " + exception.getMessage(), exception);
 		}
