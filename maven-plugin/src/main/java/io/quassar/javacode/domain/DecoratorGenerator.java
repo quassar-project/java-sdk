@@ -163,11 +163,11 @@ public final class DecoratorGenerator {
 			if (enumName == null) source.append(method(returnType(property, classes), getter, expression(property, classes)));
 			else source.append(enumGetter(property, getter, enumName));
 		}
-		for (String facet : type.facets()) addFacetMethods(source, methods, facet, classes.get(facet));
+		for (String facet : type.facets()) addFacetMethods(source, methods, facet);
 		for (String subtype : descendants) {
 			String condition = layout.facetTypes().contains(subtype) ? facetMatches(subtype)
 				: MOGRAM_TYPES + ".matches(" + MOGRAM_TYPES + ".resolve(mogram, model), " + literal(subtype) + ")";
-			addCastMethods(source, methods, simpleName(subtype), classes.get(subtype), condition);
+			addTypeCheck(source, methods, simpleName(subtype), condition);
 		}
 		for (Composition composition : type.children()) {
 			String child = composition.type();
@@ -182,7 +182,7 @@ public final class DecoratorGenerator {
 					+ ".findFirst().orElse(" + MOGRAM + ".NULL), model)"));
 			else source.append(collectionMethod(decorator, getter, stream));
 		}
-		addFacetSubtypeMethods(source, methods, type, layout.subtypes(), classes);
+		addFacetSubtypeMethods(source, methods, type, layout.subtypes());
 		enums.forEach((property, name) -> source.append(enumDeclaration(property, name)));
 		for (TypeDefinition child : layout.nested().getOrDefault(type.type(), List.of())) {
 			boolean specialized = layout.parents().containsKey(child.type());
@@ -264,7 +264,7 @@ public final class DecoratorGenerator {
 	}
 
 	private void addFacetSubtypeMethods(StringBuilder source, JavaNames methods, TypeDefinition type,
-			Map<String, List<String>> subtypes, Map<String, String> classes) {
+			Map<String, List<String>> subtypes) {
 		Set<String> declaredNames = Stream.concat(type.facets().stream(), subtypes.getOrDefault(type.type(), List.of()).stream())
 			.map(this::subtypeMethodName).collect(Collectors.toSet());
 		Map<String, List<String>> facetSubtypes = type.facets().stream()
@@ -274,7 +274,7 @@ public final class DecoratorGenerator {
 		facetSubtypes.forEach((name, candidates) -> {
 			if (declaredNames.contains(name) || candidates.size() != 1) return;
 			String subtype = candidates.get(0);
-			addCastMethods(source, methods, name, classes.get(subtype), facetMatches(subtype));
+			addTypeCheck(source, methods, name, facetMatches(subtype));
 		});
 	}
 
@@ -282,23 +282,20 @@ public final class DecoratorGenerator {
 		return JavaNames.className(simpleName(type));
 	}
 
-	private void addFacetMethods(StringBuilder source, JavaNames methods, String facet, String decorator) {
+	private void addFacetMethods(StringBuilder source, JavaNames methods, String facet) {
 		String simple = simpleName(facet);
 		String condition = facetMatches(facet);
 		if (!simple.equals(facet)) condition += " || mogram.facets().contains(" + literal(simple) + ")";
-		addCastMethods(source, methods, simple, decorator, condition);
+		addTypeCheck(source, methods, simple, condition);
 	}
 
 	private String facetMatches(String facet) {
 		return "mogram.facets().stream().anyMatch(facet -> " + MOGRAM_TYPES + ".matches(facet, " + literal(facet) + "))";
 	}
 
-	private void addCastMethods(StringBuilder source, JavaNames methods, String name, String decorator, String condition) {
-		String suffix = JavaNames.className(name);
-		String check = methods.claim("is" + suffix);
+	private void addTypeCheck(StringBuilder source, JavaNames methods, String name, String condition) {
+		String check = methods.claim("is" + JavaNames.className(name));
 		source.append(method("boolean", check, condition));
-		source.append(method(decorator, methods.claim("as" + suffix),
-			"new " + decorator + "(" + check + "() ? mogram : " + MOGRAM + ".NULL, model)"));
 	}
 
 	private String simpleName(String name) {

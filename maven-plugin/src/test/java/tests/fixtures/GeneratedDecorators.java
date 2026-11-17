@@ -4,6 +4,7 @@ import io.quassar.javacode.MogramDecoratorGenerator;
 import io.quassar.metamodel.model.Metamodel;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.model.Mogram;
+import io.quassar.reader.model.Node;
 import io.quassar.templating.TemplateEngine;
 
 import javax.tools.ToolProvider;
@@ -37,6 +38,11 @@ public record GeneratedDecorators(URLClassLoader loader, Model model) implements
 		var constructor = loader.loadClass("test.generated." + type).getDeclaredConstructor(Mogram.class, Model.class);
 		constructor.setAccessible(true);
 		return constructor.newInstance(mogram, model);
+	}
+
+	public Node as(Object decorator, String type) throws ClassNotFoundException {
+		Class<? extends Node> target = loader.loadClass("test.generated." + type.replace('.', '$')).asSubclass(Node.class);
+		return ((Node) decorator).as(target);
 	}
 
 	public Object modelDecorator() throws Exception {

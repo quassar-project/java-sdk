@@ -46,7 +46,7 @@ class DecoratorGeneratorTest {
 			Object toolbar = generated.wrap("Toolbar", model.get("MainToolbar"));
 			List<?> commands = (List<?>) call(toolbar, "commands");
 			assertThat(commands).hasSize(3);
-			Object grouping = call(commands.get(0), "asGrouping");
+			Object grouping = generated.as(commands.get(0), "Grouping");
 			assertThat(call(commands.get(0), "isCollectionCommand")).isEqualTo(true);
 			assertThat(call(commands.get(0), "isGrouping")).isEqualTo(true);
 			assertThat(grouping.getClass().getCanonicalName()).isEqualTo("test.generated.Grouping");
@@ -60,18 +60,18 @@ class DecoratorGeneratorTest {
 				"Grouping", "CollectionCommand", "Command",
 				"Command.Deferred", "Command.Scheduling"));
 			assertThat(call(grouping, "types")).isEqualTo(call(commands.get(0), "types"));
-			assertThat(call(call(commands.get(0), "asDeferred"), "types")).isEqualTo(call(grouping, "types"));
+			assertThat(call(generated.as(commands.get(0), "Command.Deferred"), "types")).isEqualTo(call(grouping, "types"));
 			var frame = Frames.from(grouping);
 			for (String type : List.of("Grouping", "CollectionCommand", "Command", "Deferred", "Scheduling", "Command.Deferred"))
 				assertThat(frame.is(type)).as("frame type %s", type).isTrue();
 			assertThat(frame.is("Toolbar")).isFalse();
-			assertThat(call(call(commands.get(2), "asGrouping"), "types")).isEqualTo(List.of());
+			assertThat(call(generated.as(commands.get(2), "Grouping"), "types")).isEqualTo(List.of());
 			assertThat(grouping.getClass().getMethod("limit").getReturnType()).isEqualTo(int.class);
 			assertThat(call(grouping, "limit")).isEqualTo(3);
 			assertThat((List<?>) call(grouping, "thresholds")).isEqualTo(List.of(2, 5));
-			assertThat(call(call(commands.get(1), "asGrouping"), "label")).isEqualTo("Qualified");
+			assertThat(call(generated.as(commands.get(1), "Grouping"), "label")).isEqualTo("Qualified");
 			assertThat(call(commands.get(2), "isGrouping")).isEqualTo(false);
-			Object missing = call(commands.get(2), "asGrouping");
+			Object missing = generated.as(commands.get(2), "Grouping");
 			assertThat(call(missing, "isNull")).isEqualTo(true);
 			assertThat(call(missing, "isNotNull")).isEqualTo(false);
 		}
@@ -84,17 +84,19 @@ class DecoratorGeneratorTest {
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
 			Object view = generated.wrap("View", model.get("Main"));
 			assertThat(call(view, "isViewType")).isEqualTo(true);
-			Object viewType = call(view, "asViewType");
+			Object viewType = generated.as(view, "View.ViewType");
 			assertThat(call(viewType, "isProjection")).isEqualTo(true);
 			assertThat(call(viewType, "isContainer")).isEqualTo(true);
-			Object container = call(viewType, "asContainer");
+			Object container = generated.as(viewType, "View.Container");
+			assertThat(view.getClass().getMethods()).extracting(Method::getName)
+				.contains("as", "isContainer").doesNotContain("asContainer", "asProjection", "asViewType");
 			assertThat(call(view, "isContainer")).isEqualTo(true);
-			assertThat(call(view, "asContainer")).isEqualTo(container);
+			assertThat(generated.as(view, "View.Container")).isEqualTo(container);
 			assertThat(call(view, "isProjection")).isEqualTo(true);
 			assertThat(call(view, "isReference")).isEqualTo(false);
-			assertThat(call(call(view, "asReference"), "isNull")).isEqualTo(true);
-			assertThat(view.getClass().getMethods()).extracting(Method::getName).contains("asShared", "isShared");
-			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("asShared", "isShared");
+			assertThat(call(generated.as(view, "View.Reference"), "isNull")).isEqualTo(true);
+			assertThat(view.getClass().getMethods()).extracting(Method::getName).contains("isShared").doesNotContain("asShared");
+			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("isShared").doesNotContain("asShared");
 			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.Container");
 			var types = List.of("View", "View.Container", "View.Projection",
 				"View.ViewType", "View.Inherited");
@@ -106,15 +108,15 @@ class DecoratorGeneratorTest {
 			assertThat(composition).isInstanceOf(Enum.class).hasToString("Tabs");
 			assertThat(composition.getClass().getEnclosingClass()).isEqualTo(container.getClass());
 			assertThat((List<?>) call(container, "modes")).extracting(Object::toString).containsExactly("One", "DirectUpdate");
-			Object defaultContainer = call(generated.wrap("View", model.get("DefaultContainer")), "asContainer");
+			Object defaultContainer = generated.as(generated.wrap("View", model.get("DefaultContainer")), "View.Container");
 			assertThat(call(defaultContainer, "composition")).hasToString("Stack");
-			Object plainContainer = call(generated.wrap("View", model.get("PlainView")), "asContainer");
+			Object plainContainer = generated.as(generated.wrap("View", model.get("PlainView")), "View.Container");
 			assertThat(call(plainContainer, "composition")).isNull();
 			assertThat(viewType.getClass().isInstance(container)).isTrue();
 			assertThat((List<?>) call(container, "panels")).hasSize(1);
-			assertThat(call(call(viewType, "asProjection"), "isContainer")).isEqualTo(true);
-			Object inheritedView = call(view, "asInherited");
-			Object inheritedDashboard = call(generated.wrap("Dashboard", model.get("Admin")), "asInherited");
+			assertThat(call(generated.as(viewType, "View.Projection"), "isContainer")).isEqualTo(true);
+			Object inheritedView = generated.as(view, "View.Inherited");
+			Object inheritedDashboard = generated.as(generated.wrap("Dashboard", model.get("Admin")), "Dashboard.Inherited");
 			assertThat(inheritedView.getClass().getCanonicalName()).isEqualTo("test.generated.View.Inherited");
 			assertThat(inheritedDashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Inherited");
 			assertThat(call(inheritedView, "label")).isEqualTo("View label");
@@ -172,14 +174,14 @@ class DecoratorGeneratorTest {
 		Model model = model("resource-properties.tara").withResources(java.util.Map.of(
 			"images/cover.bin", new byte[]{1, 2}, "appendix.bin", new byte[]{3}));
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
-			Object atlas = call(generated.wrap("Book", model.get("Atlas")), "asDigital");
+			Object atlas = generated.as(generated.wrap("Book", model.get("Atlas")), "Book.Digital");
 			assertThat(atlas.getClass().getMethod("file").getReturnType()).isEqualTo(Resource.class);
 			assertThat(call(atlas, "file")).isSameAs(model.resource("images/cover.bin"));
 			assertThat((List<?>) call(atlas, "attachments")).isEqualTo(
 				List.of(model.resource("images/cover.bin"), model.resource("appendix.bin")));
-			Object missing = call(generated.wrap("Book", model.get("Missing")), "asDigital");
+			Object missing = generated.as(generated.wrap("Book", model.get("Missing")), "Book.Digital");
 			assertThat(call(missing, "file")).isNull();
-			Object empty = call(generated.wrap("Book", model.get("Empty")), "asDigital");
+			Object empty = generated.as(generated.wrap("Book", model.get("Empty")), "Book.Digital");
 			assertThat(call(empty, "file")).isNull();
 			assertThat((List<?>) call(empty, "attachments")).isEmpty();
 		}
@@ -238,7 +240,7 @@ class DecoratorGeneratorTest {
 			Object book = generated.wrap("Book", model.get("Paper"));
 			assertThat(book.getClass().getMethods()).extracting(Method::getName).doesNotContain("isbn");
 			assertThat(call(book, "isPrinted")).isEqualTo(true);
-			Object printed = call(book, "asPrinted");
+			Object printed = generated.as(book, "Book.Printed");
 			assertThat(printed.getClass().getMethods()).extracting(Method::getName).doesNotContain("title");
 			assertThat(printed.getClass().getSimpleName()).isEqualTo("Printed");
 			assertThat(call(printed, "isbn")).isEqualTo("9780000000001");
@@ -246,7 +248,7 @@ class DecoratorGeneratorTest {
 
 			Object digital = generated.wrap("Book", model.get("Digital"));
 			assertThat(call(digital, "isPrinted")).isEqualTo(false);
-			Object missing = call(digital, "asPrinted");
+			Object missing = generated.as(digital, "Book.Printed");
 			assertThat(call(missing, "isNull")).isEqualTo(true);
 			assertThat(call(missing, "isbn")).isEqualTo("");
 		}
@@ -265,7 +267,7 @@ class DecoratorGeneratorTest {
 			assertThat(call(book, "year")).isEqualTo(new BigDecimal("2020"));
 			assertThat(call(book, "available")).isEqualTo(true);
 			assertThat(call(call(book, "author"), "identifier")).isEqualTo("Lucia");
-			assertThat(call(call(book, "asPrinted"), "isbn")).isEqualTo("9780000000001");
+			assertThat(call(generated.as(book, "Printed"), "isbn")).isEqualTo("9780000000001");
 			assertThat(call(book, "isPrinted")).isEqualTo(true);
 			assertThat(call(book, "isDigital")).isEqualTo(false);
 		}
@@ -293,7 +295,7 @@ class DecoratorGeneratorTest {
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
 			Object book = generated.wrap("Book", model.get("Single"));
 			assertThat(call(book, "unseen")).isEqualTo("");
-			assertThat(call(call(book, "asPrinted"), "pages")).isEqualTo(BigDecimal.ZERO);
+			assertThat(call(generated.as(book, "Printed"), "pages")).isEqualTo(BigDecimal.ZERO);
 			assertThat(call(book, "tags")).isEqualTo(List.of("novel"));
 			assertThat(call(book, "flags")).isEqualTo(List.of(true));
 			List<?> authors = (List<?>) call(book, "authors");
@@ -331,7 +333,7 @@ class DecoratorGeneratorTest {
 			assertThat(call(missing, "available")).isEqualTo(false);
 			assertThat(call(missing, "chapters")).isEqualTo(List.of());
 			Object second = generated.wrap("Book", model.get("SecondBook"));
-			assertThat(call(call(second, "asPrinted"), "isbn")).isEqualTo("");
+			assertThat(call(generated.as(second, "Printed"), "isbn")).isEqualTo("");
 			assertThat(call(call(second, "author"), "isNull")).isEqualTo(true);
 		}
 	}
@@ -429,9 +431,9 @@ class DecoratorGeneratorTest {
 				Object named = generated.wrap("Book", model.get(identifier));
 				assertThat(call(named, "title")).isEqualTo("Atlas");
 				assertThat(call(named, "year")).isEqualTo(new BigDecimal("2024"));
-				assertThat(call(call(named, "asPrinted"), "isbn")).isEqualTo("9780000000001");
+				assertThat(call(generated.as(named, "Printed"), "isbn")).isEqualTo("9780000000001");
 				assertThat(call(named, "available")).isEqualTo(true);
-				assertThat(call(call(call(named, "asEdited"), "editor"), "identifier")).isEqualTo("Lucia");
+				assertThat(call(call(generated.as(named, "Edited"), "editor"), "identifier")).isEqualTo("Lucia");
 				assertThat(call(named, "isPrinted")).isEqualTo(true);
 				assertThat(call(named, "isEdited")).isEqualTo(true);
 			}

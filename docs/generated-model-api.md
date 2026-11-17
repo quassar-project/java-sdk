@@ -60,11 +60,11 @@ When the M2 manifest supplies a name and version, the generated API stores its e
 
 Model collection methods return root mograms of the declared type. Child collection methods return direct children of the declared type. References resolve against the loaded model.
 
-For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.asScheduled()` returns its typed view. Read the schedule with `step.asScheduled().schedule()`. When the facet is absent, the view returns `true` from `isNull()`.
+For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.as(Step.Scheduled.class)` returns its typed view. Read the schedule with `step.as(Step.Scheduled.class).schedule()`. When the facet is absent, the view returns `true` from `isNull()`.
 
-A decorator for a type declared with `sub` extends the parent decorator and inherits its accessors. These subtypes generate `is<Type>()` and `as<Type>()` on ancestor decorators, including ancestors several levels up. If `Download` is a subtype of `CollectionCommand` under `Command`, `command.asDownload()` returns a `Download` decorator.
+A decorator for a type declared with `sub` extends the parent decorator and inherits its accessors. These subtypes generate `is<Type>()` on ancestor decorators, including ancestors several levels up. Use `as(Type.class)` for the typed view. If `Download` is a subtype of `CollectionCommand` under `Command`, `command.as(Download.class)` returns a `Download` decorator.
 
-The same methods are available on facet decorators. If `Container` specializes `Projection` under `ViewType`, `view.asContainer()` returns the typed decorator directly. You can also use `view.asViewType().asContainer()`. If two facets declare a subtype with the same accessor name, select the facet first. When the mogram has a different type or facet, the result returns `true` from `isNull()`.
+The same methods are available on facet decorators. If `Container` specializes `Projection` under `ViewType`, `view.as(View.Container.class)` returns the typed decorator directly. You can also use `view.as(View.ViewType.class).as(View.Container.class)`. The class passed to `as(...)` identifies the exact type, including its scope. When the mogram has a different type or facet, the result returns `true` from `isNull()`.
 
 Call `node.types()` to get the concrete concept and its ancestors, followed by each active facet and its ancestors. Names are qualified as in M2, duplicates are removed, and a null decorator returns an empty list. For example, a grouping command returns `Grouping`, `CollectionCommand`, and `Command`, including when accessed through the base command decorator. The list also includes any active facet and its ancestors on that same command. Template type conditions can match these ancestors by their qualified or simple names.
 
