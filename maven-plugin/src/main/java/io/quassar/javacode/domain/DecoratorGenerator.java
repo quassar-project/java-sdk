@@ -36,7 +36,7 @@ public final class DecoratorGenerator {
 	private static final String RESOURCE = "io.quassar.reader.model.Resource";
 	private static final String SUPPORT = "NodeSupport";
 	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
-	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "GenericNode", "MogramFrame", "ModelFrame", "AncestorView", "Slot", "Getter", "ValueSlot");
+	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "GenericNode", "MogramFrame", "ModelFrame", "Slot", "Getter", "ValueSlot");
 	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "as", "wrap", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
@@ -93,7 +93,7 @@ public final class DecoratorGenerator {
 		Map<String, List<String>> subtypes = descendants(subtypeParents);
 		Set<String> facetTypes = facets.stream().map(TypeDefinition::type).collect(Collectors.toSet());
 		List<JavaCode> code = new ArrayList<>();
-		code.add(decoratorBase(packageName, classes, targets, declarations, subtypeParents, subtypes, metamodelTypes));
+		code.add(decoratorBase(packageName, classes, declarations, subtypeParents, subtypes, metamodelTypes));
 		code.add(modelDecorator(types, packageName, facadeName, classes, dsl));
 		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, facetTypes, enums, subtypeParents);
 		for (TypeDefinition type : decorators) {
@@ -358,7 +358,7 @@ public final class DecoratorGenerator {
 		return names;
 	}
 
-	private JavaCode decoratorBase(String packageName, Map<String, String> classes, Map<String, String> targets,
+	private JavaCode decoratorBase(String packageName, Map<String, String> classes,
 			List<TypeDefinition> types,
 			Map<String, String> parents, Map<String, List<String>> subtypes, List<MetamodelType> metamodelTypes) {
 		StringBuilder cases = new StringBuilder();
@@ -366,14 +366,7 @@ public final class DecoratorGenerator {
 		return new JavaCode(packageName, SUPPORT, templates.render("decorator", Map.of(
 			"mogramType", MOGRAM, "modelType", MODEL,
 			"valueType", VALUE, "cases", cases.toString(), "types", mogramTypes(types, parents, subtypes),
-			"hierarchy", hierarchy(metamodelTypes), "ancestors", ancestorEntries(targets))));
-	}
-
-	private String ancestorEntries(Map<String, String> targets) {
-		return targets.entrySet().stream()
-			.map(entry -> "\t\t\tjava.util.Map.entry(" + entry.getValue() + ".class, new AncestorView("
-				+ literal(entry.getKey()) + ", " + entry.getValue() + "::new))")
-			.collect(Collectors.joining(",\n", "\n", "\n\t\t"));
+			"hierarchy", hierarchy(metamodelTypes))));
 	}
 
 	private String hierarchy(List<MetamodelType> types) {

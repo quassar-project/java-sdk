@@ -1,11 +1,13 @@
 rule type(mogram)
 	public $modifier~class $name~ extends $base~ {
+		private static final java.lang.String TYPE = $typeName~;
+
 		$name~($mogramType~ mogram, $modelType~ model) {
 			super(mogram, model);
 		}
 	$frame~
 		@Override
 		protected java.util.List<java.lang.String> modelTypes() {
-			return NodeSupport.types(mogram, model, $typeName~);
+			return NodeSupport.types(mogram, model, TYPE);
 		}
 	$methods~}$NL

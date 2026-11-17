@@ -5,18 +5,11 @@ rule type(decorator)
 
 		private static final io.quassar.reader.model.NodeTypeHierarchy HIERARCHY = new io.quassar.reader.model.NodeTypeHierarchy(java.util.List.of($hierarchy~));
 
-		private static final java.util.Map<java.lang.Class<? extends io.quassar.reader.model.Node>, AncestorView> ANCESTORS =
-			java.util.Map.ofEntries($ancestors~);
-
-		private record AncestorView(java.lang.String name, java.util.function.BiFunction<$mogramType~, $modelType~, io.quassar.reader.model.Node> wrap) {
-		}
-
 		static <T extends io.quassar.reader.model.Node> T as(java.lang.Class<T> type, $mogramType~ mogram, $modelType~ model) {
 			if (type.equals(io.quassar.reader.model.Node.class)) return type.cast(wrap(mogram, model));
-			var view = ANCESTORS.get(type);
-			if (view == null) throw new java.lang.IllegalArgumentException("Unknown node type: " + type.getName());
-			var match = !mogram.isNull() && types(mogram, model, view.name()).contains(view.name());
-			return type.cast(view.wrap().apply(match ? mogram : $mogramType~.NULL, model));
+			var name = io.quassar.reader.domain.NodeFactory.type(type);
+			var match = !mogram.isNull() && types(mogram, model, name).contains(name);
+			return io.quassar.reader.domain.NodeFactory.create(type, match ? mogram : $mogramType~.NULL, model);
 		}
 
 		static java.util.List<java.lang.String> types($mogramType~ mogram, $modelType~ model, java.lang.String declared) {
