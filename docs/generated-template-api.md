@@ -2,7 +2,7 @@
 
 Create a generated template instance and call `render` with a model decorator to produce the text defined by the template. [Quassar Maven plugin setup](../README.md#use-your-models-from-java)
 
-Generated classes extend `Template`. Call `WorkflowTemplate.create()` to get a fresh instance for composition.
+Generated classes extend `Template`. Call `WorkflowTemplate.create()` for the default configuration or `WorkflowTemplate.create(configuration)` to set the locale and line separator. Both factories return a fresh instance with all the compiled rules.
 
 ```java
 Template combined = Template.create()

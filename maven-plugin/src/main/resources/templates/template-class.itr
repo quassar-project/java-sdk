@@ -8,10 +8,15 @@ rule type(templateclass)
 	import static io.quassar.templating.model.predicates.Predicates.*;
 
 	public final class $name~ extends Template {
-		private $name~() {
+		private $name~(Configuration configuration) {
+			super(configuration);
 	$rules~	}
 
 		public static $name~ create() {
-			return new $name~();
+			return create(new Configuration());
+		}
+
+		public static $name~ create(Configuration configuration) {
+			return new $name~(configuration);
 		}
 	}

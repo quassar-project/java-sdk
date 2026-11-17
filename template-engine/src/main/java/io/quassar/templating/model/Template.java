@@ -19,7 +19,7 @@ public class Template {
 		this(new Configuration());
 	}
 
-	private Template(Configuration configuration) {
+	protected Template(Configuration configuration) {
 		this(configuration, new ArrayList<>());
 	}
 

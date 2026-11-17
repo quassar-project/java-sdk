@@ -1,5 +1,6 @@
 package tests;
 
+import io.quassar.templating.adapters.reflection.ReflectiveFrameBuilder;
 import io.quassar.templating.model.Template;
 
 import org.apache.maven.model.Dependency;
@@ -15,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -145,6 +147,15 @@ class MavenConsumerIT {
 			first.include(second);
 			assertThat(first.ruleSet()).hasSize(rules.size() * 2);
 			assertThat(second.ruleSet()).isEqualTo(rules);
+
+			var configuration = new Template.Configuration(Locale.FRENCH, Template.Configuration.LineSeparator.CRLF);
+			var createConfigured = create.getDeclaringClass().getMethod("create", Template.Configuration.class);
+			var configured = (Template) createConfigured.invoke(null, configuration);
+			assertThat(configured).isExactlyInstanceOf(create.getDeclaringClass());
+			assertThat(configured.configuration()).isEqualTo(configuration);
+			assertThat(configured.ruleSet()).hasSameSizeAs(rules);
+			var book = new ReflectiveFrameBuilder("Book").add("title", "A generated book");
+			assertThat(configured.render(book)).isEqualTo("Book: A GENERATED BOOK (édition \"papier\")");
 		}
 	}
 
