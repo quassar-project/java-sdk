@@ -13,6 +13,9 @@ public class Rule {
 	private LogicalExpression condition;
 	private final List<Output> outputs = new ArrayList<>();
 
+	private Rule() {
+	}
+
 	public static Rule create() {
 		return new Rule();
 	}

@@ -13,11 +13,11 @@ public class Template {
 	private final Configuration configuration;
 	private final List<Rule> rules;
 
-	public Template() {
+	protected Template() {
 		this(new Configuration());
 	}
 
-	public Template(Configuration configuration) {
+	private Template(Configuration configuration) {
 		this(configuration, new ArrayList<>());
 	}
 

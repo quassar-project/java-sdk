@@ -24,7 +24,7 @@ public class TemplatesTest {
 	@Test
 	public void addsRulesInOrderAndReturnsTheTemplate() {
 		var rules = TestTemplates.read("rendering/library-xml").ruleSet();
-		Template template = new Template();
+		Template template = Template.create();
 		assertThat(template.add(rules.get(0)).add(rules.get(1))).isSameAs(template);
 		assertThat(template.ruleSet()).containsExactly(rules.get(0), rules.get(1));
 		assertThat(Template.EMPTY.ruleSet()).isEmpty();
