@@ -5,6 +5,7 @@ import io.quassar.javacode.adapters.ResourceTemplates;
 import io.quassar.javacode.domain.DecoratorGenerator;
 import io.quassar.javacode.domain.JavaNames;
 import io.quassar.metamodel.domain.MetamodelResolver;
+import io.quassar.metamodel.domain.MetamodelScope;
 import io.quassar.javacode.model.JavaCode;
 import io.quassar.metamodel.model.Metamodel;
 import io.quassar.metamodel.model.MetamodelType;
@@ -43,14 +44,16 @@ public record MogramDecoratorGenerator(Metamodel metamodel, String packageName, 
 	public List<JavaCode> code() {
 		var templates = new ResourceTemplates(MogramDecoratorGenerator.class, List.of("model", "mogram", "enum", "method", "load", "factory-case", "decorator", "types"));
 		var resolver = new MetamodelResolver();
-		var enclosingTypes = metamodel.types().stream()
+		var scopes = new MetamodelScope(metamodel);
+		var declarations = scopes.types();
+		var enclosingTypes = declarations.stream()
 			.filter(type -> !type.scope().isEmpty())
 			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::scope));
-		var subtypeParents = metamodel.types().stream()
+		var subtypeParents = declarations.stream()
 			.filter(type -> type.declaration() == MetamodelType.Declaration.SUB)
 			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::parent));
-		return new DecoratorGenerator(templates).generate(resolver.resolve(metamodel),
-			resolver.resolveFacets(metamodel), enclosingTypes, subtypeParents, packageName, modelName, dsl(), metamodel.types());
+		return new DecoratorGenerator(templates).generate(scopes.resolve(resolver.resolve(metamodel)),
+			scopes.resolve(resolver.resolveFacets(metamodel)), enclosingTypes, subtypeParents, packageName, modelName, dsl(), declarations);
 	}
 
 	private Optional<String> dsl() {

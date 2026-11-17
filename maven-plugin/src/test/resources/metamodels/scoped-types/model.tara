@@ -18,7 +18,7 @@ Concept View
 	facet Inherited
 		def string label
 	facet Alternate
-		sub Shared
+		sub Alternative
 	facet ViewType
 		sub Shared
 		sub Reference
@@ -33,6 +33,7 @@ Concept View
 
 Concept Widget
 	def View.Projection view
+	sub Header
 
 Concept Dashboard
 	facet Inherited

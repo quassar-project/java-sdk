@@ -10,7 +10,7 @@ The plugin adds the `model` subpackage to the base package set by `output-packag
 
 The examples below use the [sample Workflows metamodel](sample-m2-model.md).
 
-Concepts, facets, and subtypes declared inside another type generate static classes inside the enclosing decorator. For example, the `EntryPoint` declared inside `Workflow` generates `Workflow.EntryPoint`. The `workflow.entryPoint()` getter returns that type.
+Concepts and facets declared inside another type generate static classes inside the enclosing decorator. A `sub` shares the scope of its parent type. For example, a root `Widget` with `sub Header` generates `Header extends Widget`; a `Projection` under the facet `View.ViewType` generates `View.Projection extends View.ViewType`. For example, the `EntryPoint` declared inside `Workflow` generates `Workflow.EntryPoint`. The `workflow.entryPoint()` getter returns that type.
 
 If you generated the API with an earlier SDK, delete the previously generated `model` package from the output directory before regenerating it.
 
@@ -62,11 +62,11 @@ Model collection methods return root mograms of the declared type. Child collect
 
 For a step with the `Scheduled` facet, `step.isScheduled()` checks whether it is active and `step.asScheduled()` returns its typed view. Read the schedule with `step.asScheduled().schedule()`. When the facet is absent, the view returns `true` from `isNull()`.
 
-A decorator for a type declared with `sub` extends the parent decorator and inherits its accessors. These subtypes generate `is<Type>()` and `as<Type>()` on ancestor decorators, including ancestors several levels up. If `Download` is a subtype of `CollectionCommand` under `Command`, `command.asDownload()` returns a `Command.CollectionCommand.Download` decorator.
+A decorator for a type declared with `sub` extends the parent decorator and inherits its accessors. These subtypes generate `is<Type>()` and `as<Type>()` on ancestor decorators, including ancestors several levels up. If `Download` is a subtype of `CollectionCommand` under `Command`, `command.asDownload()` returns a `Download` decorator.
 
 The same methods are available on facet decorators. If `Container` specializes `Projection` under `ViewType`, `view.asContainer()` returns the typed decorator directly. You can also use `view.asViewType().asContainer()`. If two facets declare a subtype with the same accessor name, select the facet first. When the mogram has a different type or facet, the result returns `true` from `isNull()`.
 
-Call `node.types()` to get the concrete concept and its ancestors, followed by each active facet and its ancestors. Names are qualified as in M2, duplicates are removed, and a null decorator returns an empty list. For example, a grouping command returns `Command.CollectionCommand.Grouping`, `Command.CollectionCommand`, and `Command`, including when accessed through the base command decorator. The list also includes any active facet and its ancestors on that same command. Template type conditions can match these ancestors by their qualified or simple names.
+Call `node.types()` to get the concrete concept and its ancestors, followed by each active facet and its ancestors. Names are qualified as in M2, duplicates are removed, and a null decorator returns an empty list. For example, a grouping command returns `Grouping`, `CollectionCommand`, and `Command`, including when accessed through the base command decorator. The list also includes any active facet and its ancestors on that same command. Template type conditions can match these ancestors by their qualified or simple names.
 
 Use `node.as(Workflow.class)` to view the current node as the requested type. Use `node.ancestor(Workflow.class)` to find the nearest ancestor of the requested type. The search starts at the parent and follows containment. A concept ancestor matches its own type, any of its supertypes, and its active facets and their supertypes. If no such ancestor exists, the method returns a null decorator of the requested type.
 

@@ -12,10 +12,13 @@ Preview AdminPreview
 
 Toolbar MainToolbar
 	Grouping(enabled = true, label = "By status", limit = 3, thresholds = 2 5) StatusGrouping is Deferred
-	Command.CollectionCommand.Grouping FullGrouping > label = "Qualified"
+	Grouping FullGrouping > label = "Qualified"
 	Command OtherCommand
 
 View DefaultContainer is Container
 View PlainView
 
 RemoteView Remote is Inherited
+
+Header Heading
+	view = Main

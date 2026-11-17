@@ -49,7 +49,7 @@ class DecoratorGeneratorTest {
 			Object grouping = call(commands.get(0), "asGrouping");
 			assertThat(call(commands.get(0), "isCollectionCommand")).isEqualTo(true);
 			assertThat(call(commands.get(0), "isGrouping")).isEqualTo(true);
-			assertThat(grouping.getClass().getCanonicalName()).isEqualTo("test.generated.Command.CollectionCommand.Grouping");
+			assertThat(grouping.getClass().getCanonicalName()).isEqualTo("test.generated.Grouping");
 			assertThat(call(grouping, "label")).isEqualTo("By status");
 			assertThat(grouping.getClass().getSuperclass().getSimpleName()).isEqualTo("CollectionCommand");
 			assertThat(commands.get(0).getClass().isInstance(grouping)).isTrue();
@@ -57,12 +57,12 @@ class DecoratorGeneratorTest {
 			assertThat(call(grouping, "isNotNull")).isEqualTo(true);
 			assertThat(call(grouping, "isNotNull2")).isEqualTo(false);
 			assertThat(call(commands.get(0), "types")).isEqualTo(List.of(
-				"Command.CollectionCommand.Grouping", "Command.CollectionCommand", "Command",
-				"Command.Scheduling.Deferred", "Command.Scheduling"));
+				"Grouping", "CollectionCommand", "Command",
+				"Command.Deferred", "Command.Scheduling"));
 			assertThat(call(grouping, "types")).isEqualTo(call(commands.get(0), "types"));
 			assertThat(call(call(commands.get(0), "asDeferred"), "types")).isEqualTo(call(grouping, "types"));
 			var frame = Frames.from(grouping);
-			for (String type : List.of("Grouping", "CollectionCommand", "Command", "Deferred", "Scheduling", "Command.Scheduling.Deferred"))
+			for (String type : List.of("Grouping", "CollectionCommand", "Command", "Deferred", "Scheduling", "Command.Deferred"))
 				assertThat(frame.is(type)).as("frame type %s", type).isTrue();
 			assertThat(frame.is("Toolbar")).isFalse();
 			assertThat(call(call(commands.get(2), "asGrouping"), "types")).isEqualTo(List.of());
@@ -93,10 +93,10 @@ class DecoratorGeneratorTest {
 			assertThat(call(view, "isProjection")).isEqualTo(true);
 			assertThat(call(view, "isReference")).isEqualTo(false);
 			assertThat(call(call(view, "asReference"), "isNull")).isEqualTo(true);
-			assertThat(view.getClass().getMethods()).extracting(Method::getName).doesNotContain("asShared", "isShared");
+			assertThat(view.getClass().getMethods()).extracting(Method::getName).contains("asShared", "isShared");
 			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("asShared", "isShared");
-			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection.Container");
-			var types = List.of("View", "View.ViewType.Projection.Container", "View.ViewType.Projection",
+			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.Container");
+			var types = List.of("View", "View.Container", "View.Projection",
 				"View.ViewType", "View.Inherited");
 			assertThat(call(view, "types")).isEqualTo(types);
 			assertThat(call(container, "types")).isEqualTo(types);
@@ -119,16 +119,20 @@ class DecoratorGeneratorTest {
 			assertThat(inheritedDashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Inherited");
 			assertThat(call(inheritedView, "label")).isEqualTo("View label");
 			assertThat(call(inheritedDashboard, "caption")).isEqualTo("Dashboard caption");
+			Object header = generated.wrap("Header", model.get("Heading"));
+			assertThat(header.getClass().getSuperclass().getSimpleName()).isEqualTo("Widget");
+			assertThat(call(header, "types")).isEqualTo(List.of("Header", "Widget"));
+			assertThat((List<?>) call(generated.modelDecorator(), "headers")).hasSize(1);
 			Object widget = generated.wrap("Widget", model.get("Summary"));
 			Object target = call(widget, "view");
-			assertThat(target.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection");
+			assertThat(target.getClass().getCanonicalName()).isEqualTo("test.generated.View.Projection");
 			assertThat(call(target, "identifier")).isEqualTo("Main");
 			Object panel = ((List<?>) call(target, "panels")).get(0);
-			assertThat(panel.getClass().getCanonicalName()).isEqualTo("test.generated.View.ViewType.Projection.Panel");
+			assertThat(panel.getClass().getCanonicalName()).isEqualTo("test.generated.View.Projection.Panel");
 			assertThat(call(panel, "identifier")).isEqualTo("SummaryPanel");
 			Object preview = generated.wrap("Preview", model.get("AdminPreview"));
 			Object dashboard = call(preview, "view");
-			assertThat(dashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Display.Projection");
+			assertThat(dashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Projection");
 			assertThat(call(dashboard, "identifier")).isEqualTo("Admin");
 			Object commands = call(target, "commands");
 			Node command = (Node) call(commands, "grouping");
@@ -146,7 +150,7 @@ class DecoratorGeneratorTest {
 			assertThat(((Node) ancestorMethod.invoke(view, view.getClass())).isNull()).isTrue();
 			Object grouping = call(commands, "grouping");
 			assertThat(grouping.getClass().getCanonicalName())
-				.isEqualTo("test.generated.Command.CollectionCommand.Grouping");
+				.isEqualTo("test.generated.Grouping");
 			assertThat(call(grouping, "label")).isEqualTo("Group by status");
 		}
 	}
