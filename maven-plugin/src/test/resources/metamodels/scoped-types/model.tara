@@ -40,6 +40,7 @@ Concept Dashboard
 		def string caption
 	facet Display
 		sub Projection
+			Concept Panel
 
 Concept Preview
 	def Dashboard.Projection view

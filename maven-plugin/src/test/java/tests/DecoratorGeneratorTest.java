@@ -137,6 +137,17 @@ class DecoratorGeneratorTest {
 			Object panel = ((List<?>) call(target, "panels")).get(0);
 			assertThat(panel.getClass().getCanonicalName()).isEqualTo("test.generated.View.Projection.Panel");
 			assertThat(call(panel, "identifier")).isEqualTo("SummaryPanel");
+			Node panelNode = (Node) panel;
+			assertThat(panelNode.as(Node.class).types()).isEqualTo(panelNode.types());
+			assertThat(generated.as(panel, "Dashboard.Projection.Panel").isNull()).isTrue();
+			for (String type : List.of("View", "View.ViewType", "View.Projection", "View.Container", "View.Inherited")) {
+				Node alternative = generated.as(view, type);
+				assertThat(alternative.isNotNull()).as(type).isTrue();
+				assertThat(alternative.types()).as(type).isEqualTo(types);
+			}
+			Node headerNode = (Node) header;
+			assertThat(headerNode.as(headerNode.getClass()).types()).isEqualTo(headerNode.types());
+			assertThat(generated.as(header, "Widget").types()).isEqualTo(headerNode.types());
 			Object preview = generated.wrap("Preview", model.get("AdminPreview"));
 			Object dashboard = call(preview, "view");
 			assertThat(dashboard.getClass().getCanonicalName()).isEqualTo("test.generated.Dashboard.Projection");

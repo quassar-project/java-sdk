@@ -20,9 +20,8 @@ public final class NodeTypeHierarchy {
 		parents = Map.copyOf(parentNames);
 	}
 
-	public List<String> types(String actual, String declared, List<String> facets) {
-		String owner = concept(declared);
-		String concrete = resolve(actual, false, owner);
+	public List<String> types(String actual, List<String> facets) {
+		String concrete = resolve(actual, false, "");
 		if (concrete == null) concrete = actual;
 		Set<String> classTypes = lineage(concrete);
 		Set<String> result = new LinkedHashSet<>(classTypes);

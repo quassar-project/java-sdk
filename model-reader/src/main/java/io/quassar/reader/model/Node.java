@@ -32,7 +32,7 @@ public abstract class Node extends FrameSource {
 	}
 
 	public final List<String> types() {
-		return isNull() ? List.of() : modelTypes();
+		return isNull() ? List.of() : support.types(mogram, model);
 	}
 
 	public final boolean is(String type) {
@@ -65,10 +65,6 @@ public abstract class Node extends FrameSource {
 	@Override
 	protected final FrameView frameView() {
 		return support.frame(mogram, model, types());
-	}
-
-	protected List<String> modelTypes() {
-		return support.types(mogram, model, support.declaredType(getClass()));
 	}
 
 	@Override

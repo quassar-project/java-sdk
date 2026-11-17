@@ -44,20 +44,27 @@ public final class NodeSupport {
 		}
 	}
 
-	public String declaredType(Class<? extends Node> decorator) {
-		return decorator == GenericNode.class ? "" : NodeFactory.type(decorator);
-	}
-
 	public String resolve(Mogram mogram, Model model) {
 		String type = mogram.type();
 		if (mogram.isNull() || type.indexOf('.') >= 0) return type;
 		Mogram parent = model.parentOf(mogram);
-		return parent.isNull() ? type : resolve(type, resolve(parent, model));
+		if (!parent.isNull())
+			for (String scope : types(parent, model)) {
+				String scoped = resolve(type, scope);
+				if (!scoped.equals(type)) return scoped;
+			}
+		return type;
 	}
 
 	public String resolve(String type, String parentType) {
 		if (type.indexOf('.') >= 0) return type;
-		return aliases.getOrDefault(parentType + "." + type, type);
+		for (Type parent = declarations.get(parentType); parent != null; parent = declarations.get(parent.parent())) {
+			String contextual = aliases.get(parent.name() + "." + type);
+			if (contextual != null) return contextual;
+			String qualified = parent.name() + "." + type;
+			if (declarations.containsKey(qualified)) return qualified;
+		}
+		return type;
 	}
 
 	public boolean matches(String actual, String expected) {
@@ -80,12 +87,12 @@ public final class NodeSupport {
 		Type declaration = declarations.get(name);
 		if (declaration == null || declaration.decorator() != type)
 			throw new IllegalArgumentException("Unknown node type: " + type.getName());
-		boolean match = !mogram.isNull() && types(mogram, model, name).contains(name);
+		boolean match = !mogram.isNull() && types(mogram, model).contains(name);
 		return NodeFactory.create(type, match ? mogram : Mogram.NULL, model);
 	}
 
-	public List<String> types(Mogram mogram, Model model, String declared) {
-		return hierarchy.types(resolve(mogram, model), declared, mogram.facets());
+	public List<String> types(Mogram mogram, Model model) {
+		return hierarchy.types(resolve(mogram, model), mogram.facets());
 	}
 
 	public FrameView frame(Mogram mogram, Model model, List<String> types) {
