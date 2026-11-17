@@ -39,6 +39,47 @@ class DecoratorGeneratorTest {
 	Path directory;
 
 	@Test
+	void typeChecksAndConversionsAreIndependentOfTheDecorator() throws Exception {
+		var metamodel = Metamodels.load(Path.of(getClass().getResource("/metamodels/scoped-types/").toURI()));
+		Model model = model("scoped-types.tara");
+		try (GeneratedDecorators generated = compile(model, metamodel)) {
+			List<Class<? extends Node>> targets = new java.util.ArrayList<>();
+			targets.add(Node.class);
+			for (var type : new io.quassar.metamodel.domain.MetamodelScope(metamodel).types())
+				targets.add(generated.loader().loadClass("test.generated." + type.name().replace('.', '$')).asSubclass(Node.class));
+
+			for (var example : java.util.Map.of("Main", "View", "Heading", "Header", "Admin", "Dashboard",
+					"Main.SummaryPanel", "View.Projection.Panel", "MainToolbar.StatusGrouping", "Command").entrySet()) {
+				Node original = (Node) generated.wrap(example.getValue().replace('.', '$'), model.get(example.getKey()));
+				assertThat(original.isNotNull()).as(example.getKey()).isTrue();
+				List<Node> views = new java.util.ArrayList<>();
+				views.add(original);
+				for (Class<? extends Node> target : targets)
+					if (original.is(target)) views.add(original.as(target));
+
+				for (Node view : views)
+					for (Class<? extends Node> target : targets) {
+						String label = example.getKey() + " as " + view.getClass().getName() + " checking " + target.getName();
+						assertThat(view.is(target)).as(label).isEqualTo(original.is(target));
+						Node converted = view.as(target);
+						assertThat(converted.isNotNull()).as(label).isEqualTo(original.is(target));
+						assertThat(converted.types()).as(label).isEqualTo(original.is(target) ? original.types() : List.of());
+						if (converted.isNotNull()) assertThat(converted.identifier()).as(label).isEqualTo(original.identifier());
+						if (target == Node.class) continue;
+						String qualified = target.getCanonicalName().substring("test.generated.".length());
+						assertThat(view.is(qualified)).as(label).isEqualTo(original.is(qualified));
+						assertThat(view.is(target.getSimpleName())).as(label).isEqualTo(original.is(target.getSimpleName()));
+						if (converted.isNull()) {
+							assertThat(converted.is(target)).as(label).isFalse();
+							assertThat(converted.is(qualified)).as(label).isFalse();
+							assertThat(converted.as(target).isNull()).as(label).isTrue();
+						}
+					}
+			}
+		}
+	}
+
+	@Test
 	void castsCommandsDirectlyToTheirConcreteSubtype() throws Exception {
 		Metamodel metamodel = Metamodels.load(Path.of(getClass().getResource("/metamodels/scoped-types/").toURI()));
 		Model model = model("scoped-types.tara");
