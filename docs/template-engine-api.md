@@ -82,12 +82,14 @@ import io.quassar.templating.model.Rule;
 import io.quassar.templating.model.Template;
 
 import static io.quassar.templating.model.outputs.Outputs.placeholder;
-import static io.quassar.templating.model.predicates.Predicates.allTypes;
+import static io.quassar.templating.model.predicates.Predicates.types;
 
 Template template = Template.create()
-	.add(Rule.create().condition(allTypes("Step")).output(placeholder("identifier")))
-	.add(Rule.create().condition(allTypes("Action")).output(placeholder("name")));
+	.add(Rule.create().condition(types("Step")).output(placeholder("identifier")))
+	.add(Rule.create().condition(types("Action")).output(placeholder("name")));
 ```
+
+Use `types(...)` to require all the listed types and `and(...)` to require all the supplied predicates.
 
 ### Compose templates
 

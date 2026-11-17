@@ -26,12 +26,12 @@ final class TemplateRules {
 
 	private String condition(LogicalExpression condition) {
 		if (condition instanceof BinaryExpression binary) {
-			String operator = binary.operator() == BinaryOperator.AND ? "all" : "any";
+			String operator = binary.operator() == BinaryOperator.AND ? "and" : "any";
 			return operator + "(" + condition(binary.left()) + ", " + condition(binary.right()) + ")";
 		}
 		if (condition instanceof NotExpression not) return "not(" + condition(not.expression()) + ")";
 		if (condition instanceof TypePredicate type)
-			return "allTypes(" + Arrays.stream(type.types()).map(this::literal).collect(Collectors.joining(", ")) + ")";
+			return "types(" + Arrays.stream(type.types()).map(this::literal).collect(Collectors.joining(", ")) + ")";
 		if (condition instanceof TriggerPredicate trigger) return "trigger(" + literal(trigger.name()) + ")";
 		if (condition instanceof AttributePredicate attribute) {
 			String value = attribute.value() == null ? "" : ", " + literal(attribute.value().toString());

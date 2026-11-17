@@ -20,24 +20,36 @@ public class Predicates {
 		return new TypePredicate(type);
 	}
 
-	public static Predicate allTypes(String... types) {
+	public static Predicate types(String... types) {
 		return new TypePredicate(types);
+	}
+
+	public static Predicate allTypes(String... types) {
+		return types(types);
 	}
 
 	public static Predicate trigger(String name) {
 		return new TriggerPredicate(name);
 	}
 
-	public static BinaryExpression all(LogicalExpression left, LogicalExpression right) {
+	public static BinaryExpression and(LogicalExpression left, LogicalExpression right) {
 		return new BinaryExpression(left, AND, right);
 	}
 
-	public static LogicalExpression all(LogicalExpression... expressions) {
+	public static LogicalExpression and(LogicalExpression... expressions) {
 		LogicalExpression root = expressions[0];
 		if (expressions.length == 1) return root;
 		for (int i = 0; i < expressions.length - 1; i++)
 			root = new BinaryExpression(root, AND, expressions[i + 1]);
 		return root;
+	}
+
+	public static BinaryExpression all(LogicalExpression left, LogicalExpression right) {
+		return and(left, right);
+	}
+
+	public static LogicalExpression all(LogicalExpression... expressions) {
+		return and(expressions);
 	}
 
 	public static BinaryExpression any(LogicalExpression left, LogicalExpression right) {
