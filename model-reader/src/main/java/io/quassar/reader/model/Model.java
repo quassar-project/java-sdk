@@ -48,6 +48,12 @@ public final class Model {
 		return resource;
 	}
 
+	public Resource resource(Value value) {
+		if (value instanceof Value.Text text) return resources.get(text.value());
+		if (value instanceof Value.Reference reference) return resources.get(reference.path());
+		return null;
+	}
+
 	public List<Mogram> mograms() {
 		return mograms;
 	}

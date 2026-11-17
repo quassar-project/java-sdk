@@ -163,6 +163,25 @@ class DecoratorGeneratorTest {
 	}
 
 	@Test
+	void resolvesResourcePropertiesByTheirBundledNames() throws Exception {
+		var metamodel = Metamodels.load(MetamodelFixtures.libraryArchive(directory));
+		Model model = model("resource-properties.tara").withResources(java.util.Map.of(
+			"images/cover.bin", new byte[]{1, 2}, "appendix.bin", new byte[]{3}));
+		try (GeneratedDecorators generated = compile(model, metamodel)) {
+			Object atlas = call(generated.wrap("Book", model.get("Atlas")), "asDigital");
+			assertThat(atlas.getClass().getMethod("file").getReturnType()).isEqualTo(Resource.class);
+			assertThat(call(atlas, "file")).isSameAs(model.resource("images/cover.bin"));
+			assertThat((List<?>) call(atlas, "attachments")).isEqualTo(
+				List.of(model.resource("images/cover.bin"), model.resource("appendix.bin")));
+			Object missing = call(generated.wrap("Book", model.get("Missing")), "asDigital");
+			assertThat(call(missing, "file")).isNull();
+			Object empty = call(generated.wrap("Book", model.get("Empty")), "asDigital");
+			assertThat(call(empty, "file")).isNull();
+			assertThat((List<?>) call(empty, "attachments")).isEmpty();
+		}
+	}
+
+	@Test
 	void generatesSingularGettersForSingleRootsAndChildren() throws Exception {
 		Metamodel metamodel = Metamodels.load(MetamodelFixtures.libraryArchive(directory));
 		Model model = model("cardinality.tara");

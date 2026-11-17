@@ -18,6 +18,7 @@ Concept Book
 			def integer:{pages} length = 120 pages
 		sub Digital
 			def resource file
+			def resource[] attachments
 			def double size = 1.5
 	Concept:{1..*} Chapter
 		def string title

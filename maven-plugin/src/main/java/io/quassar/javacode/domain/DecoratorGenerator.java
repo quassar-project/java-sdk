@@ -33,6 +33,7 @@ public final class DecoratorGenerator {
 	private static final String MOGRAM = "io.quassar.reader.model.Mogram";
 	private static final String MODEL = "io.quassar.reader.model.Model";
 	private static final String NODE = "io.quassar.reader.model.Node";
+	private static final String RESOURCE = "io.quassar.reader.model.Resource";
 	private static final String SUPPORT = "NodeSupport";
 	private static final String MOGRAM_TYPES = SUPPORT + ".MogramTypes";
 	private static final Set<String> RESERVED_TYPES = Set.of("Node", SUPPORT, "MogramTypes", "GenericNode", "MogramFrame", "ModelFrame", "AncestorView", "Slot", "Getter", "ValueSlot");
@@ -393,6 +394,10 @@ public final class DecoratorGenerator {
 	private String expression(PropertyDefinition property, Map<String, String> classes) {
 		String value = propertyValue(property);
 		PropertyType type = property.type();
+		if (declaredScalar(property).equals("resource")) {
+			if (type.kind() != Kind.SEQUENCE) return "model.resource(" + value + ")";
+			return SUPPORT + ".values(" + value + ").stream().map(model::resource).filter(java.util.Objects::nonNull).toList()";
+		}
 		if (type.kind() == Kind.REFERENCE) return wrapReference(value, property, classes);
 		if (type.kind() != Kind.SEQUENCE)
 			return value + (isInteger(property) ? ".asNumber().intValueExact()" : accessor(type.kind()));
@@ -415,6 +420,8 @@ public final class DecoratorGenerator {
 
 	private String returnType(PropertyDefinition property, Map<String, String> classes) {
 		PropertyType type = property.type();
+		if (declaredScalar(property).equals("resource"))
+			return type.kind() == Kind.SEQUENCE ? "java.util.List<" + RESOURCE + ">" : RESOURCE;
 		if (type.kind() == Kind.REFERENCE) return referenceType(property, classes);
 		if (isInteger(property)) return type.kind() == Kind.SEQUENCE ? "java.util.List<java.lang.Integer>" : "int";
 		if (type.kind() != Kind.SEQUENCE) return scalarType(type.kind(), false);
@@ -423,10 +430,14 @@ public final class DecoratorGenerator {
 	}
 
 	private boolean isInteger(PropertyDefinition property) {
+		String scalar = declaredScalar(property);
+		return scalar.equals("int") || scalar.equals("integer");
+	}
+
+	private String declaredScalar(PropertyDefinition property) {
 		String declaration = property.declaredType();
 		int bracket = declaration.indexOf('[');
-		String scalar = bracket < 0 ? declaration : declaration.substring(0, bracket);
-		return scalar.equals("int") || scalar.equals("integer");
+		return bracket < 0 ? declaration : declaration.substring(0, bracket);
 	}
 
 	private String referenceType(PropertyDefinition property, Map<String, String> classes) {
