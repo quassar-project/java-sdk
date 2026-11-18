@@ -109,6 +109,12 @@ class DecoratorGeneratorTest {
 			List<?> commands = (List<?>) call(toolbar, "commands");
 			assertThat(commands).hasSize(3);
 			Object grouping = generated.as(commands.get(0), "Grouping");
+			assertThat(call(commands.get(0), "isGrouping")).isEqualTo(true);
+			assertThat(call(commands.get(0), "asGrouping")).isEqualTo(grouping);
+			assertThat(call(grouping, "isGrouping")).isEqualTo(true);
+			assertThat(call(commands.get(2), "isGrouping")).isEqualTo(false);
+			assertThat(((Node) call(commands.get(2), "asGrouping")).isNull()).isTrue();
+			assertThat(toolbar.getClass().getMethods()).extracting(Method::getName).doesNotContain("isCommand", "asCommand");
 			assertThat(((Node) commands.get(0)).is("CollectionCommand")).isEqualTo(true);
 			assertThat(((Node) commands.get(0)).is("Grouping")).isEqualTo(true);
 			assertThat(grouping.getClass().getCanonicalName()).isEqualTo("test.generated.Grouping");
@@ -150,8 +156,19 @@ class DecoratorGeneratorTest {
 			assertThat(((Node) viewType).is("Projection")).isEqualTo(true);
 			assertThat(((Node) viewType).is("Container")).isEqualTo(true);
 			Object container = generated.as(viewType, "View.Container");
+			assertThat(call(viewType, "isContainer")).isEqualTo(true);
+			assertThat(call(viewType, "asContainer")).isEqualTo(container);
 			assertThat(view.getClass().getMethods()).extracting(Method::getName)
-				.contains("as", "is").doesNotContain("asContainer", "asProjection", "asViewType", "isContainer", "isProjection", "isViewType");
+				.contains("as", "is", "asContainer", "asProjection", "asViewType", "isContainer", "isProjection", "isViewType");
+			assertThat(call(view, "isContainer")).isEqualTo(true);
+			assertThat(call(view, "asContainer")).isEqualTo(container);
+			assertThat(call(container, "isContainer")).isEqualTo(true);
+			assertThat(call(view, "isReference")).isEqualTo(false);
+			assertThat(((Node) call(view, "asReference")).isNull()).isTrue();
+			assertThat(view.getClass().getMethods()).extracting(Method::getName)
+				.doesNotContain("isToolbar", "asToolbar", "isCommand", "asCommand", "isPanel", "asPanel");
+			assertThat(call(view, "isInherited")).isEqualTo(true);
+			assertThat(call(view, "asInherited")).isEqualTo(generated.as(view, "View.Inherited"));
 			assertThat(((Node) view).is("Container")).isEqualTo(true);
 			assertThat(generated.as(view, "View.Container")).isEqualTo(container);
 			assertThat(((Node) view).is(container.getClass().asSubclass(Node.class))).isTrue();
@@ -162,8 +179,8 @@ class DecoratorGeneratorTest {
 			assertThat(((Node) view).is("Projection")).isEqualTo(true);
 			assertThat(((Node) view).is("Reference")).isEqualTo(false);
 			assertThat(call(generated.as(view, "View.Reference"), "isNull")).isEqualTo(true);
-			assertThat(view.getClass().getMethods()).extracting(Method::getName).contains("is").doesNotContain("asShared", "isShared");
-			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("is").doesNotContain("asShared", "isShared");
+			assertThat(view.getClass().getMethods()).extracting(Method::getName).contains("is", "asShared", "isShared");
+			assertThat(viewType.getClass().getMethods()).extracting(Method::getName).contains("is", "asShared", "isShared");
 			assertThat(container.getClass().getCanonicalName()).isEqualTo("test.generated.View.Container");
 			var types = List.of("View", "View.Container", "View.Projection",
 				"View.ViewType", "View.Inherited");

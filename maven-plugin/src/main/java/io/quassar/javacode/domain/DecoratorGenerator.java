@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -100,7 +101,8 @@ public final class DecoratorGenerator {
 		List<JavaCode> code = new ArrayList<>();
 		code.add(decoratorBase(packageName, targets, declarations, metamodel.declarations()));
 		code.add(modelDecorator(types, packageName, facadeName, classes, metamodel.dsl()));
-		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, enums, subtypeParents);
+		var conversions = conversions(decorators, subtypeParents, subtypes);
+		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, enums, subtypeParents, conversions);
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
 			code.add(new JavaCode(packageName, classNames.get(type.type()),
@@ -162,6 +164,7 @@ public final class DecoratorGenerator {
 		Map<String, String> classes = layout.references();
 		Map<PropertyDefinition, String> enums = layout.enums().get(type.type());
 		List<String> descendants = layout.subtypes().getOrDefault(type.type(), List.of());
+		source.append(conversions(type, layout, methods));
 		for (PropertyDefinition property : type.properties()) {
 			String getter = methods.claim(JavaNames.methodName(property.suggestedName()));
 			String enumName = enums.get(property);
@@ -200,9 +203,54 @@ public final class DecoratorGenerator {
 			"typeName", literal(type.type())));
 	}
 
+	private Map<String, Map<String, String>> conversions(List<TypeDefinition> types, Map<String, String> parents,
+			Map<String, List<String>> descendants) {
+		Map<String, TypeDefinition> declarations = types.stream().collect(Collectors.toMap(TypeDefinition::type, type -> type));
+		Map<String, Map<String, String>> conversions = new LinkedHashMap<>();
+		for (TypeDefinition type : types) conversions(type, declarations, parents, descendants, conversions);
+		return conversions;
+	}
+
+	private Map<String, String> conversions(TypeDefinition type, Map<String, TypeDefinition> declarations,
+			Map<String, String> parents, Map<String, List<String>> descendants,
+			Map<String, Map<String, String>> conversions) {
+		if (conversions.containsKey(type.type())) return conversions.get(type.type());
+		Map<String, String> names = new LinkedHashMap<>();
+		TypeDefinition parent = declarations.get(parents.get(type.type()));
+		if (parent != null) names.putAll(conversions(parent, declarations, parents, descendants, conversions));
+		Set<String> targets = new LinkedHashSet<>(descendants.getOrDefault(type.type(), List.of()));
+		for (String facet : type.facets()) {
+			targets.add(facet);
+			targets.addAll(descendants.getOrDefault(facet, List.of()));
+		}
+		for (String target : targets) {
+			if (names.containsValue(target)) continue;
+			String suffix = JavaNames.className(simpleName(target));
+			if (names.containsKey(suffix)) suffix = JavaNames.className(target);
+			names.put(suffix, target);
+		}
+		conversions.put(type.type(), names);
+		return names;
+	}
+
+	private String conversions(TypeDefinition type, DecoratorLayout layout, JavaNames methods) {
+		StringBuilder source = new StringBuilder();
+		Map<String, String> inherited = layout.conversions().getOrDefault(layout.parents().get(type.type()), Map.of());
+		for (var conversion : layout.conversions().get(type.type()).entrySet()) {
+			String check = methods.claim("is" + conversion.getKey());
+			String cast = methods.claim("as" + conversion.getKey());
+			if (inherited.containsValue(conversion.getValue())) continue;
+			String target = layout.references().get(conversion.getValue());
+			source.append(method("boolean", check, "is(" + target + ".class)"));
+			source.append(method(target, cast, "as(" + target + ".class)"));
+		}
+		return source.toString();
+	}
+
 	private record DecoratorLayout(Map<String, String> classNames, Map<String, String> references,
 			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes,
-			Map<String, Map<PropertyDefinition, String>> enums, Map<String, String> parents) {
+			Map<String, Map<PropertyDefinition, String>> enums, Map<String, String> parents,
+			Map<String, Map<String, String>> conversions) {
 	}
 
 	private Map<PropertyDefinition, String> enumNames(TypeDefinition type, Map<String, String> classes,

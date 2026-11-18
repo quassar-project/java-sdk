@@ -64,6 +64,8 @@ Model collection methods return root mograms of the declared type. Child collect
 
 Use `step.is(Step.Scheduled.class)` or `step.is("Scheduled")` to check an active facet or subtype, including its ancestors. Qualified strings such as `"Step.Scheduled"` identify the scope explicitly. Class-based checks use the exact generated type.
 
+Generated decorators also expose specific shortcuts for their subtypes and applicable facets, including facet subtypes: `step.isScheduled()` delegates to `is(Step.Scheduled.class)`, and `step.asScheduled()` delegates to `as(Step.Scheduled.class)`. When type names repeat in different scopes, the method name includes the scope to distinguish them.
+
 Use `step.as(Step.Scheduled.class)` to obtain the typed view. A decorator for a type declared with `sub` extends its parent decorator and inherits its accessors. For example, `command.as(Download.class)` returns a `Download` decorator. A different type returns a null decorator, whose `is(...)` checks return `false`.
 
 Call `node.types()` to get the concrete concept and its ancestors, followed by each active facet and its ancestors. Names are qualified as in M2, duplicates are removed, and a null decorator returns an empty list. The result depends on the mogram and its position in M1. Converting it to a parent type, an active facet, or `Node.class` returns the same list. For example, a grouping command returns `Grouping`, `CollectionCommand`, and `Command`, including when accessed through the base command decorator. The list also includes any active facet and its ancestors on that same command. Template type conditions can match these ancestors by their qualified or simple names.
