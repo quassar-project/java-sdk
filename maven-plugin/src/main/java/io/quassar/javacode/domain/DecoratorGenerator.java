@@ -275,7 +275,7 @@ public final class DecoratorGenerator {
 				SUPPORT + ".values(" + value + ").stream().map(item -> " + enumName + ".from(" + SUPPORT + ".word(item))).toList()");
 		String token = SUPPORT + ".word(" + value + ")";
 		if (property.hasDefault())
-			token = value + ".isEmpty() ? " + literal(property.defaultValue()) + " : " + token;
+			token = missingProperty(property) + " ? " + literal(property.defaultValue()) + " : " + token;
 		return method(enumName, getter, "mogram.isNull() ? null : " + enumName + ".from(" + token + ")");
 	}
 
@@ -317,6 +317,12 @@ public final class DecoratorGenerator {
 			}).collect(Collectors.joining(",\n", "\n", "\n\t"));
 		return new JavaCode(packageName, SCHEMA, templates.render("decorator", Map.of("hierarchy", hierarchy)));
 	}
+
+    private String missingProperty(PropertyDefinition property) {
+        return property.name() == null
+                ? "mogram.properties().stream().filter(property -> property.name() == null).count() <= " + property.position()
+                : "mogram.properties().stream().noneMatch(property -> java.util.Objects.equals(property.name(), " + literal(property.name()) + "))";
+    }
 
 	private String propertyValue(PropertyDefinition property) {
 		return property.name() == null

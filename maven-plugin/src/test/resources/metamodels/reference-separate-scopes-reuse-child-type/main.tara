@@ -1,7 +1,7 @@
 dsl metta
 
-// Java: Entry#selected EntryItem
-// Java: Other#selected OtherItem
+// Java: Entry#selected Entry$Item
+// Java: Other#selected Other$Item
 Concept Entry
 	Concept Item
 	def Item selected

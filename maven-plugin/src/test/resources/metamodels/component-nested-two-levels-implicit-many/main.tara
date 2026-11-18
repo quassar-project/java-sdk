@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: EntryGroup#entryGroupItems java.util.List<EntryGroupItem>
+// Java: Entry$Group#items java.util.List<Entry$Group$Item>
 Concept Entry
 	Concept Group
 		Concept Item

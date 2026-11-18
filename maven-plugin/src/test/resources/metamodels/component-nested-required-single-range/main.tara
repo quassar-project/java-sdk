@@ -1,5 +1,5 @@
 dsl metta
 
-// Java: Entry#item EntryItem
+// Java: Entry#item Entry$Item
 Concept Entry
 	Concept:{1..1} Item

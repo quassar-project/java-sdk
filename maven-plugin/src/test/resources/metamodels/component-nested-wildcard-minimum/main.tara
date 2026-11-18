@@ -1,5 +1,5 @@
 dsl metta
 
-// Java: Entry#entryItems java.util.List<EntryItem>
+// Java: Entry#items java.util.List<Entry$Item>
 Concept Entry
 	Concept:{*..3} Item

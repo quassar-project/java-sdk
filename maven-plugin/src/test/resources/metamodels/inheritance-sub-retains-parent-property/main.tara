@@ -1,7 +1,7 @@
 dsl metta
 
-// Java: EntryDetailed#label java.lang.String
-// Java: EntryDetailed#count java.math.BigDecimal
+// Java: Detailed#label java.lang.String
+// Java: Detailed#count int
 Concept Entry
 	def string label
 	sub Detailed > def integer count

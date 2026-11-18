@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: Configured#selected EntryConfiguredItem
+// Java: Entry$Configured#selected Entry$Configured$Item
 Concept Entry
 	facet Configured
 		Concept Item

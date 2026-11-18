@@ -52,7 +52,7 @@ public final class MetamodelResolver {
 
 	private TypeDefinition resolve(MetamodelType type, Map<String, MetamodelType> types) {
 		Map<PropertyKey, PropertyDefinition> properties = new LinkedHashMap<>();
-		for (PropertyDefinition property : type.properties())
+		for (PropertyDefinition property : properties(type, types, new LinkedHashSet<>()))
 			properties.put(new PropertyKey(property.name(), property.position()), resolve(property, type, types));
 		Set<String> facets = new LinkedHashSet<>();
 		Map<String, Composition> children = new LinkedHashMap<>();
@@ -60,6 +60,23 @@ public final class MetamodelResolver {
 		return new TypeDefinition(type.name(), type.isRoot(), type.cardinality(), List.copyOf(properties.values()),
 			List.copyOf(children.values()), List.copyOf(facets));
 	}
+
+    private List<PropertyDefinition> properties(MetamodelType type, Map<String, MetamodelType> types, Set<String> visiting) {
+        if (!visiting.add(type.name())) throw new IllegalArgumentException("Inheritance cycle: " + visiting);
+        Map<PropertyKey, PropertyDefinition> result = new LinkedHashMap<>();
+        if (type.declaration() != MetamodelType.Declaration.SUB && !type.parent().isBlank()) {
+            var candidates = new LinkedHashMap<>(types);
+            candidates.remove(type.name());
+            String parentName = resolveName(type.parent(), type.scope(), candidates);
+            MetamodelType parent = types.get(parentName);
+            if (parent == null) throw new IllegalArgumentException("Unknown parent " + type.parent());
+            for (var property : properties(parent, types, visiting))
+                result.put(new PropertyKey(property.name(), property.position()), resolve(property, parent, types));
+        }
+        for (var property : type.properties()) result.put(new PropertyKey(property.name(), property.position()), property);
+        visiting.remove(type.name());
+        return List.copyOf(result.values());
+    }
 
 	private void collect(MetamodelType type, Map<String, MetamodelType> types, Set<String> facets, Map<String, Composition> children) {
 		for (String facet : type.facets())

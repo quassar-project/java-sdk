@@ -13,14 +13,32 @@ import java.util.stream.Collectors;
 public final class MetamodelScope {
 	private final Map<String, MetamodelType> declarations;
 	private final Map<String, String> names = new LinkedHashMap<>();
+	private final java.util.Set<String> qualifiedSubtypes = new java.util.HashSet<>();
 
 	public MetamodelScope(Metamodel metamodel) {
 		declarations = metamodel.types().stream().collect(Collectors.toMap(MetamodelType::name, type -> type));
-		for (var type : metamodel.types()) name(type.name());
+		while (true) {
+            names.clear();
+            for (var type : metamodel.types()) name(type.name());
+            var duplicates = names.entrySet().stream().collect(Collectors.groupingBy(Map.Entry::getValue));
+            boolean changed = false;
+            for (var group : duplicates.values()) {
+                if (group.size() < 2) continue;
+                for (var entry : group) {
+                    MetamodelType type = declarations.get(entry.getKey());
+                    while (type != null) {
+                        if (type.declaration() == MetamodelType.Declaration.SUB)
+                            changed |= qualifiedSubtypes.add(type.name());
+                        type = declarations.get(type.scope());
+                    }
+                }
+            }
+            if (!changed) break;
+        }
 	}
 
 	private String scope(MetamodelType type) {
-		if (type.declaration() == MetamodelType.Declaration.SUB) return scope(declarations.get(type.parent()));
+		if (type.declaration() == MetamodelType.Declaration.SUB && !qualifiedSubtypes.contains(type.name())) return scope(declarations.get(type.parent()));
 		return type.scope().isEmpty() ? "" : name(type.scope());
 	}
 

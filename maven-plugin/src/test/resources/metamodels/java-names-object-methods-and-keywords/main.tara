@@ -1,6 +1,6 @@
 dsl metta
 
 // Java: Entry#classValue java.lang.String
-// Java: Entry#wait2 java.math.BigDecimal
+// Java: Entry#wait2 int
 // Java: Entry#isNull2 boolean
 Concept Entry > def string class; def integer wait; def boolean isNull

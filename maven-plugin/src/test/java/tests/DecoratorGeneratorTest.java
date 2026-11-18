@@ -61,6 +61,30 @@ class DecoratorGeneratorTest {
 	@TempDir
 	Path directory;
 
+    @Test
+    void keepsRepeatedSubtypeNamesDistinctWithoutLosingRootAccessors() throws Exception {
+        String schema = """
+                dsl metta
+                Concept Alpha
+                    sub Shared
+                        def string label
+                Concept Beta
+                    sub Shared
+                        def integer count
+                """;
+        Model model = Models.create("Alpha.Shared first\n\tlabel = \"first\"\nBeta.Shared second\n\tcount = 2\n");
+        try (var generated = compile(model, metamodel(schema))) {
+            Object first = generated.wrap("Alpha$Shared", model.get("first"));
+            Object second = generated.wrap("Beta$Shared", model.get("second"));
+            assertThat(call(first, "label")).isEqualTo("first");
+            assertThat(call(second, "count")).isEqualTo(2);
+            assertThat(((Node) first).is("Alpha")).isTrue();
+            assertThat(((Node) first).is("Beta")).isFalse();
+            assertThat((List<?>) call(generated.modelDecorator(), "alphaShareds")).hasSize(1);
+            assertThat((List<?>) call(generated.modelDecorator(), "betaShareds")).hasSize(1);
+        }
+    }
+
 	@Test
 	void classChecksDistinguishGeneratedApisWithTheSameTypeNames() throws Exception {
 		var metamodel = MetamodelFixtures.library();

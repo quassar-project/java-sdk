@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: Configured#value java.util.List<java.math.BigDecimal>
+// Java: Entry$Configured#value java.util.List<java.math.BigDecimal>
 Concept Entry
 	facet Configured
 		def long[] value

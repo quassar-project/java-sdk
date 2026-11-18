@@ -1,7 +1,7 @@
 dsl metta
 
 // Java: Entry#label java.lang.String
-// Java: Entry#count java.math.BigDecimal
+// Java: Entry#count int
 // Java: Entry#text String
 // Java: Entry#decimal BigDecimal
 Concept String

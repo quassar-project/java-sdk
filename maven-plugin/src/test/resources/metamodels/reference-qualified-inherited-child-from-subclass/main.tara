@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: Other#selected EntryItem
+// Java: Other#selected Entry$Item
 Concept Entry as generalization
 	Concept Item
 Concept Other extends Entry

@@ -1,5 +1,5 @@
 dsl metta
 
-// Java: Entry#value java.lang.String
+// Java: Entry#value Entry$Value
 Concept Entry
 	def word[0..1]:{Ready Pending} value

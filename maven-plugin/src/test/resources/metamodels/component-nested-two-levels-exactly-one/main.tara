@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: EntryGroup#item EntryGroupItem
+// Java: Entry$Group#item Entry$Group$Item
 Concept Entry
 	Concept Group
 		Concept:{1} Item

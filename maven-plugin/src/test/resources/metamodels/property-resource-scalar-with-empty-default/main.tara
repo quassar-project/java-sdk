@@ -1,5 +1,5 @@
 dsl metta
 
-// Java: Entry#value java.lang.String
+// Java: Entry#value io.quassar.reader.model.Resource
 Concept Entry
 	def resource value = empty

@@ -1,5 +1,5 @@
 dsl metta
 
-// Java: Entry#value java.util.List<java.math.BigDecimal>
+// Java: Entry#value java.util.List<java.lang.Integer>
 Concept Entry
 	def integer[1..*] value

@@ -1,5 +1,5 @@
 dsl metta
 
-// Java: Entry#count java.math.BigDecimal
+// Java: Entry#count int
 // Java: Entry#label java.lang.String
 Concept Entry extends Base > def integer count

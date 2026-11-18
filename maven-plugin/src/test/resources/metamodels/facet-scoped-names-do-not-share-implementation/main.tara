@@ -1,7 +1,7 @@
 dsl metta
 
-// Java: Configured#text java.lang.String
-// Java: Configured2#count java.math.BigDecimal
+// Java: Entry$Configured#text java.lang.String
+// Java: Other$Configured#count int
 Concept Entry
 	facet Configured > def string text
 Concept Other

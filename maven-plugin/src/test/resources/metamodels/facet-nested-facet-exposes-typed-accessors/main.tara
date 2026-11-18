@@ -1,8 +1,8 @@
 dsl metta
 
-// Java: Entry#asConfigured Configured
-// Java: Configured#asValidated Validated
-// Java: Validated#valid boolean
+// Java: Entry#asConfigured Entry$Configured
+// Java: Entry$Configured#asValidated Entry$Configured$Validated
+// Java: Entry$Configured$Validated#valid boolean
 Concept Entry
 	facet Configured
 		facet Validated > def boolean valid

@@ -1,5 +1,5 @@
 dsl metta
 
-// Java: Entry#value java.util.List<java.lang.String>
+// Java: Entry#value java.util.List<io.quassar.reader.model.Resource>
 Concept Entry
 	def resource[] value

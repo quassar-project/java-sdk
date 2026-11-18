@@ -129,9 +129,10 @@ public final class MetamodelReader {
         String maximum = cardinality.contains("..") ? cardinality.substring(cardinality.indexOf("..") + 2) : cardinality;
         boolean multiple = bracket >= 0 && !maximum.equals("1") && !maximum.equals("0");
 		Kind kind = switch (scalar) {
-			case "string", "word", "resource", "date", "time", "datetime" -> Kind.STRING;
+			case "string", "word", "resource", "date", "time", "datetime", "instant" -> Kind.STRING;
 			case "int", "integer", "long", "double", "float", "decimal", "number" -> Kind.NUMBER;
 			case "boolean" -> Kind.BOOLEAN;
+			case "object", "function" -> Kind.VALUE;
 			default -> Kind.REFERENCE;
 		};
 		PropertyType type = multiple ? new PropertyType(Kind.SEQUENCE, kind) : PropertyType.scalar(kind);
@@ -177,8 +178,9 @@ public final class MetamodelReader {
 			String token = tokens[i];
 			if (token.startsWith("{")) {
 				String[] bounds = token.substring(1, token.length() - 1).split("\\.\\.");
-				min = Integer.parseInt(bounds[0]);
-				max = bounds[1].equals("*") ? -1 : Integer.parseInt(bounds[1]);
+				min = bounds[0].equals("*") ? 0 : Integer.parseInt(bounds[0]);
+				String maximum = bounds.length == 1 ? bounds[0] : bounds[1];
+				max = maximum.equals("*") ? -1 : Integer.parseInt(maximum);
 			} else {
 				modifiers.add(token);
 				if (token.equals("Single")) max = 1;

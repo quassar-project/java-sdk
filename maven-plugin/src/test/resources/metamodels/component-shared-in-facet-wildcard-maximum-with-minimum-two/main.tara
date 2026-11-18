@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: Configured#items java.util.List<Item>
+// Java: Entry$Configured#items java.util.List<Item>
 Concept Item as component
 Concept Entry
 	facet Configured

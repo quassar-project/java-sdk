@@ -1,5 +1,5 @@
 dsl metta
 
-// Java: Entry#value java.math.BigDecimal
+// Java: Entry#value int
 Concept Entry
 	def integer value

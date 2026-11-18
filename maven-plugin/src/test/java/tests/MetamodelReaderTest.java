@@ -30,6 +30,25 @@ class MetamodelReaderTest {
 	@TempDir
 	Path temporary;
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({"1,1,1", "2,2,2", "*,0,-1", "*..3,0,3", "2..*,2,-1", "0..1,0,1"})
+    void readsExactAndWildcardCardinalities(String syntax, int minimum, int maximum) throws Exception {
+        String source = "dsl metta\nConcept:{" + syntax + "} Entry\n";
+        try (var input = new ByteArrayInputStream(source.getBytes(UTF_8))) {
+            assertThat(new MetamodelReader().read(input).types().get(0).cardinality())
+                    .isEqualTo(new Cardinality(minimum, maximum));
+        }
+    }
+
+    @Test
+    void readsInstantAsAPrimitiveInsteadOfAReference() throws Exception {
+        try (var input = new ByteArrayInputStream("dsl metta\nConcept Entry\n\tdef instant recorded\n".getBytes(UTF_8))) {
+            var property = new MetamodelReader().read(input).types().get(0).properties().get(0);
+            assertThat(property.type().kind()).isEqualTo(Kind.STRING);
+            assertThat(property.referenceTypes()).isEmpty();
+        }
+    }
+
 	@Test
 	void readsTypesFacetsAndInheritanceWithoutMixingTheirProperties() throws Exception {
 		Metamodel model = load();

@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: Configured#value java.util.List<java.lang.Boolean>
+// Java: Entry$Configured#value java.util.List<java.lang.Boolean>
 Concept Entry
 	facet Configured
 		def boolean[] value

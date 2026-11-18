@@ -1,4 +1,4 @@
 dsl metta
 
-// Java: Entry#states java.util.List<java.lang.String>
+// Java: Entry#states java.util.List<Entry$States>
 Concept Entry > def word[]:{Ready Pending Closed} states = Ready Pending

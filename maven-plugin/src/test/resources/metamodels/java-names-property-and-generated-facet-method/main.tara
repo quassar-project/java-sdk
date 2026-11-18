@@ -1,8 +1,8 @@
 dsl metta
 
-// Java: Entry#isConfigured java.lang.String
-// Java: Entry#isConfigured2 boolean
-// Java: Entry#asConfigured Configured
+// Java: Entry#isConfigured2 java.lang.String
+// Java: Entry#isConfigured boolean
+// Java: Entry#asConfigured Entry$Configured
 Concept Entry
 	def string isConfigured
 	facet Configured > def boolean enabled

@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: Entry#selected EntryItem
+// Java: Entry#selected Entry$Item
 Concept Entry
 	Concept Item > def string label
 	def Entry.Item selected

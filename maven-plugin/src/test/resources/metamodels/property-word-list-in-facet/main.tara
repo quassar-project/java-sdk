@@ -1,6 +1,6 @@
 dsl metta
 
-// Java: Configured#value java.util.List<java.lang.String>
+// Java: Entry$Configured#value java.util.List<Entry$Configured$Value>
 Concept Entry
 	facet Configured
 		def word[]:{Ready Pending} value

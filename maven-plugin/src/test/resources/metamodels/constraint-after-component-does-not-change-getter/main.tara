@@ -1,7 +1,7 @@
 dsl metta
 
-// Java: Entry#count java.math.BigDecimal
-// Java: Entry#entryItems java.util.List<EntryItem>
+// Java: Entry#count int
+// Java: Entry#items java.util.List<Entry$Item>
 // Java: Other#active boolean
 Concept Entry
 	def integer count
