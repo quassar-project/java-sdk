@@ -9,6 +9,7 @@ import io.quassar.reader.ports.ModelSource;
 import io.quassar.reader.adapters.UrlSource;
 import io.quassar.reader.adapters.TextSource;
 import java.util.List;
+import java.util.LinkedHashSet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,19 +71,30 @@ public final class Models {
 	}
 
 	private static Model checkedRelease(ModelRelease release, String expectedDsl) throws IOException {
-		String actualDsl = "";
-		if (!release.metadata().isBlank()) {
-			try {
-				var metadata = JsonParser.parseString(release.metadata());
-				if (!metadata.isJsonObject()) throw new IOException("Invalid model manifest.json. Expected a JSON object.");
-				var dsl = metadata.getAsJsonObject().get("dsl");
-				if (dsl != null && dsl.isJsonPrimitive() && dsl.getAsJsonPrimitive().isString()) actualDsl = dsl.getAsString();
-			} catch (JsonParseException exception) {
-				throw new IOException("Invalid model manifest.json", exception);
-			}
-		}
-		requireDsl(expectedDsl, actualDsl, "manifest.json");
+		requireDsl(expectedDsl, declaredDsls(release.metadata()), "manifest.json");
 		return release.model();
+	}
+
+	private static List<String> declaredDsls(String manifest) throws IOException {
+		if (manifest.isBlank()) return List.of();
+		try {
+			var metadata = JsonParser.parseString(manifest);
+			if (!metadata.isJsonObject()) throw new IOException("Invalid model manifest.json. Expected a JSON object.");
+			var object = metadata.getAsJsonObject();
+			var dsls = new LinkedHashSet<String>();
+			var primary = object.get("dsl");
+			if (primary != null && primary.isJsonPrimitive() && primary.getAsJsonPrimitive().isString()
+					&& !primary.getAsString().isBlank()) dsls.add(primary.getAsString());
+			var declarations = object.getAsJsonArray("dsls");
+			if (declarations != null)
+				for (var declaration : declarations) {
+					String value = declaration.getAsString();
+					dsls.add(value.substring(value.indexOf('|') + 1));
+				}
+			return List.copyOf(dsls);
+		} catch (JsonParseException exception) {
+			throw new IOException("Invalid model manifest.json", exception);
+		}
 	}
 
 	private static final Pattern DSL_HEADER = Pattern.compile("(?m)^[\\t ]*dsl[\\t ]+(\\S+)");
@@ -94,8 +106,13 @@ public final class Models {
 	}
 
 	private static void requireDsl(String expected, String actual, String source) throws IOException {
-		if (actual.isBlank()) throw new IOException("Expected DSL " + expected + " but no DSL is declared in " + source);
-		if (!expected.equals(actual)) throw new IOException("Expected DSL " + expected + " but found " + actual + " in " + source);
+		requireDsl(expected, actual.isBlank() ? List.of() : List.of(actual), source);
+	}
+
+	private static void requireDsl(String expected, List<String> actual, String source) throws IOException {
+		if (actual.isEmpty()) throw new IOException("Expected DSL " + expected + " but no DSL is declared in " + source);
+		if (!actual.contains(expected))
+			throw new IOException("Expected DSL " + expected + " but found " + String.join(", ", actual) + " in " + source);
 	}
 
 	public static Model create(String text) throws IOException {
