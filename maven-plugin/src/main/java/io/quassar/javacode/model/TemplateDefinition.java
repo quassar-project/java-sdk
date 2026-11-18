@@ -8,4 +8,9 @@ public record TemplateDefinition(String filename, List<Rule> rules) {
 	public TemplateDefinition {
 		rules = List.copyOf(rules);
 	}
+	public String name() {
+		String path = filename.replace('\\', '/');
+		String local = path.substring(path.lastIndexOf('/') + 1);
+		return local.substring(0, local.length() - ".itr".length());
+	}
 }

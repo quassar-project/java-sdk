@@ -6,7 +6,6 @@ import io.quassar.javacode.ports.SourceTemplates;
 import io.quassar.templating.model.Rule;
 import io.quassar.templating.ports.TemplateReadException;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +23,7 @@ public final class TemplateGenerator {
 		JavaNames names = new JavaNames(Set.of());
 		List<JavaCode> code = new ArrayList<>();
 		for (TemplateDefinition definition : definitions) {
-			String filename = Path.of(definition.filename()).getFileName().toString();
-			String base = JavaNames.className(filename.substring(0, filename.length() - ".itr".length())) + "Template";
+			String base = JavaNames.className(definition.name()) + "Template";
 			String name = names.claim(base);
 			code.add(new JavaCode(templatePackage, name, compile(templatePackage, name, definition)));
 		}
