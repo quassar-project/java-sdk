@@ -1,0 +1,7 @@
+dsl metta
+
+constraint CheckPath :: path is not empty and path starts with "/"
+    message = "The path must start with '/'."
+
+constraint CheckFileParameter :: count(all(Parameter, p -> p is "File" and p.location != form)) == 0
+    message = "File parameters must use form location."

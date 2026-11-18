@@ -1,0 +1,196 @@
+dsl metta
+
+
+Concept Nota as component
+	def string nota
+	
+
+Concept Atributo as component
+	def string descripcion = empty
+	facet Tipo
+		sub Booleano
+		sub Texto
+		sub Numero
+			def string metrica = empty
+		sub Fecha
+			def word:{Año Mes Dia Hora Minuto Segundo} resolucion = empty
+		sub Enlace
+			def Entidad entidad
+			def Faceta faceta = empty
+		sub Termino
+			def Tesauro tesauro
+		sub Tupla
+			has Atributo
+	facet Mutable
+	facet Multiple
+	facet Compuesto
+		has Atributo
+	facet DatoPersonal
+		def word:{IdentificacionBasica Contacto IdentificacionDigital Demograficos Profesionales EconomicosYFinancieros Transaccionales Localizacion Comportamiento Comunicaciones Audiovisuales FamiliaresYSociales Salud Biometricos Geneticos Educativos JudicialesYAdministrativos RecursosHumanos} tipo
+	facet Clasificador
+
+Concept Faceta as component
+	facet Mutable
+	facet TipoFaceta
+		sub Especializacion
+		sub Extension
+	def string nombre = empty
+	def string descripcion = empty
+	def string nombreColeccion = empty
+	has Faceta
+	has Atributo
+	has Tesauro
+	has Nota
+	Concept Ejemplo
+		def string descripcion
+
+	Concept Etiqueta
+		def Atributo[] atributos
+		def string[] separadores
+
+
+
+Concept Label
+	def string token
+	def string label
+
+
+
+Concept Dataset as component
+	def string nombre
+	def word:{Baja Media Alta Critica} criticidad = Critica
+	def string descripcion = empty
+	def boolean operativa = true
+	has Nota
+
+	Concept Incompatibilidad
+		def string codigo
+		def string campo
+		def string descripcion
+		def string recomendacion
+
+	facet Estructural
+		def Entidad entidad
+		def Faceta faceta = empty
+
+	facet Transaccional
+		def Evento evento
+		def Faceta faceta = empty
+
+	Concept:Single Carga
+		def string recurso = empty
+
+		Concept Campo
+			def string nombre
+			def string selector = empty
+			def integer inicio = empty
+			def integer longitud = empty
+
+		facet SQL
+			def string expresion
+			def string descripcion = empty
+			has Nota
+
+		facet API
+			Concept:Single Endpoint
+				def word:{GET POST PUT HEAD} metodo
+				def string ruta = empty
+
+			Concept:Single Respuesta
+				def word:{JSON XML} formato
+				def string registros = "$"
+
+			Concept Parametro
+				def string nombre
+				def string valor
+				def word:{Query Header Form} tipo = Query
+
+		facet CAT
+			def string registro
+			def string codificacion = "Windows-1252"
+
+		Concept:Single Filtro
+			facet Y > has:{2..*} Filtro
+			facet O > has:{2..*} Filtro
+			facet No > has:Single Filtro
+			facet Igual > def string campo; def string valor
+			facet Distinto > def string campo; def string valor
+			facet En > def string campo; def string[] valores
+			facet NoEn > def string campo; def string[] valores
+			facet Presente > def string campo
+			facet Ausente > def string campo
+			facet Mayor > def string campo; def string valor
+			facet MayorIgual > def string campo; def string valor
+			facet Menor > def string campo; def string valor
+			facet MenorIgual > def string campo; def string valor
+
+	Concept:Single Importacion
+
+		Concept:Single Identidad
+			def string[] campos
+
+			Concept Alternativa
+				def string[] campos
+
+		Concept Marca
+			def Atributo atributo
+			def Transformacion transformacion = empty
+
+			facet Origen
+				sub Campo
+					def string nombre
+				sub Constante
+					def string valor
+				sub Expresion
+					def string formula
+				sub Clasificacion
+					def Tesauro tesauro
+					def string termino
+
+			Concept Inferencia
+				def string funcion
+				def Dataset dataset
+
+		Concept MarcaCompuesta
+			def Atributo atributo
+			def Transformacion transformacion = empty
+
+			Concept:Single Clave
+				facet Origen
+					sub Constante
+						def string valor
+					sub Campo
+						def string nombre
+					sub Expresion
+						def string formula
+
+			Concept:Single PresenteSi
+				facet Condicion
+					sub Campo
+						def string nombre
+					sub Expresion
+						def string formula
+
+			Concept Marca
+				def Atributo atributo
+				def Transformacion transformacion = empty
+
+				facet Origen
+					sub Campo
+						def string nombre
+					sub Constante
+						def string valor
+					sub Expresion
+						def string formula
+					sub Clasificacion
+						def Tesauro tesauro
+						def string termino
+
+				Concept Inferencia
+					def string funcion
+					def Dataset dataset
+
+	Concept Extension
+		def Faceta faceta
+
+

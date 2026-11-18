@@ -1,0 +1,74 @@
+dsl metta
+
+use data
+
+Concept:Named Service
+    has Schema
+    has Exception
+
+    facet REST
+        def string swagger = "3.1.0"
+        def string host
+        def string port
+        def string title = ""
+        def string subtitle = ""
+        def string basePath = "/api"
+        def long maxResourceSize = 100
+        def boolean generateDocs = false
+        def word[]:{http https ws wss} protocols = https
+        Concept:{0..1}:RequiresAspect Authentication
+            facet WithCertificate
+                def string store
+                def string storePassword
+                Concept AllowedUsers
+                    def string[] certificate
+            facet Basic
+            facet Bearer
+            facet Custom
+        Concept:{0..1} Info
+            def string title
+            def string version
+            def string description = ""
+            def string termsOfService = ""
+            Concept:{0..1}:Named Contact
+                def string url = ""
+                def string email = ""
+            Concept:{0..1}:Named License
+                def string url = ""
+        Concept:Named Tag
+            def string description = ""
+            Concept Document
+                def string description = ""
+                def string url
+    	Concept:Named:CheckPath Resource
+            def string path
+            Concept:Named Parameter extends Parameter
+                def string description = ""
+                def word:{body path form header query} location
+            Concept:CheckFileParameter Operation
+                def string[] tags = empty
+                def string summary = ""
+                def string description = ""
+                def string externalDocumentationPath = empty
+                def boolean deprecated = false
+                sub Get
+                sub Post
+                sub Put
+                sub Delete
+                sub Head
+                sub Options
+                sub Patch
+                has:RequiresAspect Service.REST.Resource.Parameter
+                has:{0..1} Response
+                def Exception[] exceptionRefs = empty
+                has Exception
+            facet Public
+        Concept:Named Notification
+            def string path
+            Concept:Named Parameter
+                def string description = ""
+                def word:{body path form header query} location
+
+
+
+

@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value java.util.List<java.lang.String>
+Concept Entry
+	def instant[2] value

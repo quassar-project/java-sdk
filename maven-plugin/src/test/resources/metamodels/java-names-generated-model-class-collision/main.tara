@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: DecoratedModel#decoratedModels java.util.List<DecoratedModel2>
+// Java: DecoratedModel2#title java.lang.String
+Concept DecoratedModel > def string title

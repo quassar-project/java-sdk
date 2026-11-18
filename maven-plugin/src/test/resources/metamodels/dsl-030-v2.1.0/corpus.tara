@@ -1,0 +1,10 @@
+dsl metta
+
+Concept Translator
+	def word:{Afar Abkhaz Avestan Afrikaans Akan Amharic Aragonese Arabic Assamese Avaric Aymara Azerbaijani SouthAzerbaijani Bashkir Belarusian Bulgarian Bihari Bislama Bambara Bengali TibetanStandard Breton Bosnian CatalanValencian Chechen Chamorro Corsican Cree Czech OldChurchSlavonic Chuvash Welsh Danish German Divehi Dzongkha Ewe GreekModern English Esperanto Spanish Estonian Basque Persian FulaFulah Finnish Fijian Faroese French WesternFrisian Irish ScottishGaelic Galician Gujarati Manx Hausa Hebrew Hindi HiriMotu Croatian Haitian Hungarian Armenian Herero Interlingua Indonesian Interlingue Igbo Nuosu Inupiaq Ido Icelandic Italian Inuktitut Japanese Javanese Georgian Kongo KikuyuGikuyu Kwanyama Kazakh KalaallisutGreenlandic Khmer Kannada Korean Kanuri Kashmiri Kurdish Komi Cornish Kyrgyz Latin Luxembourgish Ganda Limburgish Lingala Lao Lithuanian LubaKatanga Latvian Malagasy Marshallese Macedonian Malayalam Mongolian Marathi Malay Maltese Mexican Burmese Nauru NorwegianBokmal NorthNdebele Nepali Ndonga Dutch NorwegianNynorsk Norwegian SouthNdebele Navajo Chichewa Occitan Ojibwe Oromo Oriya Ossetian Panjabi Pali Polish Pashto Portuguese Quechua Romansh Kirundi Romanian Russian Kinyarwanda Sanskrit Sardinian Sindhi NorthernSami Sango Sinhala Slovak Slovene Samoan Shona Somali Albanian Serbian Swati SouthernSSotho Sundanese Swedish Swahili Tamil Telugu Tajik Thai Tigrinya Turkmen Tagalog Tswana Tonga Turkish Tsonga Tatar Twi Tahitian Uyghur Ukrainian Urdu Uzbek Venda Vietnamese Walloon Wolof Xhosa Yiddish Yoruba} language
+
+	Concept Translation
+		def string name
+		def string value
+
+		facet Plural

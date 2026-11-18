@@ -1,0 +1,4 @@
+dsl metta
+
+// Java: Entry#visible boolean
+Concept Entry > def boolean visible = true as private

@@ -1,0 +1,38 @@
+dsl metta
+
+Concept Command as component
+
+	Concept Status
+		sub Visible
+		sub Invisible
+		sub Readonly
+
+		has Condition	
+
+	sub DocumentCommand
+		sub Edit
+		sub Sign > def string label = empty
+		sub Seal
+
+	sub CollectionCommand
+
+		sub Filtering
+			def string tag
+			def string label
+			def string defaultValue = empty
+			def word:{Number Text Date} type = Text
+
+		sub Grouping
+			def string tag
+			def word:{Ascending Descending} mode = Ascending
+
+			facet Type
+				sub Text
+				sub Date
+					def word:{Seconds Minutes Hours Days Months Years} resolution
+
+		sub Sorting
+			def string tag
+			def string label = empty
+			def word:{Ascending Descending} mode = Ascending
+			def word:{Number Text Date} type = Text

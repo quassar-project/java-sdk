@@ -1,0 +1,252 @@
+dsl metta
+
+
+Concept:ValidEmbeddingStoreSettings EmbeddingStoreSettings as component
+	def integer topK = 5
+	def double scoreThreshold = empty
+	def boolean hybridSearch = false
+
+Concept:ValidEntityDetectorSettings EntityDetectorSettings as component
+	def double confidenceThreshold = 0
+	def integer maxEntities = -1
+	def boolean duplicates = true
+
+Concept:ValidDescriptorSettings DescriptorSettings as component
+	def integer minTokens = 0
+	def integer maxTokens = 512
+	def word:{Concise Detailed Bullet} style = Concise
+	def word:{Entities Actions Sentiment General} focus = General
+
+Concept:ValidRegressorConfidenceInterval:ValidRegressorPrecision RegressorSettings as component
+	def double confidenceInterval = empty
+	def integer precision = empty
+	def word:{Round Floor Ceil} roundingStrategy = empty
+
+Concept:ValidClassifierConfidenceThreshold:ClassifierThresholdRequired ClassifierSettings as component
+	def word:{Argmax Threshold} decisionStrategy = Argmax
+	def double confidenceThreshold = empty
+	def string fallbackLabel = empty
+	def boolean rejectIfBelowThreshold = false
+
+	Concept:{0..*}:ValidClassWeight ClassWeight
+		def string label
+		def double weight
+
+Concept:ValidAssistantSampling:ValidAssistantMaxTokens:ValidAssistantContext:ValidAssistantRepetition:ValidAssistantMirostat:ValidAssistantBestOf AssistantSettings as component
+	def string systemPrompt = ""
+	def double temperature = 0.7
+	def double topP = 0.9
+	def integer topK = 40
+	def double minP = 0.01
+	def integer maxTokens = empty
+	def integer numPredict = 512
+	def integer bestOfN = 1
+	def integer numKeep = 0
+	def double repeatPenalty = 1.1
+	def integer repeatLastN = 64
+	def double presencePenalty = empty
+	def double frequencyPenalty = empty
+	def integer numCtx = 4096
+	def integer seed = 42
+	def string[] stopSequences = empty
+	def integer mirostat = 0
+	def double mirostatTau = 5.0
+	def double mirostatEta = 0.1
+
+Concept TranslatorSettings as component
+	def boolean preserveFormatting = true
+	def boolean preserveEntities = true
+
+	Concept:{0..1} Glossary
+		def boolean caseSensitive = false
+
+		Concept:{1..*}:ValidGlossarySource Map
+			def string from
+			def string to
+			def boolean exactMatch = true
+
+
+Concept:Named ArtifactTrack
+
+	Concept:{1..1} Routing
+		facet:{1..1} Selection
+			sub Steady
+
+			sub:ValidPinnedVersion Pinned
+				def string version = empty
+
+	Concept:Single Rollout
+		facet Strategy
+
+			sub Progressive
+
+				sub:CanaryRequiresSteps Canary
+					Concept:ValidCanaryStep Step
+						def integer:{%} trafficPercentage
+						def integer:{minutes} duration
+						def integer minUsages
+
+				sub:GeographicRequiresSteps Geographic
+					Concept:ValidGeographicStep Step
+						def string location
+						def integer:{minutes} duration
+						def integer minUsages
+
+//				sub Exponential
+//					def integer steps
+//					def integer:{minutes} duration
+//					def integer minUsages
+//
+
+			sub:ValidShadowRollout Shadow
+				def integer:{minutes} duration
+				def integer minUsages
+
+		Concept:{1..1} Gate
+			Concept Metric
+				sub:ValidGateLatency Latency
+					def integer:{millis} max
+
+				sub:ValidGateAvailabilityRate AvailabilityRate
+					def integer:{%} min
+
+				sub:ValidGateErrorRate ErrorRate
+					def integer:{%} max
+
+				sub:ValidGateDrift Drift
+					def double displacement
+
+			facet:ValidGatePercentile PercentileBased
+				def integer percentile	//TODO CAMBIAR NOMBRE
+
+	facet Type
+		sub TranslatorTrack
+			def Translator translator
+			has:{0..1} TranslatorSettings
+
+		sub AssistantTrack
+			def word:{Conversation Reporting Transcription ProofReading Synthesis} usage
+			def Assistant assistant
+			has:{0..1} AssistantSettings
+
+		sub ClassifierTrack
+			def Classifier classifier
+			has:{0..1} ClassifierSettings
+
+		sub RegressorTrack
+			def Regressor regressor
+			has:{0..1} RegressorSettings
+
+		sub DescriptorTrack
+			def Descriptor descriptor
+			has:{0..1} DescriptorSettings
+
+		sub EntityDetectorTrack
+			def EntityDetector entityDetector
+			has:{0..1} EntityDetectorSettings
+
+		sub EmbeddingStoreTrack
+			def EmbeddingStore embeddingStore
+			has:{0..1} EmbeddingStoreSettings
+
+		sub:GenericAssistantSettingsMatchesTool:GenericTranslatorSettingsMatchesTool:GenericDescriptorSettingsMatchesTool:GenericEntityDetectorSettingsMatchesTool:GenericClassifierSettingsMatchesTool GenericTrack
+			def GenericTool tool
+			has:{0..1} AssistantSettings
+			has:{0..1} TranslatorSettings
+			has:{0..1} DescriptorSettings
+			has:{0..1} EntityDetectorSettings
+			has:{0..1} ClassifierSettings
+
+
+constraint ValidEmbeddingStoreSettings :: topK > 0
+	message = "Embedding store topK must be positive"
+
+constraint ValidEntityDetectorSettings :: confidenceThreshold >= 0 and confidenceThreshold <= 1 and (maxEntities == -1 or maxEntities >= 0)
+	message = "Entity detector confidenceThreshold must be between 0 and 1; maxEntities must be -1 or zero or greater"
+
+constraint ValidDescriptorSettings :: minTokens >= 0 and maxTokens > 0 and minTokens <= maxTokens
+	message = "Descriptor minTokens must be non-negative, maxTokens must be positive, and minTokens must not exceed maxTokens"
+
+constraint ValidRegressorConfidenceInterval :: confidenceInterval is empty or (confidenceInterval > 0 and confidenceInterval < 1)
+	message = "Regressor confidenceInterval must be empty or strictly between 0 and 1"
+
+constraint ValidRegressorPrecision :: precision is empty or precision >= 0
+	message = "Regressor precision must be empty or zero or greater"
+
+constraint ValidClassifierConfidenceThreshold :: confidenceThreshold is empty or (confidenceThreshold >= 0 and confidenceThreshold <= 1)
+	message = "Classifier confidenceThreshold must be empty or between 0 and 1"
+
+constraint ClassifierThresholdRequired :: (decisionStrategy != "Threshold" and rejectIfBelowThreshold == false) or confidenceThreshold is not empty
+	message = "Classifier confidenceThreshold is required when using Threshold or rejectIfBelowThreshold"
+
+constraint ValidClassWeight :: label is not empty and label != "" and weight > 0
+	message = "Class weight requires a non-empty label and a positive weight"
+
+constraint ValidAssistantSampling :: temperature >= 0 and topP >= 0 and topP <= 1 and minP >= 0 and minP <= 1 and topK >= 0
+	message = "Assistant temperature and topK must be non-negative; topP and minP must be between 0 and 1"
+
+constraint ValidAssistantMaxTokens :: maxTokens is empty or maxTokens > 0
+	message = "Assistant maxTokens must be empty or positive"
+
+constraint ValidAssistantContext :: numCtx > 0 and numKeep >= 0 and numKeep <= numCtx
+	message = "Assistant numCtx must be positive; numKeep must be between 0 and numCtx"
+
+constraint ValidAssistantRepetition :: repeatPenalty > 0 and repeatLastN >= -1
+	message = "Assistant repeatPenalty must be positive; repeatLastN must be -1 or zero or greater"
+
+constraint ValidAssistantMirostat :: (mirostat == 0 or mirostat == 1 or mirostat == 2) and mirostatTau > 0 and mirostatEta > 0
+	message = "Assistant mirostat must be 0, 1 or 2; mirostatTau and mirostatEta must be positive"
+
+constraint ValidAssistantBestOf :: bestOfN >= 1
+	message = "Assistant bestOfN must be at least 1"
+
+constraint ValidGlossarySource :: from is not empty and from != ""
+	message = "Glossary source text must not be empty"
+
+constraint ValidPinnedVersion :: version is not empty and version != ""
+	message = "Pinned routing requires a non-empty version"
+
+constraint CanaryRequiresSteps :: count(Step) > 0
+	message = "Canary rollout requires at least one step"
+
+constraint ValidCanaryStep :: trafficPercentage > 0 and trafficPercentage <= 100 and duration >= 0 and minUsages >= 0 and (duration > 0 or minUsages > 0)
+	message = "Canary traffic percentage must be between 1 and 100; duration and minUsages must be non-negative and at least one must be positive"
+
+constraint GeographicRequiresSteps :: count(Step) > 0
+	message = "Geographic rollout requires at least one step"
+
+constraint ValidGeographicStep :: location is not empty and location != "" and duration >= 0 and minUsages >= 0 and (duration > 0 or minUsages > 0)
+	message = "Geographic steps require a non-empty location, non-negative duration and minUsages, and at least one positive evaluation limit"
+
+constraint ValidShadowRollout :: duration >= 0 and minUsages >= 0 and (duration > 0 or minUsages > 0)
+	message = "Shadow duration and minUsages must be non-negative and at least one must be positive"
+
+constraint ValidGateLatency :: max > 0
+	message = "Gate maximum latency must be positive"
+
+constraint ValidGateAvailabilityRate :: min >= 0 and min <= 100
+	message = "Gate minimum availability percentage must be between 0 and 100"
+
+constraint ValidGateErrorRate :: max >= 0 and max <= 100
+	message = "Gate maximum error percentage must be between 0 and 100"
+
+constraint ValidGateDrift :: displacement >= 0
+	message = "Gate drift displacement must be zero or greater"
+
+constraint ValidGatePercentile :: percentile >= 1 and percentile <= 100
+	message = "Gate percentile must be between 1 and 100"
+
+constraint GenericAssistantSettingsMatchesTool :: count(all(components(), setting -> setting is "AssistantSettings")) == 0 or tool is "Assistant"
+	message = "AssistantSettings can only be used when the GenericTool is Assistant"
+
+constraint GenericTranslatorSettingsMatchesTool :: count(all(components(), setting -> setting is "TranslatorSettings")) == 0 or tool is "Translator"
+	message = "TranslatorSettings can only be used when the GenericTool is Translator"
+
+constraint GenericDescriptorSettingsMatchesTool :: count(all(components(), setting -> setting is "DescriptorSettings")) == 0 or tool is "Descriptor"
+	message = "DescriptorSettings can only be used when the GenericTool is Descriptor"
+
+constraint GenericEntityDetectorSettingsMatchesTool :: count(all(components(), setting -> setting is "EntityDetectorSettings")) == 0 or tool is "EntityDetector"
+	message = "EntityDetectorSettings can only be used when the GenericTool is EntityDetector"
+
+constraint GenericClassifierSettingsMatchesTool :: count(all(components(), setting -> setting is "ClassifierSettings")) == 0 or tool is "Classifier"
+	message = "ClassifierSettings can only be used when the GenericTool is Classifier"

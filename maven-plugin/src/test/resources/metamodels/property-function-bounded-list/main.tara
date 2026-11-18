@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value java.util.List<io.quassar.reader.model.Value>
+Concept Entry
+	def function[0..3] value

@@ -1,0 +1,134 @@
+dsl metta
+
+Concept Tool as component
+
+	sub LanguageModel
+		facet:Required Implementation
+			def string model = empty
+
+			sub Chatgpt
+			sub Perplexity
+			sub Claude
+			sub Gemini
+			sub Custom
+				def string url
+
+	sub EmbeddingStore
+		def word:{Cosine DotProduct Euclidean Manhatan} similarity
+		def word:{Document Chapter Chunk Sentence} granularity
+
+		facet:Required Implementation
+			sub Quadrant > def string url
+			sub Chroma > def string url
+			sub Custom
+
+	sub Classifier
+		def string url
+
+	sub Regressor
+		def string url
+
+Concept ArtifactTrack
+	facet Type
+		sub Prompt
+			def word:{Reporting Transcription Translation ProofReading Synthesis} usage
+
+			has:Single:Required LanguageModel
+
+		sub ClassificationModel
+			def word:{Text Image Vector TimeSeries} input
+
+			Concept:Single:Required Output
+				def word:{Label Scores TopK} mode
+				def word:{Single Multiple} cardinality = Single
+				def string[] labels
+
+			has:Single:Required Classifier	
+
+		sub RegressionModel
+			def word:{Text Vector} input
+
+			Concept:Single:Required Output
+				def string unit
+				def double min 
+				def double max
+
+			has:Single:Required Regressor	
+
+		sub EmbeddingMethod
+
+			has:Single:Required EmbeddingStore
+
+	Concept:Single:Required Versioning
+		facet Type
+			sub SemVer // 1.1.1, 1.1.2
+			sub Monotonic // 1, 2, 3
+			sub TimeStamped // 01012026, 02012026
+			sub BuildStamped // 000-00001, 000-00002
+
+	Concept:Single:Required Routing
+		facet:Required Selection
+			sub Steady
+			sub Pinned
+
+	Concept:Single Rollout
+		facet Strategy
+			sub Canary
+				Concept Step
+					def integer:{%} percentage
+					def integer:{minutes} duration
+
+			sub Shadow
+				def integer:{minutes} duration
+
+		Concept:Single:Required Gate
+			Concept Metric
+				sub Latency > def integer:{millis} max
+				sub Drift > def integer:{%} max
+				sub AvailabilityRate > def integer:{%} min
+				sub ErrorRate > def integer:{%} max
+
+			facet PercentileBased > def integer percentile			
+
+Concept EndPoint
+	def ArtifactTrack artifact
+
+	Concept:Single:Required Journal
+		def word:{Off Sampled Full} capture
+		def integer:{days} retention
+		def word:{None Redact Encrypt} piiPolicy
+
+	Concept:Single:Required Execution
+		Concept:Single:Required Request > def Schema schema
+		Concept:Single:Required Response > def Schema schema
+		
+	Concept:Single GuardRail
+		Concept Metric
+			def word:{Hourly Daily Weekly Monthly Yearly} period
+
+			sub Budget > def integer:{$} max
+			sub Quota > def integer:{tokens} max
+			sub AvailabilityRate > def integer:{%} min
+			sub ErrorRate > def integer:{%} max
+
+Concept Schema
+	Concept:Named Attribute extends Data
+	
+	has Schema
+
+Concept Data as generalization
+	facet List
+
+	facet Type
+		sub Real
+		sub Integer
+		sub LongInteger
+		sub Bool
+		sub Text
+		sub Date
+		sub DateTime
+		sub File
+		sub Object > def Schema schema
+		sub Map
+			Concept:Single:Required Key extends Data
+			Concept:Single:Required Value extends Data

@@ -1,0 +1,7 @@
+dsl metta
+
+// Java: Entry#item Item
+// Java: Other#items java.util.List<Item>
+Concept Item as component > def string label
+Concept Entry > has:{0..1} Item
+Concept Other > has:{1..*} Item

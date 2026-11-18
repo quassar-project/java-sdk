@@ -1,0 +1,109 @@
+dsl metta
+
+Concept Application
+	def string description
+	def word:{Web Desktop Mobile Cli Service Library} type
+	def word:{Browser Jvm} runtime
+
+	has:Single:Required Architecture
+
+	Concept:Single:Required Components
+		has Component
+
+		Concept OnSplit
+			Concept:Single Preserve > def word:{PublicInterface Behavior} requirement
+
+		Concept OnDelete
+			Concept:Single MaxDependents > def integer to
+
+	Concept:Single:Required Constraints
+		has Constraint
+
+    Concept:Single:Required Invariants
+        has Invariant
+
+    Concept:Single:Required Evolution
+        has Change
+
+	Concept:Single Tests
+		def boolean areRequired
+
+Concept Architecture as component
+
+	Concept Layer
+		facet UserInterface
+		facet RestService
+		facet Model
+			def word:{None Graph SubjectApproach ObjectOriented} technology
+		facet Persistence
+			def word:{None Memory Database Filesystem Graph SubjectStore} technology
+
+	Concept Dependency
+		def Layer layer
+		Concept:Single:Required With > def Layer layer
+
+	Concept Deny
+		def Layer layer
+		Concept:Single:Required To > def Layer layer
+
+	Concept OnLibraryAdded
+		Concept:Single:Required Require > def word:{ArchitectureValidation LibraryPolicy} requirement
+
+
+	facet Monolithic
+	facet Layered
+	facet Microservice
+	facet P2p
+	facet EventDriven
+	facet Hexagonal
+	facet ClientServer
+		def word:{React Angular Vue} client
+		def word:{Java Php Python Javascript Node} server
+
+Concept Component as component
+	def Architecture.Layer layer
+	def integer maxChildren
+	def integer maxLines
+	def integer maxMethods
+
+Concept Constraint as component
+	def word:{Info Warning Error} severity
+
+	sub MethodComplexity > def integer:{lines} max
+	sub CyclomaticComplexity > def integer max
+	sub Duplication > def integer:{%} max
+	sub CircularDependencies > def boolean allowed
+	sub LibraryPolicy > def word[]:{OpenSource WidelyUsed Stable} type
+
+Concept Invariant as component
+	def word:{Info Warning Error} severity
+
+	sub ArchitecturePreserved
+	sub PublicInterfacePreserved
+    sub BehaviorPreserved
+    sub NoCircularDependencies
+    sub DependencyRulesPreserved
+
+Concept Change as component
+    def word:{Allow Deny RequireApproval} policy
+
+	Concept onError > Concept:Single Repair > def integer maxRetries
+
+    Concept:Single Budget
+        def integer:{files} maxFilesChanged
+        def integer:{lines} maxLinesAdded
+        def integer:{lines} maxLinesRemoved
+        def integer maxNewDependencies
+        def integer maxNewComponents
+
+    Concept Validate
+        def word[]:{Tests Architecture Constraints Invariants} validation
+
+    sub Feature
+	sub BugFix
+	sub Refactoring
+	sub ArchitectureChange
+	sub TechnologyChange 
+	sub DependencyChange 
+	sub ComponentChange
+

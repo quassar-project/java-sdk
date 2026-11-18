@@ -1,0 +1,4 @@
+dsl metta
+
+// Java: Entry#run io.quassar.reader.model.Value
+Concept Entry > def function run = @actions.run

@@ -1,0 +1,42 @@
+dsl metta
+
+Concept Observer
+	Concept Ontology
+		Concept Subject
+			def string name
+
+			Concept Predicate
+				def string tag
+
+				facet Text
+				facet Number
+
+Concept Reconciliation
+	def Observer.Ontology.Subject subject1
+	def Observer.Ontology.Subject subject2
+
+	facet Unique
+	facet Subset
+		def integer:{%} threshold
+	facet TypeConsistent
+
+	Concept Check
+
+		facet Range
+			def Observer.Ontology.Subject.Predicate.Number predicateA	
+			def integer min
+			def integer max
+		facet Matches
+			def string regex
+		facet Required
+		facet Categorized
+			def string options
+
+	Concept Map		
+		def Observer.Ontology.Subject.Predicate predicateA	
+		def Observer.Ontology.Subject.Predicate predicateB
+
+		facet Similar
+			def word:{LevenshteinDistance} algorithm
+		facet Equals
+			def integer offset

@@ -1,0 +1,4 @@
+dsl metta
+
+// Java: Entry#status java.lang.String
+Concept Entry > def string status as reactive

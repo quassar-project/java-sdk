@@ -1,0 +1,6 @@
+dsl metta
+
+// Java: Entry#items java.util.List<Item>
+Concept Item as component
+Concept Entry
+	has:{2..*} Item

@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#item Item
+// Java: Item#entry Entry
+Concept Entry > def Item item

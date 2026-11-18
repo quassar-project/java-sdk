@@ -1,0 +1,70 @@
+dsl metta
+
+Concept Variable as component
+	def string label = empty
+	facet Type
+		sub Numeric
+			def string unit = empty
+			def word:{Sum Average First Last Count} aggregation = First
+		sub Composite with Numeric
+			def boolean isAggregable = true
+			Concept Components
+				def string[] values
+				has Components
+		sub Enumerated
+			def word:{Mode Entropy} aggregation = Mode
+			def string[] values
+		sub Boolean
+
+Concept:Single Reality
+	has Variable
+	Concept Subject
+		def string label = empty
+		facet Prototype
+			def string prefix
+		has Variable
+
+Concept:{1..1} DigitalTwin
+	Concept DigitalSubject
+		def Reality.Subject subject
+		Concept:Single Resolution
+			def integer amount = 1
+			def word:{Years Months Days Hours Minutes Seconds} scale
+		Concept:{1..*} InferenceModel
+			def Variable variable
+			def integer timeHorizon = 0
+			Concept:Single Lookback
+				facet Window
+					def integer size
+				facet Distance
+					def integer max
+
+	Concept Test > def string label = empty
+		Concept Given
+			def Reality.Subject source
+			Concept Variable
+				def Variable.Numeric variable
+				def string componentName = empty
+				facet Operation
+					def double value
+					sub Scaled
+					sub Shifted
+					sub Clippd
+					sub Noised
+					sub Jittered
+					sub Unchanged
+						def double value = empty
+					sub GreaterThan
+					sub Greater 
+					sub Lower
+					sub GreaterOrEqual 
+					sub LowerOrEqual
+		Concept Then
+			def Variable target
+			def word:{Equal Monotonic Greater Lower GreaterOrEqual LowerOrEqual Proportional} relation
+			def string componentName = empty
+			def double tolerance = 0.0
+			def boolean relative = false
+
+constraint RequiresFacet :: self is "Window" or self is "Distance"
+	"Lookback must be a Window or a Distance"

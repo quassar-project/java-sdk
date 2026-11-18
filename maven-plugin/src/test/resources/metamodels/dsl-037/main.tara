@@ -1,0 +1,92 @@
+dsl metta
+
+Concept Finetune
+	Concept:{1..1} Dataset
+		def word:{instruct} type
+		def word:{train} split = train
+		def boolean shuffle = true
+		def integer max_seq_len = empty
+
+	Concept:{1..1} Train
+		def word:{cpu cuda} device = cuda
+
+		Concept:{0..1} LoRA
+			Concept:{1..1} Model
+				sub Llama3_1_8B // tune cat llama3_1/8B_lora_single_device
+					Concept:{0..1} Config extends ConfigBase
+					Concept:{0..1} Generation extends GenerationBase
+					Concept:{0..1} Training extends TrainingBase
+
+				sub Mistral_7B // tune cat mistral/7B_lora_single_device TODO
+					Concept:{0..1} Config extends ConfigBase
+					Concept:{0..1} Generation extends GenerationBase
+					Concept:{0..1} Training extends TrainingBase
+
+				sub Gemma2_9B // tune cat gemma2/9B_lora_single_device TODO
+					Concept:{0..1} Config extends ConfigBase
+					Concept:{0..1} Generation extends GenerationBase
+					Concept:{0..1} Training extends TrainingBase
+
+				sub Qwen2_5_7B // tune cat qwen2_5/7B_lora_single_device TODO
+					Concept:{0..1} Config extends ConfigBase
+					Concept:{0..1} Generation extends GenerationBase
+					Concept:{0..1} Training extends TrainingBase
+
+		Concept:{0..1} QLoRA
+			Concept:{1..1} Model
+				sub Llama3_8B // tune cat llama3/8B_qlora_single_device
+					Concept:{0..1} Config extends ConfigBase
+					Concept:{0..1} Generation extends GenerationBase
+					Concept:{0..1} Training extends TrainingBase
+
+				sub Llama3_1_8B // tune cat code_llama2/7B_qlora_single_device
+					Concept:{0..1} Config extends ConfigBase
+					Concept:{0..1} Generation extends GenerationBase
+					Concept:{0..1} Training extends TrainingBase
+
+				sub Gemma2_9B // tune cat gemma2/9B_qlora_single_device
+					Concept:{0..1} Config extends ConfigBase
+						def word[]:{q_proj v_proj k_proj output_proj mlp output} layers = q_proj v_proj output_proj
+						def integer lora_rank = 64
+						def integer lora_alpha = 128
+					Concept:{0..1} Generation extends GenerationBase
+					Concept:{0..1} Training extends TrainingBase
+						def double lr = 2E-5
+						def integer gradient_accumulation_steps = 1
+
+				sub Mistral_7B // tune cat mistral/7B_qlora_single_device
+					Concept:{0..1} Config extends ConfigBase
+						def word[]:{q_proj v_proj k_proj output_proj mlp output} layers = q_proj v_proj mlp
+						def integer lora_rank = 64
+						def integer lora_alpha = 16
+					Concept:{0..1} Generation extends GenerationBase
+					Concept:{0..1} Training extends TrainingBase
+						def double lr = 2E-5
+						def integer gradient_accumulation_steps = 1
+
+Concept ConfigBase as generalization
+	def word[]:{q_proj v_proj k_proj output_proj mlp output} layers = q_proj v_proj output_proj mlp
+	def integer lora_rank = 8
+	def integer lora_alpha = 16
+	def double lora_dropout = 0
+	def boolean enable_kv_cache = true
+	def word:{awq gptq bitsandbytes} quantizer = empty
+
+Concept GenerationBase as generalization
+	def integer max_new_tokens = 512
+	def double temperature = 0.7
+	def integer top_k = 50
+	def double top_p = 0.95
+
+Concept TrainingBase as generalization
+	def integer epochs = 1
+	def integer batch_size = 4
+	def double lr = 3E-4
+	def double weight_decay = 0.01
+	def boolean fuse = true
+	def word:{AdamW Lion Sophia} optimizer = AdamW
+	def word:{bf16} dtype = bf16
+	def integer gradient_accumulation_steps = 8
+	def double clip_grad_norm = empty
+	def word:{CEWithChunkedOutputLoss} loss = CEWithChunkedOutputLoss
+

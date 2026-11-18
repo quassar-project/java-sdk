@@ -1,0 +1,6 @@
+dsl metta
+
+// Java: Entry#label java.lang.String
+// Java: Entry#visible boolean
+Concept Entry > def string label = "A \"quote\"" // trailing text
+	def boolean visible

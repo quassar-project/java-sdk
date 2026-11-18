@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value java.lang.String
+Concept Entry
+	def resource value = empty

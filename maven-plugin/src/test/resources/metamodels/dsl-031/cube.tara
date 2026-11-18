@@ -1,0 +1,39 @@
+dsl metta
+
+Concept:Named BaseCube
+	def Ledger ledger
+	has Filter
+	has Cube //Inherits slices from meta cube
+
+Concept:Named Cube as component
+	def Attribute.Category[] dimensions = empty
+	def integer level = -1
+	has Filter
+
+Concept Filter as component
+	sub Slice
+		def Attribute.Category attribute
+		def string value
+
+		facet Excluded
+
+	sub Range
+		def Attribute.Date attribute
+		has:{0..1} From
+		has:{0..1} To
+
+	sub Node
+		def word:{Global Root Leave Other} type
+
+Concept RangeBoundary
+	sub From as component
+	sub To as component
+
+	facet BoundaryType
+		sub Date
+			def integer day
+			def word:{January February March April May June July August September October November December} month
+			def word:{CurrentYear NextYear PreviousYear} year
+		sub Relative
+			def integer amount
+			def word:{Day Week Month Year} scale

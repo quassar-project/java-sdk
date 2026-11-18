@@ -1,0 +1,54 @@
+dsl metta
+
+constraint CheckUserMails:: count(all(siblings(), u -> u is "User" and u.email == email)) == 1
+	message = "Ya existe un usuario con este email"
+
+constraint CheckISBN:: isbn matches "^[0-9]{13}$"
+	message = "El ISBN debe ser de 13 dígitos"
+
+constraint CheckDates:: startDate < endDate
+	message = "La fecha de fin del préstamo debe ser posterior a la de inicio"
+
+constraint L1:: name is not empty and substring(name,0,1) >= "A" and substring(name,0,1) <= "Z"
+	message = "El nombre de la biblioteca debe empezar por mayúscula y no estar vacío"
+
+constraint L2:: count(all(Shelf, s -> true)) >= 1
+	message = "La biblioteca debe contener al menos una estantería"
+
+// Shelf (único código por biblioteca; al menos un libro)
+constraint S1:: count(all(siblings(), s -> s is "Shelf" and s.code == code)) == 1
+	message = "El código de estantería debe ser único dentro de la biblioteca"
+
+constraint S2:: count(all(Book, b -> true)) >= 1
+	message = "Cada estantería debe contener al menos un libro"
+
+// Book (validez, unicidad por estantería, autores, formato/DRM)
+constraint B1:: title is not empty
+	message = "El título del libro no puede estar vacío"
+
+constraint B2:: pages > 0
+	message = "El número de páginas debe ser positivo"
+
+constraint B4:: count(all(siblings(), b -> b is "Book" and b.isbn == isbn)) == 1
+	message = "El ISBN debe ser único dentro de la estantería"
+
+constraint B5:: count(authors) >= 1
+	message = "Cada libro debe tener al menos un autor"
+
+// Author (email opcional pero si existe, formato válido; unicidad local por libro)
+constraint A1:: (email is empty) or (email matches "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+	message = "El email del autor, si se informa, debe tener un formato válido"
+
+constraint A2:: count(all(siblings(), a -> a is "Author" and a.email is not empty and a.email == email)) == 1
+	message = "No puede haber dos autores con el mismo email en el mismo libro"
+
+// User (solo un email por ámbito; formato válido)
+constraint U1:: email matches "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+	message = "El email del usuario no tiene un formato válido"
+
+// Loan (referencias obligatorias, rango válido, sin solapes por libro)
+constraint R1:: (book is not empty) and (user is not empty)
+	message = "El préstamo debe indicar libro y usuario"
+
+constraint R3:: count(all(Loan, l -> (l.book == book) and not (l.endDate <= startDate or l.startDate >= endDate))) == 1
+	message = "Ya existe un préstamo solapado para este libro"

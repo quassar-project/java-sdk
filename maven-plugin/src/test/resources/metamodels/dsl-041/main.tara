@@ -1,0 +1,35 @@
+dsl metta
+
+Concept SmartContract
+	def string id
+	def date startDate
+	def date endDate
+	has:{2..*} Part
+	has:{1..*} Clause
+
+Concept Part
+	def string id
+	def string name
+	def word:{Buyer Seller Lessor Lessee Provider Client} role
+
+Concept Clause
+	def string title
+	def string description
+	has:{0..*} Obligation
+	has:{0..*}:R1 Penalty
+	has:{0..*} Condicion
+	has:{0..*} Clause
+
+Concept Obligation
+	def string action
+	def date deadline //relative date
+	has:{1..1} Part
+
+Concept:R1 Penalty
+	def string description
+	def double:{€} amount
+
+Concept Condicion
+
+constraint R1:: count(all(components(container()), o -> o is "Obligation")) > 0
+	message = "Penalty can only exist if there is at least one obligation"

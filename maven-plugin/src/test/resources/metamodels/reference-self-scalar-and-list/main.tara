@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#parent Entry
+// Java: Entry#related java.util.List<Entry>
+Concept Entry > def Entry parent; def Entry[] related

@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value java.util.List<java.lang.Boolean>
+Concept Entry
+	def boolean[0..*] value = empty

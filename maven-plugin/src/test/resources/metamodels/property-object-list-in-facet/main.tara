@@ -1,0 +1,6 @@
+dsl metta
+
+// Java: Configured#value java.util.List<io.quassar.reader.model.Value>
+Concept Entry
+	facet Configured
+		def object[] value

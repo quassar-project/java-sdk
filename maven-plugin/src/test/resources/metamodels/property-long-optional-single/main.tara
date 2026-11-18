@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value java.math.BigDecimal
+Concept Entry
+	def long[0..1] value

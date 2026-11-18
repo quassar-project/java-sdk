@@ -1,0 +1,10 @@
+dsl metta
+
+// Java: Entry#count java.math.BigDecimal
+// Java: Entry#entryItems java.util.List<EntryItem>
+// Java: Other#active boolean
+Concept Entry
+	def integer count
+	Concept Item > def string name
+constraint Valid:: count >= 0
+Concept Other > def boolean active

@@ -1,0 +1,11 @@
+dsl metta
+
+Concept CarRental
+	def string owner
+	def string location
+	has:{1..*} Car
+
+Concept Car
+	def word:{SUV Truck } type
+	def word:{Mercedes Audi Toyota} brand
+	def integer displacement

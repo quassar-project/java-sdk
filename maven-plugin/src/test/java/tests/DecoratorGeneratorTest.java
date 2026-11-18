@@ -34,7 +34,30 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.quassar.reader.Models;
+
+import io.quassar.metamodel.domain.MetamodelReader;
+
+import java.io.ByteArrayInputStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
 class DecoratorGeneratorTest {
+	private static final String VIEWER_METAMODEL = """
+		dsl metta
+		Concept SubjectType
+		Concept Viewer
+			def SubjectType subjectType
+			def word:{Modern Classic} category
+			def word:{Modern Classic} preferredCategory = Modern
+			def word[0..*]:{Modern Classic} categories
+			def integer[0..*] scores
+			def SubjectType[0..*] subjects
+		""";
+
+
 	@TempDir
 	Path directory;
 
@@ -249,6 +272,76 @@ class DecoratorGeneratorTest {
 			assertThat(grouping.getClass().getCanonicalName())
 				.isEqualTo("test.generated.Grouping");
 			assertThat(call(grouping, "label")).isEqualTo("Group by status");
+		}
+	}
+
+	@Test
+	void exposesExplicitEmptyForWordsReferencesAndLists() throws Exception {
+		Model model = Models.create("""
+			Viewer(subjectType = empty) blank
+				category = empty
+				preferredCategory = empty
+				categories = empty
+				scores = empty
+				subjects = empty
+			""", VIEWER_METAMODEL);
+		try (GeneratedDecorators generated = compile(model, metamodel(VIEWER_METAMODEL))) {
+			Object viewer = generated.wrap("Viewer", model.get("blank"));
+			assertThat(call(call(viewer, "subjectType"), "isNull")).isEqualTo(true);
+			assertThat(call(viewer, "category")).isNull();
+			assertThat(call(viewer, "preferredCategory")).isNull();
+			for (String property : List.of("categories", "scores", "subjects"))
+				assertThat((List<?>) call(viewer, property)).as(property).isEmpty();
+		}
+	}
+
+	@Test
+	void exposesPopulatedWordGettersAndWordDefaults() throws Exception {
+		Model model = Models.create("""
+			Viewer populated
+				category = Classic
+				categories = Modern Classic
+			""", VIEWER_METAMODEL);
+		try (GeneratedDecorators generated = compile(model, metamodel(VIEWER_METAMODEL))) {
+			Object viewer = generated.wrap("Viewer", model.get("populated"));
+			Object category = call(viewer, "category");
+			Object preferredCategory = call(viewer, "preferredCategory");
+			Object categories = call(viewer, "categories");
+			assertSoftly(softly -> {
+				softly.assertThat(category).as("explicit word").isInstanceOf(Enum.class);
+				softly.assertThat(((Enum<?>) category).name()).isEqualTo("Classic");
+				softly.assertThat(preferredCategory).as("default word").isInstanceOf(Enum.class);
+				softly.assertThat(((Enum<?>) preferredCategory).name()).isEqualTo("Modern");
+				softly.assertThat((List<?>) categories).as("word list").allMatch(value -> value instanceof Enum<?>);
+				softly.assertThat(((List<?>) categories).stream().map(value -> ((Enum<?>) value).name()).toList()).containsExactly("Modern", "Classic");
+			});
+		}
+	}
+
+	@Test
+	void exposesInheritedTypedPropertiesAndChildOverrides() throws Exception {
+		String schema = """
+			dsl metta
+			Concept Publication as generalization
+				def string title
+				def integer issue = 1
+			Concept Magazine extends Publication
+				def integer issue = 2
+			""";
+		Model model = Models.create("""
+			Magazine issueTwo
+				title = "Second issue"
+			""", schema);
+		try (GeneratedDecorators generated = compile(model, metamodel(schema))) {
+			Object magazine = generated.wrap("Magazine", model.get("issueTwo"));
+			assertThat(call(magazine, "issue")).isEqualTo(2);
+			assertThat(call(magazine, "title")).isEqualTo("Second issue");
+		}
+	}
+
+	private static Metamodel metamodel(String text) throws Exception {
+		try (var input = new ByteArrayInputStream(text.getBytes(UTF_8))) {
+			return new MetamodelReader().read(input);
 		}
 	}
 

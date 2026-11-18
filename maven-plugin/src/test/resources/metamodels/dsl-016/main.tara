@@ -1,0 +1,53 @@
+dsl metta
+
+Concept:isValidContract Contract
+	def string id
+	def date startDate
+	def date endDate
+	Concept:{2..*} Party
+		def string id
+		def string name
+		facet Role
+			sub Buyer 
+			sub Seller 
+			sub Lessor 
+			sub Lessee 
+			sub Provider
+			sub Client
+	Concept:isValidClause:{1..*} Clause
+		def string title
+		def string description
+		Concept:isValidObligation:{0..*} Obligation
+			def word[]:{Pay Deliver Notify Transfer Terminate Renew} action
+			def word:{Buyer Seller Lessor Lessee Provider Client} role
+			def date endDate
+			def integer daysToEnd
+			Concept:{0..*} Penalization
+				def double amount
+				def string description
+		facet Conditional
+			def word:{Event Date} condition
+			def string expression
+		facet:ValidCadence Recurrent
+			def integer cadenceInMonths
+		Concept:{0..*} SubClause
+			def string title
+			def string description
+			Concept:isValidObligation:{0..*} Obligation
+				def word[]:{Pay Deliver Notify Transfer Terminate Renew} action
+				def word:{Buyer Seller Lessor Lessee Provider Client} role
+				def date endDate
+				def integer daysToEnd
+				Concept:{0..*} Penalization
+					def double amount
+					def string description
+			facet Conditional
+				def word:{Event Date} condition
+				def string expression
+			facet:ValidCadence Recurrent
+				def integer cadenceInMonths
+		
+
+
+
+

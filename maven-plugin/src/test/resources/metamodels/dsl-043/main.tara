@@ -1,0 +1,81 @@
+Concept SpoolNode
+    Concept Infrastructure
+        Concept Watchdog
+            def string url
+        Concept EventBus
+            Concept InMemoryEventBus
+            Concept KafkaEventBus
+                def string url
+            Concept RabbitMQEventBus
+                def string url
+            Concept CustomEventBus
+                def string implementationClass
+        Concept Inbox
+            Concept InMemoryInbox
+            Concept SqlInbox
+                def word:{postgresql mysql h2} dbType
+                def string host
+                def string database
+                def string user
+                def string password
+            Concept CustomInbox
+                def string implementationClass
+    Concept:{0..*} PollCrawler
+        def string id
+        Concept HttpPollSource
+            def string sourceId
+            def string url
+            def word:{GET POST PUT} method = GET
+        Concept FilePollSource
+            def string sourceId
+            def string path
+        Concept DbPollSource
+            def string sourceId
+            def string jdbcUrl
+            def string query
+        Concept Schedule
+            def integer every
+            def word:{seconds minutes hours} unit = seconds
+        Concept Format
+            Concept JsonObjectFormat
+            Concept JsonArrayFormat
+            Concept YamlArrayFormat
+            Concept ResultSetFormat
+            Concept CustomFormat
+                def string implementationClass
+        Concept EventMapping
+            def word:{SNAKE_CASE CAMEL_CASE} namingConvention = SNAKE_CASE
+            Concept:{0..*} PartitionAttribute
+                def string value
+    Concept:{0..*} StreamCrawler
+        def string id
+        Concept KafkaStreamSource
+            def string sourceId
+            def string topic
+            def string bootstrapServers
+        Concept WebSocketStreamSource
+            def string sourceId
+            def string url
+        Concept Format
+            Concept JsonObjectFormat
+            Concept JsonArrayFormat
+            Concept CustomFormat
+                def string implementationClass
+        Concept EventMapping
+            def word:{SNAKE_CASE CAMEL_CASE} namingConvention = SNAKE_CASE
+            Concept:{0..*} PartitionAttribute
+                def string value
+    Concept:{0..*} WebhookCrawler
+        def string id
+        Concept Endpoint
+            def string path
+            def word:{POST PUT PATCH} method = POST
+        Concept Format
+            Concept JsonObjectFormat
+            Concept JsonArrayFormat
+            Concept CustomFormat
+                def string implementationClass
+        Concept EventMapping
+            def word:{SNAKE_CASE CAMEL_CASE} namingConvention = SNAKE_CASE
+            Concept:{0..*} PartitionAttribute
+                def string value

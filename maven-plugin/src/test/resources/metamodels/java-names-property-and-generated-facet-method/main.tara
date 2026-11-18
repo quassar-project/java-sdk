@@ -1,0 +1,8 @@
+dsl metta
+
+// Java: Entry#isConfigured java.lang.String
+// Java: Entry#isConfigured2 boolean
+// Java: Entry#asConfigured Configured
+Concept Entry
+	def string isConfigured
+	facet Configured > def boolean enabled

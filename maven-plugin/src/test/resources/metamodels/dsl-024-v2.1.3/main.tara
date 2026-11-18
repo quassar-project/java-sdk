@@ -1,0 +1,256 @@
+dsl metta
+
+
+// ==============================
+// TESAUROS. DATOS REFERENCIALES
+// ==============================
+// Catálogo jerárquico de términos utilizado para clasificar, tipificar o normalizar conceptos del dominio.
+
+Concept Tesauro
+	def string nombre
+	def string descripcion
+	has Nota
+
+	Concept Termino
+		def string nombre
+		def string descripcion = empty
+		has Termino
+
+
+// ==============================
+// ENTIDADES. DATOS MAESTROS
+// ==============================
+// Las entidades describen objetos, personas, lugares, activos o conceptos identificables y relativamente estables.
+
+Concept Entidad
+	def string descripcion
+	def string nombreColeccion = empty
+	has Atributo
+	has Faceta
+	has Tesauro
+	has Nota
+
+
+// ==============================
+// EVENTOS. DATOS TRANSACCIONALES
+// ==============================
+// Representación de hechos, cambios, observaciones o actuaciones que ocurren sobre entidades, personas, activos o el territorio.
+
+Concept Evento
+	def string descripcion
+	def string nombreColeccion = empty
+	has Atributo
+	has Faceta
+	has Tesauro
+	has Nota
+
+
+// ==============================
+// INDICADORES. DATOS ANALITICOS
+// ==============================
+
+Concept Indicador as component
+	def string nombre
+	def string descripcion = empty
+	def string codigo = empty
+	def Eje eje
+	def Objetivo[] objetivos
+	Concept Filtro
+		def string formula
+		def string descripcion = empty
+	Concept:Required Calculo
+		def string formula
+	Concept Dimension
+		def string nombre
+		def string descripcion = empty
+		def string codigo = empty
+		facet Naturaleza
+			sub Temporal
+				def word:{Año AñoMes AñoMesDia Mes Dia} resolucion
+			sub Referencial
+				def Tesauro tesauro
+			sub Maestra
+				def Entidad entidad
+				def Faceta faceta = empty
+			sub Binario
+			sub Discretizada
+				def integer[] cortes
+		Concept Segmentacion
+			def string nombre
+			def string descripcion
+			def string codigo = empty
+			facet Naturaleza
+				sub Especifico
+					def string valor
+
+
+// ==============================
+// EJES ESTRATEGICOS
+// ==============================
+
+Concept Eje
+	def string nombre = empty
+	def string descripcion
+	has Nota
+
+Concept Objetivo
+	def string descripcion
+	has Objetivo
+	has Nota
+
+
+
+
+Concept Coleccion
+	Concept Filtro
+		def string descripcion
+	facet Estructural
+		def Entidad entidad
+		def Faceta faceta = empty
+	facet Transaccional
+		def Evento evento
+		def Faceta faceta = empty
+	has Indicador
+
+
+// ==============================
+// FUENTES Y SOPORTES
+// ==============================
+
+Concept Fuente
+	def string nombre = empty
+	def string descripcion = empty
+	has Nota
+
+
+Concept Soporte
+	def string nombre = empty
+	def string descripcion = empty
+	def Fuente[] fuentes = empty
+	has Nota
+
+	facet Externo
+
+	Concept Repositorio
+		def string nombre = empty
+		def string descripcion = empty
+		def Fuente fuente = empty
+		def string vigenteDesde = empty
+		def string vigenteHasta = empty
+
+		facet Actualizacion
+			sub Dinamico
+				def string frecuenciaActualizacion // Quartz Cron Expression
+			sub Estatico
+				def string directorio
+
+		has Nota
+		has Dataset
+
+
+// ==============================
+// TRANSFORMACIONES
+// ==============================
+
+Concept Transformacion
+	def string nombre
+	def word[]:{Booleano Texto Numero Fecha Enlace Termino Tupla Todos} aplicableEn
+	def string descripcion = empty
+	has Nota
+
+
+
+// ==============================
+// CALIDAD. REQUISITOS
+// ==============================
+
+Concept RequisitosCalidad
+	facet Tipo
+		sub Control
+			def Atributo atributo
+			has:{0..*} ControlCalidad
+			has:{0..*} Cuando
+		sub Regla
+			def string nombre
+			def string descripcion
+			has:{0..1} Cumplir
+			has:{0..*} Cuando
+
+Concept ControlCalidad as component
+
+Concept Sintactico extends ControlCalidad as generalization
+    sub NoVacio
+    sub Formato > def string patron
+	sub Longitud > def integer min = empty; def integer max = empty
+	sub Composicion > def word[]:{SinEmoji SinCaracteresDeControl SinCaracteresEspeciales SinNumeros SinEspacios SinCaracteresRepetidos} criterios
+	sub Normalizacion > def word[]:{NombrePropio Minusculas Mayusculas SinEspaciosIniciales SinEspaciosFinales SinMultiplesEspaciosInternos SinCerosIniciales} criterios
+	sub Precision > def integer decimales
+
+Concept Semantico extends ControlCalidad as generalization
+    sub Min > def double valor
+  	sub Max > def double valor
+	sub MayorQue > def double valor
+	sub MenorQue > def double valor
+  	sub ContenidoEn > def string geometria
+  	sub AnteriorQue > def string fecha
+  	sub PosteriorQue > def string fecha
+	sub NoFutura
+	sub NoPasada
+	sub Dominio > def Tesauro tesauro
+
+Concept Pragmatico extends ControlCalidad as generalization
+    sub Requerido > def string[] valoresAusentes = empty
+	sub Recomendable
+	sub Unico
+	sub AntiguedadMaxima > def word:{Segundo Minuto Hora Dia Mes Año} unidadTemporal; def double periodo
+
+Concept Cuando as component
+    has:Single Predicado
+	has:Single Cumplir
+
+Concept Cumplir as component
+    has:{0..*} ControlCalidad
+	has:{0..1} Predicado
+
+Concept Predicado as component generalization
+	sub Presente > def Atributo atributo
+	sub Ausente > def Atributo atributo
+	sub Y > has:{2..*} Predicado
+	sub O > has:{2..*} Predicado
+	sub No > has:Single Predicado
+	sub Igual > has:{2..*} Operando
+	sub Distinto > has:{2..2} Operando
+  	sub Mayor > has:{2..2} Operando
+  	sub MayorIgual > has:{2..2} Operando
+  	sub Menor > has:{2..2} Operando
+  	sub MenorIgual > has:{2..2} Operando
+
+Concept Operando as generalization
+	sub Texto > def string valor
+	sub Numero > def double valor
+	sub Booleano > def boolean valor
+	sub Fecha 
+		facet Tipo
+			sub Relativa
+				def word:{Segundo Minuto Hora Dia Mes Año} unidadTemporal
+				def integer desplazamiento
+			sub Absoluta
+				def string valor
+	sub Propiedad > def Atributo atributo
+
+
+// ==============================
+// OFICIALIDAD
+// ==============================
+
+Concept DatasetOficial
+	def Dataset dataset
+
+	facet Naturaleza
+		sub Estructural
+			def Entidad entidad
+			def Faceta faceta = empty
+		sub Transaccional
+			def Evento evento
+			def Faceta faceta = empty
+

@@ -1,0 +1,74 @@
+dsl metta
+
+Concept Regulation
+	def string title
+	def string description
+	def word:{Local Regional National European International} jurisdiction
+	def string version
+	def date validFrom
+	def string reference
+
+	Concept Article
+		def string title
+		def string reference = empty
+
+		Concept Obligation
+			def string title
+			def string description = empty
+			def string intent = empty
+			def string[] controls = empty
+			def string[] risks = empty
+			def string[] appliesTo = empty
+
+			facet Authenticable > def word:{Password TwoFactorAuthentication Biometric DigitalCertificate} method
+			facet Authorizable > Concept:{1..1} For > has:{1..1} AuthorizationType
+			facet Modifiable > def word[]:{Owner Reviewer DataAdmin DataCustodian Auditor} role = Owner
+			facet Deletable
+			facet Exportable
+			facet Retained > def integer:{Days} duration
+			facet Transparent
+			facet Inclusive
+			facet Educational
+			facet MinorRestricted > def integer minAge
+			facet VulnerableGroupRestricted > def word[]:{Children Elderly Disabled PregnantWomen Refugees EthnicMinorities ChronicallyIll LegallyIncompetent All} groups
+			facet ParentalControlled
+			facet Securized > def word:{Public Internal Confidential Restricted} level
+			facet Encrypted
+			facet Recoverable > def integer minDays
+			facet Classificable > def resource categories
+			facet Resilient
+			facet Segregated
+			facet Responsive
+			facet Acknowledged
+			facet Compliant
+			facet Reportable > def word[]:{Email Sms Chat WebForm MobilePush Ticketing} channel
+			facet Verified > def string verificationOrganization
+			facet MaintenanceScheduled
+				def time from
+				def time to
+			facet Revised
+				def word:{Hourly Daily Montly Weekly Quarterly Yearly} frequency
+				def integer period = 1
+
+				sub Reviewable
+				sub Audited
+				sub Monitored
+
+
+Concept AuthorizationType as component
+	def string description = empty
+
+	sub ServiceManagement
+  		def word:{ServiceProvision UserManagement CustomerSupport BillingAndPayments ContractFulfillment} purpose
+
+	sub LegalAndSegurity
+  		def word:{LegalCompliance FraudPrevention InformationSecurity IncidentManagement AccessControl} purpose
+
+	sub CommercialAndAnalytical
+  		def word:{ServiceImprovement UsageAnalytics DirectMarketing CommercialProspecting Personalization} purpose
+
+	sub HumanResources
+  		def word:{PayrollManagement Recruitment PerformanceEvaluation TrainingManagement} purpose
+
+	sub ConsentAndRights
+  		def word:{ConsentManagement DataSubjectRights ConsentWithdrawal} purpose

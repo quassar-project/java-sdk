@@ -1,0 +1,67 @@
+dsl metta
+
+
+Concept Index
+	def string description
+	def string[] topics = empty
+	
+	facet SubjectStoreDriven
+		def string subjectType
+		Concept:{1..*} Term
+			def string name
+			def string description
+			facet Text
+			facet Number
+			facet DateTime
+				def string format
+			facet List
+				def string separator = ","
+				def boolean trimSpaces = true
+		
+	facet DocumentRepositoryDriven
+		Concept:{1..*} Document
+			def string subjectType
+			def word:{TEXT IMAGE AUDIO VIDEO ANY} type
+			def string prefix = empty
+			def string suffix = empty
+			def string description
+			def string[] tags
+			def string[] exampleNames = empty
+
+	facet CubeDriven
+		def string subjectType
+		def string prefix = empty
+		def string suffix = empty
+		Concept:{1} Period
+			def integer amount
+			def word:{SECONDS MINUTES HOURS DAYS WEEKS MONTHS YEARS} timeUnit
+		Concept:{1..*} Attribute
+			def string name
+			def word:{CATEGORY LABEL INT REAL URL DATE TIME KEY} type
+			def string description = empty
+
+	facet DictionaryDriven
+		Concept Entry
+			def string key
+			def string value
+
+	facet APIDriven
+		def string baseUrl
+		Concept Endpoint
+			def string description
+			def string route
+			def word:{POST PUT GET DELETE} method = GET
+			Concept:{0..*} Header
+				def string key
+				def string value
+			Concept:{0..*} QueryParam
+				def string name
+				def word:{TEXT NUMBER TEXT_LIST NUMBER_LIST} type
+				def string description = empty
+				def boolean optional = true
+			def resource body = empty
+			def string bodyKeyField = empty
+			def resource response
+			def resource examples = empty
+	
+	

@@ -1,0 +1,7 @@
+dsl metta
+
+// Java: Configured#value java.util.List<Target>
+Concept Target
+Concept Entry
+	facet Configured
+		def Target[] value

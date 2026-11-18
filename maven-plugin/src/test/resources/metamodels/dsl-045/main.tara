@@ -1,0 +1,36 @@
+dsl metta
+
+Concept:Named:Timely Contract
+	def instant start
+	def instant end
+
+	Concept:Named:{2..*} Party
+		def string id
+		def word:{Buyer Seller Lessor Lessee Provider Client} role
+
+	Concept Clause
+		def string title
+		def string description = empty
+		has Clause
+		facet Obligation
+			def word:{Pay Deliver Notify Transfer Terminate Renew} type
+			def Party party
+		facet Expiring with Obligation
+			def instant deadline
+		facet Liable with Obligation
+			def double:{€} penalty
+			def string reason = empty
+		facet Periodical with Obligation
+			def string period
+		facet Conditional
+			Concept:Required Condition
+				sub State
+					def Clause clause
+					def string state
+				sub Event
+					def string event
+				sub Date
+					def instant value
+
+
+constraint Timely :: start < end

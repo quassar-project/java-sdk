@@ -1,0 +1,4 @@
+dsl metta
+
+// Java: DecoratedModel#item Item
+Concept:{1..1} Item

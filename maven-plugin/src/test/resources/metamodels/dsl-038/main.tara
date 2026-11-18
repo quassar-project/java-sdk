@@ -1,0 +1,71 @@
+dsl metta
+
+Concept:R1 Contract
+	def string id
+	def date startDate
+	def date endDate
+	Concept:{1..1} Parts
+		has:{2..*} Part
+	Concept Clauses
+		has:{1..*} Clause
+
+
+Concept Part as component
+	def string id
+	def string name
+	facet role
+		sub Buyerxdvale
+		sub Seller
+		sub Lessor
+		sub Lessee
+		sub Provider
+		sub Client
+
+Concept Clause as component
+	facet Recurrent
+		def word:{Year Semester Month Week} cadence
+	facet Conditional
+		def string condition
+	has:{0..*} Clause
+	def string title
+	def string name
+	def date limitDate = empty
+	def integer:{Days} numberOfDays = empty
+	has:{1..1} Part
+	Concept:{0..1}:R3 Duties
+		has:{0..*} Penalization
+		Concept Duty
+			def Part to
+			has:{0..*} Penalization
+
+			sub Payment
+				def integer:{$} quantity
+			sub Delivery
+				def string item
+				def integer:{$} quantity
+				def date deliveryDate
+			sub Notification
+				def string message
+				def date deadline
+				def string channel
+			sub Transfer
+				def string asset
+				def date transferDate
+			sub Termination
+				def date effectiveDate
+				def string reason
+			sub Renewal
+				def string conditions
+				def date newEndDate
+				def integer numberOfPeriods
+
+Concept Penalization as component
+	def integer:{$} quantity
+	def string description
+
+constraint R1 :: self.startDate < self.endDate
+	message = "The end date of a contract must come after the start date."
+
+constraint R3 :: count(all(Duty, d -> d is "Terminate")) == 0 or count(all(Duty, d -> d is "Renew")) == 0
+	message = "There can not be two incomptabile duties (Renew and Terminate)"
+

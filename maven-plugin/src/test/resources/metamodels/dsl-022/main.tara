@@ -1,0 +1,20 @@
+dsl metta
+
+Concept Workflow
+
+	Concept:{1..1} AppliesTo
+		def Entity[] entities
+ 	
+	Concept Action
+		sub DeleteAfter > def integer:{Days} expiration
+		sub Anonymize
+
+Concept Entity
+
+	sub Subject
+		def string type
+		def string[] tags = empty
+
+	sub Database
+		def string name
+		Concept Contains > def Subject[] subjects

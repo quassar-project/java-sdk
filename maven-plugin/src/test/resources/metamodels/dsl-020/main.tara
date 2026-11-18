@@ -1,0 +1,10 @@
+dsl metta
+
+Concept Procedure
+	def string regulation
+	def string responsible
+
+	facet Realtime
+	facet Periodical 
+		def word:{Hourly Daily Weekly Montly Quarterly Yearly} frequency
+		def integer period = 1

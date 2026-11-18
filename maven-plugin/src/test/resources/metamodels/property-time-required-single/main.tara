@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value java.lang.String
+Concept Entry
+	def time[1..1] value

@@ -1,0 +1,45 @@
+dsl metta
+
+Concept SmartContract
+	def integer id
+	def date startDate
+	def date endDate
+	Concept:{2..*} SigningParties
+		has Person
+	Concept:{1..*} Clauses
+		has Clause
+
+Concept Clause
+	def string title
+	def string description
+	facet Condition
+		def boolean enabled
+		def boolean condition
+	facet Recurring
+		def boolean enabled
+		def string months
+
+	Concept:{0..*} Obligation
+		has Person
+		def word:{Pay Deliver Notify Transfer Terminate Renew} action
+		def string limitDate
+	Concept:{0..*} Penalty
+		def long money
+		def string description
+	Concept:{0..*} Subclauses
+		has Clause
+
+Concept Person
+	def string name
+	def string dni
+	def word:{Buyer Seller Lessor Lessee Provider Client} role
+
+constraint dateFormat:: limitDate matches "\\d{4}-\\d{2}-\\d{2}" or limitDate matches "\\d{1,}"
+	message = "Incorrect date format"
+constraint Penalty:: count(Penalty) >= 0 and count(Obligation) >= 1
+	message = "Can't add penalty if there's no obligations defined beforehand"
+
+constraint SingningParties:: count(SingningParties) >= 2
+	message = "There has to be 2 or more signing parties"
+constraint Dates:: startDate < endDate
+	message = "Start sate must be previous to end date"

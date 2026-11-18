@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#value boolean
+Concept Entry
+	def boolean[1..1] value

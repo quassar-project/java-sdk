@@ -1,0 +1,43 @@
+dsl metta
+
+Concept Dataset
+	Concept:{1..*}:Named Attribute
+		def string:Required id 
+		def string description = ""
+		facet Type
+			sub Text
+			sub Number
+			sub Bool
+			sub Date
+				def string format = "dd/MM/yyyy"
+			sub DateTime
+				def string format = "dd/MM/yyyy HH:mm:ss"
+			sub Geometry
+			sub Categorical
+				def string[] categories
+
+		Concept Syntactic as generalization
+			sub Unique
+			sub NotNull
+			sub NotEmpty
+			sub Format > def string pattern
+			sub Length > def integer min; def integer max
+			sub Encoding > def string encoding
+			sub Normalization > def word[]:{TitleCase LowerCase UpperCase NoInnerSpaces NoLeadingSpaces NoTrailingSpaces NoMultipleInnerSpaces NoRepeatedCharacters NoEmoji NoControlCharacters NoSpaces NoSpecialCharacters NoNumeric NoLeadingZeros NoSQL NoXML NoJson} criteria
+			sub Precision > def integer decimals
+			sub Unit > def string unit
+			sub Min > def double value
+			sub Max > def double value
+			sub Range > def double min; def double max
+			
+		Concept Semantic as generalization
+			sub Concordance > def double threshold
+			sub Inside > def string geometry
+			
+		Concept Pragmatic as generalization
+			sub NoFutureDate
+			sub NoPastDate
+			sub Ethical
+			sub Anonymized
+			sub Consistency > sub TemporalConsistency > def double:{%} dv; def long:{Seconds} dt
+

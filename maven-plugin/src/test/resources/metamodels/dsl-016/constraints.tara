@@ -1,0 +1,9 @@
+dsl metta
+
+constraint isValidContract:: startDate < endDate
+
+constraint isValidClause :: not(count(all(Obligation, o -> "Terminate" in o.action)) > 0 and count(all(Obligation, o -> "Renew" in o.action)) > 0)
+
+constraint isValidObligation:: (endDate is not empty and daysToEnd is empty) or (endDate is empty and daysToEnd is not empty and daysToEnd > 0)
+
+constraint ValidCadence :: cadenceInMonths > 0

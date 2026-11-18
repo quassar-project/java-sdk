@@ -1,0 +1,32 @@
+dsl metta
+
+Concept Environment
+	facet GridWorld2D
+		Concept:Single Size
+			def integer x
+			def integer y
+		Concept Points
+			Concept:{1..*} Point
+				def integer x
+				def integer y
+				facet Obstacle
+				facet Goal
+				facet Start
+	facet GridWorld3D
+		Concept:Single Size
+			def integer x
+			def integer y
+			def integer z
+		Concept Points
+			Concept:{1..*} Point
+				def integer x
+				def integer y
+				def integer z
+				facet Obstacle
+				facet Goal
+				facet Start
+	facet CartPole
+
+Concept Laboratory
+	Concept Method
+		def word:{QLearning SARSA FirstVisitMC MultipleVisitMC} name

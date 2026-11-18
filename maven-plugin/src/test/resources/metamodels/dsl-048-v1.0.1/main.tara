@@ -1,0 +1,40 @@
+dsl metta
+
+Concept Library
+	def string name
+	has:{1..*} Shelf
+	has Loan
+	has User
+
+Concept Shelf as component
+	def string code
+	def Book[] books
+
+Concept Author
+	def string name
+	def string email = empty
+
+Concept:CheckISBN Book
+	def string title
+	def string isbn
+	def integer pages
+	facet Format
+		sub Hardcover
+		sub Paperback
+		sub EBook
+			def word:{None Watermark Strong} drm
+	def Author[] authors
+
+Concept:CheckUserMails User as component
+	def string name
+	def string email
+	facet Librarian
+
+Concept:CheckDates Loan as component
+	def Book book
+	def User user
+	def date startDate
+	def date endDate
+
+
+	

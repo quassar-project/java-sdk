@@ -1,0 +1,82 @@
+dsl Metta
+
+Concept:Single Unit
+	has:Single:Required Label
+	has Subject
+
+Concept Module
+	has:Single:Required Label
+	has Subject
+
+	Concept Pin
+		def string context
+		has:Single:Required Label
+		Concept:{1..1} Content
+			sub Singleton
+				def string id
+			sub Query
+				def string type
+				def string condition = empty
+
+Concept Action
+	has:Single:Required Label
+	Concept:Single Hint > def string message
+	Concept:Single Acccess > def string[] roles
+
+	Concept:{1..1} Context
+		def string[] names
+
+		facet Transient
+
+		facet Status
+			sub Visible
+			Concept:{1..1} IfEquals
+				def string tag
+				def string value
+
+	facet Operation
+		Concept Parameter
+			def string label
+			def string[] options
+
+	facet Edition
+		Concept:{0..1} Dialog
+			def string name
+
+		Concept Required
+			def string[] tags
+			def string message
+			Concept:Single When
+				def string tag
+				def string[] value
+
+	facet Download
+		def string[] options = empty
+
+	facet Async
+
+	facet Affirmed
+		def string text
+
+Concept Rule
+	sub After
+		def Action action
+		Concept When > def string condition
+		Concept:{1..1} Next > def Action action // Regla semántica: La acción que se ponga como next debe ser transient
+
+
+Concept Label as component
+	def string value
+	def resource icon = empty
+
+Concept Subject as component
+	def string type
+	Concept:Single Access
+		def string[] roles
+		Concept:Single Edition > def string[] roles
+		Concept:Single Signing > def string[] roles
+
+
+
+
+

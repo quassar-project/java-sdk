@@ -1,0 +1,25 @@
+dsl metta
+
+Concept Observer
+	Concept Ontology
+		Concept Subject
+			def string name
+
+			Concept Predicate
+				def string tag
+
+				facet Text
+				facet Number
+
+Concept Reconciliation
+	def Observer.Ontology.Subject subject1
+	def Observer.Ontology.Subject subject2
+
+	Concept Map		
+		def Observer.Ontology.Subject.Predicate predicateA	
+		def Observer.Ontology.Subject.Predicate predicateB
+
+		facet Similar
+			def word:{LevenshteinDistance} algorithm
+		facet Equals
+			def integer offset

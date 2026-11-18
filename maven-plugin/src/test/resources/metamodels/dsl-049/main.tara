@@ -1,0 +1,31 @@
+dsl metta
+
+Concept Event
+	def string name
+	def string context
+	has:Single:Required TemporalExpression
+
+Concept TemporalExpression
+	has:Single TemporalExpression
+	sub Operator
+		def string parameters
+		sub Set
+		sub Add
+		sub Sub
+		sub Next
+		sub Last
+	sub Fuzzy
+		sub Early
+		sub Mid
+		sub Late
+	sub Truncation
+		sub Millennium
+		sub Century
+		sub Decade
+		sub Year
+		sub Month
+		sub Week
+		sub Day
+		sub Hour
+		sub Minute
+		sub Second

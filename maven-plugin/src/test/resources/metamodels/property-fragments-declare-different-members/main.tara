@@ -1,0 +1,5 @@
+dsl metta
+
+// Java: Entry#label java.lang.String
+// Java: Entry#count java.math.BigDecimal
+Concept Entry > def string label

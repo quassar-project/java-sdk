@@ -24,18 +24,24 @@ public record GeneratedDecorators(URLClassLoader loader, Model model) implements
 	public static GeneratedDecorators compile(Model model, Metamodel metamodel, Path directory) throws Exception {
 		List<Path> files = MogramDecoratorGenerator.from(metamodel).inPackage("test.generated").modelNamed("LibraryModel")
 			.writeTo(directory.resolve("sources"));
-		Path classes = Files.createDirectories(directory.resolve("classes"));
+		Path classes = directory.resolve("classes");
+		compileSources(files, classes);
+		var loader = new URLClassLoader(new URL[]{classes.toUri().toURL()}, Mogram.class.getClassLoader());
+		var support = loader.loadClass("test.generated.ModelTypes").getDeclaredField("TYPES");
+		support.setAccessible(true);
+		return new GeneratedDecorators(loader, model.withSupport((NodeSupport) support.get(null)));
+	}
+
+	public static void compileSources(List<Path> files, Path classes) throws Exception {
+		assertThat(files).as("Java sources to compile").isNotEmpty();
+		Files.createDirectories(classes);
 		String classpath = String.join(File.pathSeparator, location(Mogram.class), location(TemplateEngine.class));
 		List<String> args = new ArrayList<>(List.of("--release", "17", "-encoding", "UTF-8", "-classpath",
 			classpath, "-d", classes.toString()));
 		for (Path file : files) args.add(file.toString());
 		ByteArrayOutputStream errors = new ByteArrayOutputStream();
 		int result = ToolProvider.getSystemJavaCompiler().run(null, null, errors, args.toArray(String[]::new));
-		assertThat(result).withFailMessage(errors.toString()).isZero();
-		var loader = new URLClassLoader(new URL[]{classes.toUri().toURL()}, Mogram.class.getClassLoader());
-		var support = loader.loadClass("test.generated.ModelTypes").getDeclaredField("TYPES");
-		support.setAccessible(true);
-		return new GeneratedDecorators(loader, model.withSupport((NodeSupport) support.get(null)));
+		assertThat(result).withFailMessage("%s", errors.toString()).isZero();
 	}
 
 	public Object wrap(String type, Mogram mogram) throws Exception {
