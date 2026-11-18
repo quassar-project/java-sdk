@@ -30,16 +30,23 @@ public final class NodeFactory {
 		return DEFINITIONS.get(type).name();
 	}
 
-	public static <T extends Node> T create(Class<T> type, Mogram mogram, Model model) {
-		try {
-			return type.cast(DEFINITIONS.get(type).constructor().newInstance(mogram, model));
-		} catch (InstantiationException | IllegalAccessException exception) {
-			throw new IllegalStateException("Could not create node: " + type.getName(), exception);
-		} catch (InvocationTargetException exception) {
-			throw new IllegalStateException("Could not create node: " + type.getName(), exception.getCause());
-		}
+	static Definition definition(Class<? extends Node> type) {
+		return DEFINITIONS.get(type);
 	}
 
-	private record Definition(String name, Constructor<? extends Node> constructor) {
+	public static <T extends Node> T create(Class<T> type, Mogram mogram, Model model) {
+		return type.cast(definition(type).create(mogram, model));
+	}
+
+	record Definition(String name, Constructor<? extends Node> constructor) {
+		Node create(Mogram mogram, Model model) {
+			try {
+				return constructor.newInstance(mogram, model);
+			} catch (InstantiationException | IllegalAccessException exception) {
+				throw new IllegalStateException("Could not create node: " + constructor.getDeclaringClass().getName(), exception);
+			} catch (InvocationTargetException exception) {
+				throw new IllegalStateException("Could not create node: " + constructor.getDeclaringClass().getName(), exception.getCause());
+			}
+		}
 	}
 }

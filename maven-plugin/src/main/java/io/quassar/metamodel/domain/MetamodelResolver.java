@@ -1,6 +1,7 @@
 package io.quassar.metamodel.domain;
 
 import io.quassar.metamodel.model.Metamodel;
+import io.quassar.metamodel.model.ResolvedMetamodel;
 import io.quassar.metamodel.model.Cardinality;
 import io.quassar.metamodel.model.Composition;
 import io.quassar.metamodel.model.MetamodelType;
@@ -11,11 +12,27 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class MetamodelResolver {
+	public ResolvedMetamodel describe(Metamodel metamodel) {
+		var scope = new MetamodelScope(metamodel);
+		var declarations = scope.types();
+		var scopes = declarations.stream().filter(type -> !type.scope().isEmpty())
+			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::scope));
+		var parents = declarations.stream().filter(type -> type.declaration() == MetamodelType.Declaration.SUB)
+			.collect(Collectors.toMap(MetamodelType::name, MetamodelType::parent));
+		var dsl = metamodel.manifest()
+			.filter(manifest -> manifest.name() != null && !manifest.name().isBlank()
+				&& manifest.version() != null && !manifest.version().isBlank())
+			.map(manifest -> manifest.name().strip().toLowerCase(Locale.ROOT).replace('.', ':') + ":" + manifest.version().strip());
+		return new ResolvedMetamodel(scope.resolve(resolve(metamodel)), scope.resolve(resolveFacets(metamodel)),
+			declarations, scopes, parents, dsl);
+	}
+
 	public List<TypeDefinition> resolve(Metamodel metamodel) {
 		return resolve(metamodel, false);
 	}

@@ -19,8 +19,10 @@ public final class NodeSupport {
 	private final Map<String, Type> declarations;
 	private final Map<String, String> aliases;
 	private final NodeTypeHierarchy hierarchy;
+	private final Model model;
 
 	public NodeSupport(List<Type> types) {
+		model = null;
 		Map<String, Type> names = new LinkedHashMap<>();
 		Map<String, String> aliases = new LinkedHashMap<>();
 		for (Type type : types) {
@@ -37,6 +39,21 @@ public final class NodeSupport {
 			.map(type -> new NodeTypeHierarchy.Type(type.name(), type.parent(), type.scope(), type.facet())).toList());
 	}
 
+	private NodeSupport(NodeSupport schema, Model model) {
+		declarations = schema.declarations;
+		aliases = schema.aliases;
+		hierarchy = schema.hierarchy;
+		this.model = model;
+	}
+
+	public NodeSupport forModel(Model model) {
+		return this.model == model ? this : new NodeSupport(this, model);
+	}
+
+	public boolean sameSchema(NodeSupport other) {
+		return declarations == other.declarations;
+	}
+
 	public record Type(String name, String parent, String scope, boolean facet,
 			List<String> children, Class<? extends Node> decorator) {
 		public Type {
@@ -44,12 +61,12 @@ public final class NodeSupport {
 		}
 	}
 
-	public String resolve(Mogram mogram, Model model) {
+	public String resolve(Mogram mogram) {
 		String type = mogram.type();
 		if (mogram.isNull() || type.indexOf('.') >= 0) return type;
 		Mogram parent = model.parentOf(mogram);
 		if (!parent.isNull())
-			for (String scope : types(parent, model)) {
+			for (String scope : types(parent)) {
 				String scoped = resolve(type, scope);
 				if (!scoped.equals(type)) return scoped;
 			}
@@ -81,41 +98,55 @@ public final class NodeSupport {
 		return false;
 	}
 
-	public boolean is(Class<? extends Node> type, Mogram mogram, Model model) {
+	public boolean is(Class<? extends Node> type, Mogram mogram) {
 		if (type.equals(Node.class)) return !mogram.isNull();
-		String name = NodeFactory.type(type);
-		Type declaration = declarations.get(name);
-		return declaration != null && declaration.decorator() == type && !mogram.isNull()
-			&& types(mogram, model).contains(name);
+		var definition = definition(type);
+		return definition != null && matches(mogram, definition);
 	}
 
-	public <T extends Node> T as(Class<T> type, Mogram mogram, Model model) {
-		if (type.equals(Node.class)) return type.cast(wrap(mogram, model));
-		String name = NodeFactory.type(type);
-		Type declaration = declarations.get(name);
-		if (declaration == null || declaration.decorator() != type)
-			throw new IllegalArgumentException("Unknown node type: " + type.getName());
-		boolean match = !mogram.isNull() && types(mogram, model).contains(name);
-		return NodeFactory.create(type, match ? mogram : Mogram.NULL, model);
+	public <T extends Node> T as(Class<T> type, Mogram mogram) {
+		if (type.equals(Node.class)) return type.cast(wrap(mogram));
+		var definition = definition(type);
+		if (definition == null) throw new IllegalArgumentException("Unknown node type: " + type.getName());
+		return type.cast(definition.create(matches(mogram, definition) ? mogram : Mogram.NULL, model));
 	}
 
-	public List<String> types(Mogram mogram, Model model) {
-		return hierarchy.types(resolve(mogram, model), mogram.facets());
+	private NodeFactory.Definition definition(Class<? extends Node> type) {
+		var definition = NodeFactory.definition(type);
+		Type declaration = declarations.get(definition.name());
+		return declaration != null && declaration.decorator() == type ? definition : null;
 	}
 
-	public FrameView frame(Mogram mogram, Model model, List<String> types) {
-		return new MogramFrame(mogram, model, types, this);
+	private boolean matches(Mogram mogram, NodeFactory.Definition definition) {
+		return !mogram.isNull() && types(mogram).contains(definition.name());
+	}
+
+	public <T extends Node> T ancestor(Class<T> type, Mogram mogram) {
+		Mogram parent = model.parentOf(mogram);
+		while (!parent.isNull()) {
+			if (is(type, parent)) return as(type, parent);
+			parent = model.parentOf(parent);
+		}
+		return as(type, parent);
+	}
+
+	public List<String> types(Mogram mogram) {
+		return hierarchy.types(resolve(mogram), mogram.facets());
+	}
+
+	public FrameView frame(Mogram mogram) {
+		return new MogramFrame(mogram, types(mogram), this);
 	}
 
 	public FrameView frame(Model model) {
-		return new ModelFrame(model, this);
+		return new ModelFrame(forModel(model));
 	}
 
-	public List<FrameView.Slot> groupSlots(List<Mogram> members, Model model) {
+	public List<FrameView.Slot> groupSlots(List<Mogram> members) {
 		Map<String, List<Node>> groups = new LinkedHashMap<>();
 		for (Mogram member : members) {
 			String name = member.type().substring(member.type().lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
-			groups.computeIfAbsent(name, key -> new ArrayList<>()).add(of(member, model));
+			groups.computeIfAbsent(name, key -> new ArrayList<>()).add(of(member));
 		}
 		List<FrameView.Slot> slots = new ArrayList<>();
 		groups.forEach((name, group) -> slots.add(new FrameView.ValueSlot(name, List.copyOf(group))));
@@ -134,15 +165,19 @@ public final class NodeSupport {
 	}
 
 	public Node of(Mogram mogram, Model model) {
-		return of(mogram, model, Mogram.NULL);
+		return forModel(model).of(mogram);
 	}
 
-	public Node wrap(Mogram mogram, Model model) {
-		return of(mogram, model, mogram);
+	public Node of(Mogram mogram) {
+		return of(mogram, Mogram.NULL);
 	}
 
-	private Node of(Mogram mogram, Model model, Mogram fallback) {
-		Type type = declarations.get(resolve(mogram, model));
+	public Node wrap(Mogram mogram) {
+		return of(mogram, mogram);
+	}
+
+	private Node of(Mogram mogram, Mogram fallback) {
+		Type type = declarations.get(resolve(mogram));
 		if (type == null || type.facet()) return new GenericNode(fallback, model);
 		return NodeFactory.create(type.decorator(), mogram, model);
 	}
@@ -153,9 +188,9 @@ public final class NodeSupport {
 		}
 	}
 
-	private record ModelFrame(Model model, NodeSupport support) implements FrameView {
+	private record ModelFrame(NodeSupport support) implements FrameView {
 		public Object frameIdentity() {
-			return model;
+			return support.model;
 		}
 
 		public Object frameParent() {
@@ -167,23 +202,23 @@ public final class NodeSupport {
 		}
 
 		public List<Slot> frameSlots() {
-			return support.groupSlots(model.mograms(), model);
+			return support.groupSlots(support.model.mograms());
 		}
 	}
 
-	private record MogramFrame(Mogram mogram, Model model, java.util.List<java.lang.String> types, NodeSupport support) implements io.quassar.templating.ports.FrameView {
+	private record MogramFrame(Mogram mogram, java.util.List<java.lang.String> types, NodeSupport support) implements io.quassar.templating.ports.FrameView {
 		public java.lang.Object frameIdentity() {
 			return mogram.isNull() ? null : mogram;
 		}
 
 		public io.quassar.reader.model.Node frameParent() {
-			return support.of(model.parentOf(mogram), model);
+			return support.of(support.model.parentOf(mogram));
 		}
 
 		public java.util.List<java.lang.String> frameTypes() {
 			var names = new java.util.LinkedHashSet<java.lang.String>();
 			names.add(mogram.type());
-			names.add(support.resolve(mogram, model));
+			names.add(support.resolve(mogram));
 			names.addAll(mogram.facets());
 			for (var type : types) {
 				names.add(type);
@@ -202,7 +237,7 @@ public final class NodeSupport {
 				properties.put(name, new ValueSlot(name, frameValues(property.value())));
 			}
 			java.util.List<Slot> slots = new java.util.ArrayList<>(properties.values());
-			slots.addAll(support.groupSlots(mogram.children(), model));
+			slots.addAll(support.groupSlots(mogram.children()));
 			return java.util.List.copyOf(slots);
 		}
 
@@ -211,7 +246,7 @@ public final class NodeSupport {
 			if (value.isString()) return java.util.List.of(value.asString());
 			if (value.isNumber()) return java.util.List.of(value.asNumber());
 			if (value.isBoolean()) return java.util.List.of(value.asBoolean());
-			if (value.isReference()) return java.util.List.of(support.of(model.get(value, mogram), model));
+			if (value.isReference()) return java.util.List.of(support.of(support.model.get(value, mogram)));
 			return java.util.List.of();
 		}
 	}

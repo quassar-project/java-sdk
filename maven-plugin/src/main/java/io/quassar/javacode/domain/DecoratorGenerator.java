@@ -3,6 +3,8 @@ package io.quassar.javacode.domain;
 import io.quassar.javacode.ports.SourceTemplates;
 
 import io.quassar.javacode.model.JavaCode;
+import io.quassar.javacode.model.DecoratorOutput;
+import io.quassar.metamodel.model.ResolvedMetamodel;
 import io.quassar.metamodel.model.PropertyDefinition;
 import io.quassar.metamodel.model.MetamodelType;
 import io.quassar.metamodel.model.PropertyType;
@@ -40,9 +42,13 @@ public final class DecoratorGenerator {
 	private static final Set<String> RESERVED_METHODS = Set.of("mogram", "model", "identifier", "isNull", "isNotNull", "types", "modelTypes", "as", "wrap", "frameView", "frameIdentity", "frameParent", "frameTypes", "frameSlots", "getClass",
 		"hashCode", "toString", "equals", "clone", "finalize", "wait", "notify", "notifyAll");
 
-	public List<JavaCode> generate(List<TypeDefinition> types, List<TypeDefinition> facets,
-			Map<String, String> enclosingTypes, Map<String, String> subtypeParents, String packageName, String modelName, Optional<String> dsl,
-			List<MetamodelType> metamodelTypes) {
+	public List<JavaCode> generate(ResolvedMetamodel metamodel, DecoratorOutput output) {
+		var types = metamodel.types();
+		var facets = metamodel.facets();
+		var enclosingTypes = metamodel.scopes();
+		var subtypeParents = metamodel.parents();
+		String packageName = output.packageName();
+		String modelName = output.modelName();
 		JavaNames names = new JavaNames(RESERVED_TYPES);
 		String facadeName = names.claim(modelClassName(modelName));
 		Set<String> exposedFacets = new HashSet<>(enclosingTypes.keySet());
@@ -92,8 +98,8 @@ public final class DecoratorGenerator {
 		for (TypeDefinition type : types) classes.put(type.type(), targets.get(type.type()));
 		Map<String, List<String>> subtypes = descendants(subtypeParents);
 		List<JavaCode> code = new ArrayList<>();
-		code.add(decoratorBase(packageName, targets, declarations, metamodelTypes));
-		code.add(modelDecorator(types, packageName, facadeName, classes, dsl));
+		code.add(decoratorBase(packageName, targets, declarations, metamodel.declarations()));
+		code.add(modelDecorator(types, packageName, facadeName, classes, metamodel.dsl()));
 		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, enums, subtypeParents);
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;

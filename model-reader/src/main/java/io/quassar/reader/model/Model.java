@@ -19,14 +19,14 @@ public final class Model {
 		this.mograms = List.copyOf(mograms);
 		this.index = Index.of(this.mograms);
 		this.resources = resources;
-		this.support = support;
+		this.support = support.forModel(this);
 	}
 
 	private Model(Model model, Map<String, Resource> resources, NodeSupport support) {
 		this.mograms = model.mograms;
 		this.index = model.index;
 		this.resources = resources;
-		this.support = support;
+		this.support = support.forModel(this);
 	}
 
 	public Model withResources(Map<String, byte[]> resources) {
@@ -40,7 +40,7 @@ public final class Model {
 	}
 
 	public Model withSupport(NodeSupport support) {
-		if (this.support == support) return this;
+		if (this.support.sameSchema(support)) return this;
 		return new Model(this, resources, support);
 	}
 

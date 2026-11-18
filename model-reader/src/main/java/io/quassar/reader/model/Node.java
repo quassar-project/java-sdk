@@ -28,7 +28,7 @@ public abstract class Node extends FrameSource {
 	}
 
 	public final List<String> types() {
-		return isNull() ? List.of() : model.support().types(mogram, model);
+		return isNull() ? List.of() : model.support().types(mogram);
 	}
 
 	public final boolean is(String type) {
@@ -36,29 +36,20 @@ public abstract class Node extends FrameSource {
 	}
 
 	public final boolean is(Class<? extends Node> type) {
-		return model.support().is(type, mogram, model);
+		return model.support().is(type, mogram);
 	}
 
 	public final <T extends Node> T ancestor(Class<T> type) {
-		Node parent = parent();
-		while (parent.isNotNull()) {
-			if (parent.is(type)) return parent.as(type);
-			parent = parent.parent();
-		}
-		return parent.as(type);
+		return model.support().ancestor(type, mogram);
 	}
 
 	public final <T extends Node> T as(Class<T> type) {
-		return model.support().as(type, mogram, model);
-	}
-
-	private Node parent() {
-		return model.support().wrap(model.parentOf(mogram), model);
+		return model.support().as(type, mogram);
 	}
 
 	@Override
 	protected final FrameView frameView() {
-		return model.support().frame(mogram, model, types());
+		return model.support().frame(mogram);
 	}
 
 	@Override
