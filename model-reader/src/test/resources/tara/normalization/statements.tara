@@ -1,0 +1,11 @@
+dsl workflows
+use Common
+
+Workflow Purchase
+	use = true
+	note = "use Common; this > that"
+	Step Validate; Step Dispatch
+	Step Notify > Action Send; Action Audit;
+	Step Debug > retries = 3; enabled = true
+
+Workflow Secondary; Workflow Third

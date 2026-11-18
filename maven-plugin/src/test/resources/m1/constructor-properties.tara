@@ -3,11 +3,16 @@ dsl visora
 SubjectType("Person") person
 
 Viewer(person) People
-	View("Details page") Details is Container(Tabs) Main(2)
+	View("Details page", 200px) Details is Container(Tabs) Main(2)
 		Panel("Example", Details)
 
 Header("Select a person") Heading
 
 Viewer(subjectType=person) NamedPeople
 	View(title="Named page") NamedDetails is Container(composition=Stack) Main(priority=5)
+		label = empty
 		Panel(label="Named panel", view=Details)
+
+Viewer(person) MixedPeople
+	View("Mixed page", 80px) MixedDetails is Container(Tabs) Main(3)
+		Panel(label="Mixed panel", MixedDetails)

@@ -38,13 +38,12 @@ public abstract class AbstractSource implements ModelSource {
 
 	protected void append(String source, StringBuilder content) {
 		if (source.startsWith("\uFEFF")) source = source.substring(1);
-		for (String line : source.split("\\R")) if (!isDslHeader(line)) content.append(line).append('\n');
+		for (String line : source.split("\\R")) if (!isDirective(line)) content.append(line).append('\n');
 	}
 
-	protected boolean isDslHeader(String line) {
-		String text = line.stripLeading();
-		return text.equals("dsl")
-				|| (text.startsWith("dsl") && text.length() > 3
-				&& Character.isWhitespace(text.charAt(3)));
+	protected boolean isDirective(String line) {
+		String[] parts = line.stripLeading().split("\\s+", 2);
+		return (parts[0].equals("dsl") || parts[0].equals("use"))
+			&& (parts.length == 1 || !parts[1].stripLeading().startsWith("="));
 	}
 }

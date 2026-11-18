@@ -9,6 +9,9 @@ Concept Viewer
 
 Concept View
 	def string title
+	def integer:{px} width = -1px
+	def boolean enabled = true
+	def string label = "Untitled"
 	facet Behavior
 		sub Container
 			def word:{Tabs Stack} composition = Stack

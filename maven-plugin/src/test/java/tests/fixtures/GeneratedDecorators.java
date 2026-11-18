@@ -22,7 +22,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public record GeneratedDecorators(URLClassLoader loader, Model model) implements AutoCloseable {
 	public static GeneratedDecorators compile(Model model, Metamodel metamodel, Path directory) throws Exception {
-		List<Path> files = MogramDecoratorGenerator.from(metamodel).inPackage("test.generated").modelNamed("LibraryModel")
+		return compile(model, metamodel, directory, "LibraryModel");
+	}
+
+	public static GeneratedDecorators compile(Model model, Metamodel metamodel, Path directory, String modelName) throws Exception {
+		List<Path> files = MogramDecoratorGenerator.from(metamodel).inPackage("test.generated").modelNamed(modelName)
 			.writeTo(directory.resolve("sources"));
 		Path classes = directory.resolve("classes");
 		compileSources(files, classes);
@@ -56,7 +60,11 @@ public record GeneratedDecorators(URLClassLoader loader, Model model) implements
 	}
 
 	public Object modelDecorator() throws Exception {
-		return loader.loadClass("test.generated.LibraryModel").getConstructor(Model.class).newInstance(model);
+		return modelDecorator("LibraryModel");
+	}
+
+	public Object modelDecorator(String name) throws Exception {
+		return loader.loadClass("test.generated." + name).getConstructor(Model.class).newInstance(model);
 	}
 
 	private static String location(Class<?> type) throws Exception {

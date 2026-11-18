@@ -21,6 +21,7 @@ public final class NodeSupport {
 	private final Map<String, Type> declarations;
 	private final Map<String, String> aliases;
 	private final NodeTypeHierarchy hierarchy;
+	private final PropertyBindings propertyBindings;
 	private final Model model;
 
 	public NodeSupport(List<Type> types) {
@@ -36,6 +37,7 @@ public final class NodeSupport {
 			}
 		}
 		declarations = Map.copyOf(names);
+		propertyBindings = new PropertyBindings(declarations);
 		this.aliases = Map.copyOf(aliases);
 		hierarchy = new NodeTypeHierarchy(types.stream()
 			.map(type -> new NodeTypeHierarchy.Type(type.name(), type.parent(), type.scope(), type.facet())).toList());
@@ -45,6 +47,7 @@ public final class NodeSupport {
 		declarations = schema.declarations;
 		aliases = schema.aliases;
 		hierarchy = schema.hierarchy;
+		propertyBindings = schema.propertyBindings;
 		this.model = model;
 	}
 
@@ -57,7 +60,7 @@ public final class NodeSupport {
 	}
 
 	public record Type(String name, String parent, String scope, boolean facet,
-			List<String> children, List<String> properties, Class<? extends Node> decorator) {
+			List<String> children, List<PropertyDefinition> properties, Class<? extends Node> decorator) {
 		public Type {
 			children = List.copyOf(children);
 			properties = List.copyOf(properties);
@@ -68,47 +71,17 @@ public final class NodeSupport {
 		}
 	}
 
+	public record PropertyDefinition(String name, String declaredType, boolean multiple, String defaultValue) {
+	}
+
 	public boolean hasProperty(Mogram mogram, String name) {
-		return properties(mogram).stream().anyMatch(property -> name.equals(property.name()));
+		return propertyBindings.explicit(mogram, types(mogram)).stream().anyMatch(property -> name.equals(property.name()));
 	}
 
 	public Value property(Mogram mogram, String name) {
-		for (Property property : mogram.properties())
-			if (name.equals(property.name())) return property.value();
-		for (Property property : properties(mogram))
+		for (Property property : propertyBindings.effective(mogram, types(mogram)))
 			if (name.equals(property.name())) return property.value();
 		return new Value.Empty();
-	}
-
-	private List<Property> properties(Mogram mogram) {
-		List<Property> properties = new ArrayList<>();
-		Map<String, Integer> positions = new LinkedHashMap<>();
-		for (Property property : mogram.properties()) {
-			if (property.name() != null) {
-				properties.add(property);
-				continue;
-			}
-			String constructor = constructorType(mogram, property.constructorType());
-			int position = positions.merge(constructor, 1, Integer::sum) - 1;
-			List<String> names = propertyNames(constructor);
-			String name = position < names.size() ? names.get(position) : null;
-			properties.add(new Property(name, property.value(), property.origin(), property.constructorType()));
-		}
-		return List.copyOf(properties);
-	}
-
-	private String constructorType(Mogram mogram, String constructor) {
-		if (constructor.isEmpty() || constructor.equals(mogram.type())) return resolve(mogram);
-		for (String type : types(mogram))
-			if (type.equals(constructor) || type.endsWith("." + constructor)) return type;
-		return constructor;
-	}
-
-	private List<String> propertyNames(String name) {
-		Set<String> names = new LinkedHashSet<>();
-		for (Type type = declarations.get(name); type != null; type = declarations.get(type.parent()))
-			names.addAll(type.properties());
-		return List.copyOf(names);
 	}
 
 	public String resolve(Mogram mogram) {
@@ -281,7 +254,7 @@ public final class NodeSupport {
 			var properties = new LinkedHashMap<String, Slot>();
 			properties.put("identifier", new ValueSlot("identifier", mogram.identifier()));
 			int position = 0;
-			for (var property : support.properties(mogram)) {
+			for (var property : support.propertyBindings.effective(mogram, types)) {
 				String name = property.name() == null ? "value" + ++position : property.name();
 				name = name.toLowerCase(Locale.ROOT);
 				properties.put(name, new ValueSlot(name, frameValues(property.value())));

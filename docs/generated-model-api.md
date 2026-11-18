@@ -27,6 +27,8 @@ If you generated the API with an earlier SDK, delete the previously generated `m
 | `def Action action` | `Action` decorator |
 | `def Action[] fallbackActions` | `List<Action>` |
 
+Getters read properties supplied by name or by position in concept and facet constructors. Missing properties use the defaults declared in M2; an explicit `empty` is preserved. Numeric getters return the numeric magnitude of values with units, such as `200px` or `80%`.
+
 A property with a closed set of words generates a nested Java enum. For example, `def word:{Stack Float} positioning = Stack` generates `Positioning` with `Stack` and `Float`. The getter returns `Positioning`, or a list of enum values for a multiple property. An absent scalar uses its declared default when present and returns `null` otherwise.
 
 A property declared with `def resource logo` returns the bundled `Resource` whose name matches the property value. Use a path relative to `resources/`, such as `"icons/logo.svg"`. An absent or unresolved name returns `null`. A `resource[]` property returns the resources it resolves in model order.

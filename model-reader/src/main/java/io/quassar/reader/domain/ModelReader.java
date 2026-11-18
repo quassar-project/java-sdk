@@ -19,6 +19,10 @@ public final class ModelReader {
 		return readTree(linesOf(input)).build();
 	}
 
+	static Value value(String text) {
+		return new LineReader(ModelTokenizer.readLine(text).tokens()).readValue();
+	}
+
 	private static LineNumberReader linesOf(InputStream input) {
 		return new LineNumberReader(new InputStreamReader(input, UTF_8));
 	}
@@ -46,6 +50,10 @@ public final class ModelReader {
 			return tokens.get(position++);
 		}
 
+		boolean hasNext() {
+			return !currentToken().isEmpty();
+		}
+
 		boolean take(String token) {
 			if (!currentToken().equals(token)) return false;
 			position++;
@@ -57,7 +65,7 @@ public final class ModelReader {
 		}
 
 		private boolean isValueEnd() {
-			return currentToken().isEmpty() || List.of(",", ")", ">").contains(currentToken());
+			return currentToken().isEmpty() || List.of(",", ")", ">", ";").contains(currentToken());
 		}
 
 		Property readProperty() {
@@ -77,7 +85,7 @@ public final class ModelReader {
 		private List<String> readFacets(List<Property> properties) {
 			List<String> facets = new ArrayList<>();
 			if (take("is")) {
-				while (!currentToken().isEmpty() && !currentToken().equals(">")) {
+				while (!currentToken().isEmpty() && !currentToken().equals(">") && !currentToken().equals(";")) {
 					String name = nextToken();
 					facets.add(name);
 					properties.addAll(readProperties(name));
@@ -87,20 +95,22 @@ public final class ModelReader {
 		}
 
 		private String readIdentifier() {
-			if (currentToken().isEmpty() || currentToken().equals("is") || currentToken().equals(">")) return "";
+			if (currentToken().isEmpty() || currentToken().equals("is") || currentToken().equals(">") || currentToken().equals(";")) return "";
 			return nextToken();
 		}
 
 		private List<Property> readProperties(String type) {
 			List<Property> result = new ArrayList<>();
 			if (!take("(")) return result;
+			int index = 0;
 			while (!take(")")) {
 				String name = null;
 				if (isProperty()) {
 					name = nextToken();
 					nextToken();
 				}
-				result.add(new Property(name, readValue(), Property.Origin.EXPLICIT, name == null ? type : ""));
+				result.add(new Property(name, readValue(), Property.Origin.EXPLICIT, name == null ? type : "", name == null ? index : -1));
+				index++;
 				take(",");
 			}
 			return result;

@@ -17,6 +17,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ModelReaderTest {
 	@Test
+	void readsAllSemicolonStatementsAndExcludesDirectives() throws Exception {
+		Model model = TestResources.model("normalization/statements.tara");
+		assertThat(model.mograms()).extracting(Mogram::identifier).containsExactly("Purchase", "Secondary", "Third");
+		Mogram workflow = model.get("Purchase");
+		assertThat(workflow.property("use").asBoolean()).isTrue();
+		assertThat(workflow.property("note").asString()).isEqualTo("use Common; this > that");
+		assertThat(workflow.children()).extracting(Mogram::identifier).containsExactly("Validate", "Dispatch", "Notify", "Debug");
+		assertThat(model.get("Purchase.Notify").children()).extracting(Mogram::identifier).containsExactly("Send", "Audit");
+		assertThat(model.get("Purchase.Debug").property("retries").asNumber()).isEqualByComparingTo("3");
+		assertThat(model.get("Purchase.Debug").property("enabled").asBoolean()).isTrue();
+	}
+
+	@Test
 	void readsTheCompleteLibrary() throws Exception {
 		Model model = TestResources.model("library.tara");
 		assertThat(model.mograms()).hasSize(4);

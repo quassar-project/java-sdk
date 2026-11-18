@@ -5,7 +5,7 @@ import java.util.List;
 
 final class ModelTokenizer {
 	private static final int TAB_WIDTH = 4;
-	private static final String DELIMITERS = "()=,>";
+	private static final String DELIMITERS = "()=,>;";
 
 	private final String text;
 	private int position;

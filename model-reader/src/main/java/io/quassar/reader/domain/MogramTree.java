@@ -17,11 +17,10 @@ final class MogramTree {
 		if (line.tokens().isEmpty()) return;
 		MogramBuilder parent = findParent(line.indentation());
 		LineReader reader = new LineReader(line.tokens());
-		if (reader.isProperty()) {
-			readProperty(reader, parent, lineNumber);
-			return;
-		}
-		readMogram(reader, parent, line.indentation());
+		do {
+			if (reader.isProperty()) readProperty(reader, parent, lineNumber);
+			else readMogram(reader, parent, line.indentation());
+		} while (reader.take(";") && reader.hasNext());
 	}
 
 	Model build() {
@@ -50,11 +49,15 @@ final class MogramTree {
 	}
 
 	private void readInlineMembers(LineReader reader, MogramBuilder mogram) {
-		while (reader.take(">")) {
-			if (reader.isProperty()) {
-				mogram.addProperty(reader.readProperty());
-			} else mogram.addChild(reader.readMogram());
-		}
+		if (!reader.take(">")) return;
+		do {
+			if (reader.isProperty()) mogram.addProperty(reader.readProperty());
+			else {
+				MogramBuilder child = reader.readMogram();
+				mogram.addChild(child);
+				readInlineMembers(reader, child);
+			}
+		} while ((reader.take(";") || reader.take(">")) && reader.hasNext());
 	}
 
 	private record Ancestor(int indentation, MogramBuilder mogram) {

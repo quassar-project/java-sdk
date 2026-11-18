@@ -97,6 +97,9 @@ class DecoratorGeneratorTest {
 			Object view = ((List<?>) call(viewer, "views")).get(0);
 			Object container = call(view, "asContainer");
 			assertThat(call(view, "title")).isEqualTo("Details page");
+			assertThat(call(view, "width")).isEqualTo(200);
+			assertThat(call(view, "enabled")).isEqualTo(true);
+			assertThat(call(view, "label")).isEqualTo("Untitled");
 			assertThat(call(container, "composition").toString()).isEqualTo("Tabs");
 			assertThat(call(call(view, "asMain"), "priority")).isEqualTo(2);
 			Object panel = ((List<?>) call(container, "panels")).get(0);
@@ -108,6 +111,13 @@ class DecoratorGeneratorTest {
 			assertThat(call(call(named, "subjectType"), "identifier")).isEqualTo("person");
 			Object namedView = ((List<?>) call(named, "views")).get(0);
 			assertThat(call(namedView, "title")).isEqualTo("Named page");
+			assertThat(call(namedView, "width")).isEqualTo(-1);
+			assertThat(call(namedView, "label")).isEqualTo("");
+			Object mixed = generated.wrap("Viewer", model.get("MixedPeople"));
+			Object mixedView = ((List<?>) call(mixed, "views")).get(0);
+			Object mixedPanel = ((List<?>) call(call(mixedView, "asContainer"), "panels")).get(0);
+			assertThat(call(mixedPanel, "label")).isEqualTo("Mixed panel");
+			assertThat(call(call(mixedPanel, "view"), "identifier")).isEqualTo("MixedDetails");
 			assertThat(call(call(namedView, "asContainer"), "composition").toString()).isEqualTo("Stack");
 			assertThat(call(call(namedView, "asMain"), "priority")).isEqualTo(5);
 		}

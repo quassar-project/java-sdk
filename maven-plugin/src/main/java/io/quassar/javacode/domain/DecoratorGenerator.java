@@ -102,11 +102,12 @@ public final class DecoratorGenerator {
 		code.add(decoratorBase(packageName, targets, declarations, metamodel.declarations()));
 		code.add(modelDecorator(types, packageName, facadeName, classes, metamodel.dsl()));
 		var conversions = conversions(decorators, subtypeParents, subtypes);
-		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, enums, subtypeParents, conversions);
+		var definitions = decorators.stream().collect(Collectors.toMap(TypeDefinition::type, type -> type));
+		var layout = new DecoratorLayout(classNames, targets, nested, subtypes, enums, subtypeParents, conversions, definitions, new LinkedHashMap<>());
 		for (TypeDefinition type : decorators) {
 			if (enclosingTypes.containsKey(type.type())) continue;
 			code.add(new JavaCode(packageName, classNames.get(type.type()),
-				render(type, layout, targets.getOrDefault(subtypeParents.get(type.type()), NODE), new JavaNames(RESERVED_METHODS), false)));
+				render(type, layout, targets.getOrDefault(subtypeParents.get(type.type()), NODE), false)));
 		}
 		topLevel.addAll(nestedNames);
 		return code.stream().map(source -> JavaImports.format(source, topLevel)).toList();
@@ -159,14 +160,15 @@ public final class DecoratorGenerator {
 			"dsl", dsl.map(value -> "\tprivate static final java.lang.String DSL = " + literal(value) + ";\n").orElse(""))));
 	}
 
-	private String render(TypeDefinition type, DecoratorLayout layout, String base, JavaNames methods, boolean isNested) {
+	private String render(TypeDefinition type, DecoratorLayout layout, String base, boolean isNested) {
 		StringBuilder source = new StringBuilder();
 		Map<String, String> classes = layout.references();
 		Map<PropertyDefinition, String> enums = layout.enums().get(type.type());
 		List<String> descendants = layout.subtypes().getOrDefault(type.type(), List.of());
-		source.append(conversions(type, layout, methods));
+		Accessors accessors = accessors(type, layout);
+		source.append(accessors.conversions());
 		for (PropertyDefinition property : type.properties()) {
-			String getter = methods.claim(JavaNames.methodName(property.suggestedName()));
+			String getter = accessors.properties().get(property);
 			String enumName = enums.get(property);
 			if (enumName == null) source.append(method(returnType(property, classes), getter, expression(property, classes)));
 			else source.append(enumGetter(property, getter, enumName));
@@ -177,7 +179,7 @@ public final class DecoratorGenerator {
 			String decorator = classes.get(child);
 			if (decorator == null) throw new IllegalArgumentException("Unknown component " + child + " in " + type.type());
 			boolean single = composition.cardinality().isSingle();
-			String getter = memberName(methods, simpleName(child), single);
+			String getter = accessors.children().get(composition);
 			String match = MODEL_TYPES + ".matches(" + MODEL_TYPES + ".resolve(child.type(), " + literal(type.type()) + "), " + literal(child) + ")";
 			String stream = "mogram.children().stream()\n\t.filter(child -> " + match + ")";
 			if (single)
@@ -187,10 +189,8 @@ public final class DecoratorGenerator {
 		}
 		enums.forEach((property, name) -> source.append(enumDeclaration(property, name)));
 		for (TypeDefinition child : layout.nested().getOrDefault(type.type(), List.of())) {
-			boolean specialized = layout.parents().containsKey(child.type());
 			String childBase = classes.getOrDefault(layout.parents().get(child.type()), NODE);
-			JavaNames childMethods = specialized ? new JavaNames(methods) : new JavaNames(RESERVED_METHODS);
-			String declaration = render(child, layout, childBase, childMethods, true);
+			String declaration = render(child, layout, childBase, true);
 			source.append('\n').append(declaration.lines()
 				.map(line -> line.isEmpty() ? line : "\t" + line)
 				.collect(Collectors.joining("\n", "", "\n")));
@@ -247,10 +247,30 @@ public final class DecoratorGenerator {
 		return source.toString();
 	}
 
+	private Accessors accessors(TypeDefinition type, DecoratorLayout layout) {
+		if (layout.accessors().containsKey(type.type())) return layout.accessors().get(type.type());
+		TypeDefinition parent = layout.definitions().get(layout.parents().get(type.type()));
+		JavaNames names = parent == null ? new JavaNames(RESERVED_METHODS) : new JavaNames(accessors(parent, layout).names());
+		String conversions = conversions(type, layout, names);
+		Map<PropertyDefinition, String> properties = new LinkedHashMap<>();
+		for (PropertyDefinition property : type.properties())
+			properties.put(property, names.claim(JavaNames.methodName(property.suggestedName())));
+		Map<Composition, String> children = new LinkedHashMap<>();
+		for (Composition child : type.children())
+			children.put(child, memberName(names, simpleName(child.type()), child.cardinality().isSingle()));
+		Accessors result = new Accessors(names, conversions, properties, children);
+		layout.accessors().put(type.type(), result);
+		return result;
+	}
+
+	private record Accessors(JavaNames names, String conversions, Map<PropertyDefinition, String> properties,
+			Map<Composition, String> children) {
+	}
+
 	private record DecoratorLayout(Map<String, String> classNames, Map<String, String> references,
 			Map<String, List<TypeDefinition>> nested, Map<String, List<String>> subtypes,
 			Map<String, Map<PropertyDefinition, String>> enums, Map<String, String> parents,
-			Map<String, Map<String, String>> conversions) {
+			Map<String, Map<String, String>> conversions, Map<String, TypeDefinition> definitions, Map<String, Accessors> accessors) {
 	}
 
 	private Map<PropertyDefinition, String> enumNames(TypeDefinition type, Map<String, String> classes,
@@ -314,7 +334,10 @@ public final class DecoratorGenerator {
 				return "\t\tnew io.quassar.reader.domain.NodeSupport.Type(" + literal(type.name()) + ", "
 					+ literal(type.parent()) + ", " + literal(type.scope()) + ", " + type.isFacet()
 					+ ", java.util.List.of(" + children + "), java.util.List.of("
-					+ type.properties().stream().map(property -> literal(property.suggestedName())).collect(Collectors.joining(", "))
+					+ type.properties().stream().map(property -> "new " + SUPPORT + ".PropertyDefinition("
+						+ literal(property.suggestedName()) + ", " + literal(property.declaredType()) + ", "
+						+ (property.type().kind() == Kind.SEQUENCE) + ", " + literal(property.defaultValue()) + ")")
+						.collect(Collectors.joining(", "))
 					+ "), " + classes.get(type.name()) + ".class)";
 			}).collect(Collectors.joining(",\n", "\n", "\n\t"));
 		return new JavaCode(packageName, SCHEMA, templates.render("decorator", Map.of("hierarchy", hierarchy)));

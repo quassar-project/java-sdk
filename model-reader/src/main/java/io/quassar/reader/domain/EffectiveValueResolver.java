@@ -50,7 +50,7 @@ public final class EffectiveValueResolver {
         for (Property property : mogram.properties()) {
             if (property.origin() != Property.Origin.EXPLICIT) continue;
             var definition = properties.get(property.name());
-            values.put(property.name(), new Property(property.name(), shape(property.value(), definition), property.origin(), property.constructorType()));
+            values.put(property.name(), new Property(property.name(), shape(property.value(), definition), property.origin(), property.constructorType(), property.position()));
         }
         for (var property : properties.values()) {
             if (values.containsKey(property.name()) || !property.hasDefault()) continue;
