@@ -1,7 +1,10 @@
 package io.quassar.reader;
 
+import io.quassar.reader.adapters.TextSource;
+import io.quassar.reader.domain.EffectiveValueResolver;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.model.Resource;
+
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +21,7 @@ public final class ModelRelease {
         this.metadata = metadata;
     }
 
-    public ModelRelease withDefaults(io.quassar.reader.domain.EffectiveValueResolver resolver) throws IOException {
+    public ModelRelease withDefaults(EffectiveValueResolver resolver) throws IOException {
         return new ModelRelease(resolver.resolve(model), metadata);
     }
 
@@ -90,7 +93,7 @@ public final class ModelRelease {
             else if (name.endsWith(".tara")) sources.put(name, new String(entry.getValue(), StandardCharsets.UTF_8));
         }
         if (sources.isEmpty()) throw new IOException("Release contains no .tara model files");
-        Model model = Models.read(new io.quassar.reader.adapters.TextSource(new ArrayList<>(sources.values())));
+        Model model = Models.read(new TextSource(new ArrayList<>(sources.values())));
         return new ModelRelease(model.withResources(resources), metadata);
     }
 }

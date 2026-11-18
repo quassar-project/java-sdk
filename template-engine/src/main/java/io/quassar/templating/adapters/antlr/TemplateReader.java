@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -37,7 +38,7 @@ public final class TemplateReader implements TemplateLoader {
 
 	@Override
 	public Template read() throws TemplateReadException {
-		return read(java.nio.charset.StandardCharsets.UTF_8);
+		return read(StandardCharsets.UTF_8);
 	}
 
 

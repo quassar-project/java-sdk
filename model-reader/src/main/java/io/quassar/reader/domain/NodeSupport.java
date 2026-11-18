@@ -9,6 +9,7 @@ import io.quassar.templating.ports.FrameView;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -206,17 +207,17 @@ public final class NodeSupport {
 		}
 	}
 
-	private record MogramFrame(Mogram mogram, java.util.List<java.lang.String> types, NodeSupport support) implements io.quassar.templating.ports.FrameView {
-		public java.lang.Object frameIdentity() {
+	private record MogramFrame(Mogram mogram, List<String> types, NodeSupport support) implements FrameView {
+		public Object frameIdentity() {
 			return mogram.isNull() ? null : mogram;
 		}
 
-		public io.quassar.reader.model.Node frameParent() {
+		public Node frameParent() {
 			return support.of(support.model.parentOf(mogram));
 		}
 
-		public java.util.List<java.lang.String> frameTypes() {
-			var names = new java.util.LinkedHashSet<java.lang.String>();
+		public List<String> frameTypes() {
+			var names = new LinkedHashSet<String>();
 			names.add(mogram.type());
 			names.add(support.resolve(mogram));
 			names.addAll(mogram.facets());
@@ -224,30 +225,30 @@ public final class NodeSupport {
 				names.add(type);
 				names.add(type.substring(type.lastIndexOf('.') + 1));
 			}
-			return java.util.List.copyOf(names);
+			return List.copyOf(names);
 		}
 
-		public java.util.List<Slot> frameSlots() {
-			var properties = new java.util.LinkedHashMap<java.lang.String, Slot>();
+		public List<Slot> frameSlots() {
+			var properties = new LinkedHashMap<String, Slot>();
 			properties.put("identifier", new ValueSlot("identifier", mogram.identifier()));
 			int position = 0;
 			for (var property : mogram.properties()) {
-				java.lang.String name = property.name() == null ? "value" + ++position : property.name();
-				name = name.toLowerCase(java.util.Locale.ROOT);
+				String name = property.name() == null ? "value" + ++position : property.name();
+				name = name.toLowerCase(Locale.ROOT);
 				properties.put(name, new ValueSlot(name, frameValues(property.value())));
 			}
-			java.util.List<Slot> slots = new java.util.ArrayList<>(properties.values());
+			List<Slot> slots = new ArrayList<>(properties.values());
 			slots.addAll(support.groupSlots(mogram.children()));
-			return java.util.List.copyOf(slots);
+			return List.copyOf(slots);
 		}
 
-		private java.util.List<java.lang.Object> frameValues(Value value) {
+		private List<Object> frameValues(Value value) {
 			if (value.isSequence()) return value.asSequence().stream().flatMap(item -> frameValues(item).stream()).toList();
-			if (value.isString()) return java.util.List.of(value.asString());
-			if (value.isNumber()) return java.util.List.of(value.asNumber());
-			if (value.isBoolean()) return java.util.List.of(value.asBoolean());
-			if (value.isReference()) return java.util.List.of(support.of(support.model.get(value, mogram)));
-			return java.util.List.of();
+			if (value.isString()) return List.of(value.asString());
+			if (value.isNumber()) return List.of(value.asNumber());
+			if (value.isBoolean()) return List.of(value.asBoolean());
+			if (value.isReference()) return List.of(support.of(support.model.get(value, mogram)));
+			return List.of();
 		}
 	}
 }
