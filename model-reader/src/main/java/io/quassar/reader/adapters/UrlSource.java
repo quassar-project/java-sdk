@@ -12,6 +12,10 @@ public final class UrlSource extends AbstractSource {
 	private final int connectTimeout;
 	private final int readTimeout;
 
+	public UrlSource(URL url) {
+		this(url, 10000, 30000);
+	}
+
 	public UrlSource(URL url, int connectTimeout, int readTimeout) {
 		this.url = url;
 		this.connectTimeout = connectTimeout;
@@ -30,22 +34,28 @@ public final class UrlSource extends AbstractSource {
 		return readTimeout;
 	}
 
-	public UrlSource(URL url) {
-		this(url, 10000, 30000);
-	}
-
 	@Override
 	public InputStream open() throws IOException {
+		return read(input -> url.getPath().endsWith(".tara") ? combine(List.of(readText(input))) : unzip(input));
+	}
+
+	public String text() throws IOException {
+		return read(this::readText);
+	}
+
+	private <T> T read(SourceReader<T> reader) throws IOException {
 		URLConnection connection = url.openConnection();
 		connection.setConnectTimeout(connectTimeout);
 		connection.setReadTimeout(readTimeout);
-		try {
-			try (InputStream input = connection.getInputStream()) {
-				if (url.getPath().endsWith(".tara")) return combine(List.of(readText(input)));
-				return unzip(input);
-			}
+		try (InputStream input = connection.getInputStream()) {
+			return reader.read(input);
 		} finally {
-			if (connection instanceof HttpURLConnection) ((HttpURLConnection) connection).disconnect();
+			if (connection instanceof HttpURLConnection http) http.disconnect();
 		}
+	}
+
+	@FunctionalInterface
+	private interface SourceReader<T> {
+		T read(InputStream input) throws IOException;
 	}
 }

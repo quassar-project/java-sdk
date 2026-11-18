@@ -1,99 +1,45 @@
 package io.quassar.reader;
 
-import io.quassar.reader.adapters.TextSource;
+import io.quassar.reader.adapters.FileReleaseSource;
+import io.quassar.reader.adapters.UrlReleaseSource;
+import io.quassar.reader.adapters.ZipReleaseSource;
 import io.quassar.reader.domain.EffectiveValueResolver;
+import io.quassar.reader.domain.ModelReader;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.model.Resource;
+import io.quassar.reader.ports.ReleaseSource;
 
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.util.*;
-import java.util.zip.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.Set;
 
-public final class ModelRelease {
-    private final Model model;
-    private final String metadata;
+public record ModelRelease(Model model, String metadata) {
+	public ModelRelease withDefaults(EffectiveValueResolver resolver) throws IOException {
+		return new ModelRelease(resolver.resolve(model), metadata);
+	}
 
-    private ModelRelease(Model model, String metadata) {
-        this.model = model;
-        this.metadata = metadata;
-    }
+	public Set<String> resourceNames() { return model.resourceNames(); }
+	public Resource resource(String name) throws FileNotFoundException { return model.resource(name); }
 
-    public ModelRelease withDefaults(EffectiveValueResolver resolver) throws IOException {
-        return new ModelRelease(resolver.resolve(model), metadata);
-    }
+	public static ModelRelease open(Path path) throws IOException {
+		return read(new FileReleaseSource(path));
+	}
 
-    public Model model() { return model; }
-    public String metadata() { return metadata; }
-    public Set<String> resourceNames() { return model.resourceNames(); }
-    public Resource resource(String name) throws FileNotFoundException { return model.resource(name); }
+	public static ModelRelease download(URL url, String authToken) throws IOException {
+		return read(new UrlReleaseSource(url, authToken));
+	}
 
-    public static ModelRelease open(Path path) throws IOException {
-        if (!Files.isDirectory(path)) {
-            try (InputStream input = Files.newInputStream(path)) { return read(input); }
-        }
-        Map<String, byte[]> entries = new TreeMap<>();
-        try (var files = Files.walk(path)) {
-            for (Path file : files.filter(p -> Files.isRegularFile(p, LinkOption.NOFOLLOW_LINKS)).toList()) {
-                String name = path.relativize(file).toString().replace(File.separatorChar, '/');
-                if (relevant(name)) entries.put(name, Files.readAllBytes(file));
-            }
-        }
-        return from(entries);
-    }
+	public static ModelRelease read(InputStream input) throws IOException {
+		return read(new ZipReleaseSource(input));
+	}
 
-    public static ModelRelease download(URL url, String authToken) throws IOException {
-        URLConnection connection = url.openConnection();
-        connection.setConnectTimeout(10000);
-        connection.setReadTimeout(30000);
-        if (connection instanceof HttpURLConnection http) {
-            http.setInstanceFollowRedirects(false);
-            if (authToken != null && !authToken.isBlank()) connection.setRequestProperty("Authorization", "Bearer " + authToken);
-        } else if (authToken != null && !authToken.isBlank()) throw new IOException("Authentication requires HTTP(S)");
-        try {
-            if (connection instanceof HttpURLConnection http && http.getResponseCode() != 200)
-                throw new IOException("Release download failed: HTTP " + http.getResponseCode());
-            try (InputStream input = connection.getInputStream()) { return read(input); }
-        } finally {
-            if (connection instanceof HttpURLConnection http) http.disconnect();
-        }
-    }
-
-    public static ModelRelease read(InputStream input) throws IOException {
-        Map<String, byte[]> entries = new TreeMap<>();
-        Set<String> names = new HashSet<>();
-        try (ZipInputStream zip = new ZipInputStream(input)) {
-            ZipEntry entry;
-            while ((entry = zip.getNextEntry()) != null) {
-                String name = entry.getName();
-                if (name.startsWith("/") || name.contains("\\") || Arrays.asList(name.split("/")).contains(".."))
-                    throw new IOException("Invalid ZIP entry: " + name);
-                if (!names.add(name)) throw new IOException("Duplicate ZIP entry: " + name);
-                if (!entry.isDirectory() && relevant(name)) entries.put(name, zip.readAllBytes());
-                zip.closeEntry();
-            }
-        }
-        return from(entries);
-    }
-
-    private static boolean relevant(String name) {
-        return name.endsWith(".tara") || name.equals("manifest.json") || name.startsWith("resources/");
-    }
-
-    private static ModelRelease from(Map<String, byte[]> entries) throws IOException {
-        Map<String, String> sources = new TreeMap<>();
-        Map<String, byte[]> resources = new TreeMap<>();
-        String metadata = "";
-        for (var entry : entries.entrySet()) {
-            String name = entry.getKey();
-            if (name.startsWith("resources/")) resources.put(name.substring(10), entry.getValue());
-            else if (name.equals("manifest.json")) metadata = new String(entry.getValue(), StandardCharsets.UTF_8);
-            else if (name.endsWith(".tara")) sources.put(name, new String(entry.getValue(), StandardCharsets.UTF_8));
-        }
-        if (sources.isEmpty()) throw new IOException("Release contains no .tara model files");
-        Model model = Models.read(new TextSource(new ArrayList<>(sources.values())));
-        return new ModelRelease(model.withResources(resources), metadata);
-    }
+	public static ModelRelease read(ReleaseSource source) throws IOException {
+		try (var content = source.read()) {
+			Model model = new ModelReader().read(content.input()).withResources(content.resources());
+			return new ModelRelease(model, content.manifest());
+		}
+	}
 }

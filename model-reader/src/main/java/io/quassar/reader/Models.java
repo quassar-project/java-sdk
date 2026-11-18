@@ -1,26 +1,23 @@
 package io.quassar.reader;
 
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import io.quassar.reader.domain.ModelReader;
+import io.quassar.reader.domain.ModelCompatibility;
+import io.quassar.reader.adapters.JsonManifestReader;
+import io.quassar.reader.adapters.ModelHeaderReader;
 import io.quassar.reader.domain.EffectiveValueResolver;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.ports.ModelSource;
 import io.quassar.reader.adapters.UrlSource;
 import io.quassar.reader.adapters.TextSource;
-import java.util.List;
-import java.util.ArrayList;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
+import java.util.List;
 
 public final class Models {
 	private Models() {
@@ -55,15 +52,7 @@ public final class Models {
 			}
 		}
 		if (!url.getPath().endsWith(".tara")) return checkedRelease(ModelRelease.download(url, null), expectedDsl);
-		var connection = url.openConnection();
-		var source = new UrlSource(url);
-		connection.setConnectTimeout(source.connectTimeout());
-		connection.setReadTimeout(source.readTimeout());
-		try (InputStream input = connection.getInputStream()) {
-			return checkedText(new String(input.readAllBytes(), StandardCharsets.UTF_8), expectedDsl);
-		} finally {
-			if (connection instanceof HttpURLConnection http) http.disconnect();
-		}
+		return checkedText(new UrlSource(url).text(), expectedDsl);
 	}
 
 	public static Model loadForDsl(URI uri, String expectedDsl) throws IOException {
@@ -71,63 +60,34 @@ public final class Models {
 	}
 
 	private static Model checkedRelease(ModelRelease release, String expectedDsl) throws IOException {
-		requireDsl(expectedDsl, declaredViews(release.metadata()), "manifest.json");
+		ModelCompatibility.require(expectedDsl, new JsonManifestReader().read(release.metadata()), "manifest.json");
 		return release.model();
 	}
 
-	private static List<String> declaredViews(String manifest) throws IOException {
-		if (manifest.isBlank()) return List.of();
-		try {
-			var metadata = JsonParser.parseString(manifest);
-			if (!metadata.isJsonObject()) throw new IOException("Invalid model manifest.json. Expected a JSON object.");
-			var object = metadata.getAsJsonObject();
-			var declarations = object.getAsJsonArray("views");
-			if (declarations == null) return List.of();
-			List<String> views = new ArrayList<>();
-			for (var declaration : declarations) views.add(declaration.getAsString());
-			return List.copyOf(views);
-		} catch (JsonParseException exception) {
-			throw new IOException("Invalid model manifest.json", exception);
-		}
-	}
-
-	private static final Pattern DSL_HEADER = Pattern.compile("(?m)^[\\t ]*dsl[\\t ]+(\\S+)");
-
 	private static Model checkedText(String text, String expectedDsl) throws IOException {
-		var header = DSL_HEADER.matcher(text.startsWith("\uFEFF") ? text.substring(1) : text);
-		requireDsl(expectedDsl, header.find() ? header.group(1) : "", "the Tara dsl header");
+		ModelCompatibility.require(expectedDsl, new ModelHeaderReader().read(text), "the Tara dsl header");
 		return create(text);
-	}
-
-	private static void requireDsl(String expected, String actual, String source) throws IOException {
-		requireDsl(expected, actual.isBlank() ? List.of() : List.of(actual), source);
-	}
-
-	private static void requireDsl(String expected, List<String> actual, String source) throws IOException {
-		if (actual.isEmpty()) throw new IOException("Expected DSL " + expected + " but no DSL is declared in " + source);
-		if (!actual.contains(expected))
-			throw new IOException("Expected DSL " + expected + " but found " + String.join(", ", actual) + " in " + source);
 	}
 
 	public static Model create(String text) throws IOException {
 		return read(new TextSource(List.of(text)));
 	}
 
-    public static Model create(String text, String metamodelText) throws IOException {
-        return new EffectiveValueResolver(metamodelText).resolve(create(text));
-    }
+	public static Model create(String text, String metamodelText) throws IOException {
+		return new EffectiveValueResolver(metamodelText).resolve(create(text));
+	}
 
-    public static Model load(Path path, String metamodelText) throws IOException {
-        return new EffectiveValueResolver(metamodelText).resolve(load(path));
-    }
+	public static Model load(Path path, String metamodelText) throws IOException {
+		return new EffectiveValueResolver(metamodelText).resolve(load(path));
+	}
 
-    public static Model load(URL url, String metamodelText) throws IOException {
-        return new EffectiveValueResolver(metamodelText).resolve(load(url));
-    }
+	public static Model load(URL url, String metamodelText) throws IOException {
+		return new EffectiveValueResolver(metamodelText).resolve(load(url));
+	}
 
-    public static Model load(URI uri, String metamodelText) throws IOException {
-        return load(uri.toURL(), metamodelText);
-    }
+	public static Model load(URI uri, String metamodelText) throws IOException {
+		return load(uri.toURL(), metamodelText);
+	}
 
 	public static Model read(ModelSource source) throws IOException {
 		try (InputStream input = source.open()) {
