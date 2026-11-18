@@ -1,6 +1,7 @@
 package io.quassar.templating.adapters.reflection;
 
 import io.quassar.templating.model.Frame;
+import io.quassar.templating.domain.FrameGraph;
 import io.quassar.templating.ports.ObjectMapper;
 import io.quassar.templating.ports.FrameFactory;
 import io.quassar.templating.ports.FrameView;
@@ -14,7 +15,7 @@ public final class ObjectFrameFactory implements FrameFactory {
 		if (object instanceof ReflectiveFrameBuilder builder) return builder.toFrame();
 		if (!isMapped(object, mappers)) {
 			FrameView view = FrameView.from(object);
-			if (view != null) return new MethodFrames(mappers).read(object, view);
+			if (view != null) return new FrameGraph(this, new ReflectiveSlots(), mappers).read(object, view);
 		}
 		return new ReflectiveFrameBuilder().put(mappers).append(object).toFrame();
 	}
