@@ -9,7 +9,7 @@ import io.quassar.reader.ports.ModelSource;
 import io.quassar.reader.adapters.UrlSource;
 import io.quassar.reader.adapters.TextSource;
 import java.util.List;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,27 +71,21 @@ public final class Models {
 	}
 
 	private static Model checkedRelease(ModelRelease release, String expectedDsl) throws IOException {
-		requireDsl(expectedDsl, declaredDsls(release.metadata()), "manifest.json");
+		requireDsl(expectedDsl, declaredViews(release.metadata()), "manifest.json");
 		return release.model();
 	}
 
-	private static List<String> declaredDsls(String manifest) throws IOException {
+	private static List<String> declaredViews(String manifest) throws IOException {
 		if (manifest.isBlank()) return List.of();
 		try {
 			var metadata = JsonParser.parseString(manifest);
 			if (!metadata.isJsonObject()) throw new IOException("Invalid model manifest.json. Expected a JSON object.");
 			var object = metadata.getAsJsonObject();
-			var dsls = new LinkedHashSet<String>();
-			var primary = object.get("dsl");
-			if (primary != null && primary.isJsonPrimitive() && primary.getAsJsonPrimitive().isString()
-					&& !primary.getAsString().isBlank()) dsls.add(primary.getAsString());
-			var declarations = object.getAsJsonArray("dsls");
-			if (declarations != null)
-				for (var declaration : declarations) {
-					String value = declaration.getAsString();
-					dsls.add(value.substring(value.indexOf('|') + 1));
-				}
-			return List.copyOf(dsls);
+			var declarations = object.getAsJsonArray("views");
+			if (declarations == null) return List.of();
+			List<String> views = new ArrayList<>();
+			for (var declaration : declarations) views.add(declaration.getAsString());
+			return List.copyOf(views);
 		} catch (JsonParseException exception) {
 			throw new IOException("Invalid model manifest.json", exception);
 		}

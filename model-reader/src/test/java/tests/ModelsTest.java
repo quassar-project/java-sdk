@@ -23,32 +23,32 @@ public final class ModelsTest {
 	Path directory;
 
 	@Test
-	void loadsASecondaryDslFromAZipUrl() throws Exception {
-		Path zip = directory.resolve("multi-dsl.zip");
-		try (var output = new ZipOutputStream(Files.newOutputStream(zip))) {
-			for (String name : List.of("manifest.json", "model.tara")) {
-				output.putNextEntry(new ZipEntry(name));
-				Files.copy(TestResources.path("multi-dsl/" + name), output);
-				output.closeEntry();
-			}
-		}
-		Model model = Models.loadForDsl(zip.toUri(), "monet:visora:1.8.2");
-		assertThat(model.get("OrderFulfillment").children()).hasSize(1);
-	}
-
-	@Test
-	void loadsAnyDslDeclaredInTheManifest() throws Exception {
-		for (String dsl : List.of("monet:woven:1.0.0", "monet:visora:1.8.2", "monet:orfeo:2.8.1")) {
-			Model model = Models.loadForDsl(TestResources.path("multi-dsl"), dsl);
+	void loadsAnyDeclaredView() throws Exception {
+		for (String view : List.of("monet:woven:1.0.0", "monet:visora:1.8.2", "monet:orfeo:2.8.1")) {
+			Model model = Models.loadForDsl(TestResources.path("model-views"), view);
 			assertThat(model.get("OrderFulfillment").type()).isEqualTo("Workflow");
 		}
 	}
 
 	@Test
-	void requiresTheExactDslCoordinateAndVersion() {
-		for (String dsl : List.of("monet:visora:1.8.1", "visora", "other:visora:1.8.2"))
-			assertThatThrownBy(() -> Models.loadForDsl(TestResources.path("multi-dsl"), dsl))
-				.isInstanceOf(IOException.class).hasMessageContaining("Expected DSL " + dsl);
+	void requiresTheExactViewCoordinateAndVersion() {
+		for (String view : List.of("monet:visora:1.8.1", "visora", "other:visora:1.8.2"))
+			assertThatThrownBy(() -> Models.loadForDsl(TestResources.path("model-views"), view))
+				.isInstanceOf(IOException.class).hasMessageContaining("Expected DSL " + view);
+	}
+
+	@Test
+	void loadsAViewFromAZipUrl() throws Exception {
+		Path zip = directory.resolve("model-views.zip");
+		try (var output = new ZipOutputStream(Files.newOutputStream(zip))) {
+			for (String name : List.of("manifest.json", "model.tara")) {
+				output.putNextEntry(new ZipEntry(name));
+				Files.copy(TestResources.path("model-views/" + name), output);
+				output.closeEntry();
+			}
+		}
+		Model model = Models.loadForDsl(zip.toUri(), "monet:visora:1.8.2");
+		assertThat(model.get("OrderFulfillment").children()).hasSize(1);
 	}
 
 	@Test

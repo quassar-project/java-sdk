@@ -752,7 +752,7 @@ class DecoratorGeneratorTest {
 
 	@Test
 	void namesTheFacadeAfterTheMetamodelLocalName() {
-		var manifest = new MetamodelManifest("id", "MONET.VISORA", "1.8.2", "", "", "");
+		var manifest = new MetamodelManifest("id", "MONET.VISORA", "1.8.2", "", List.of(), "");
 		var metamodel = new Metamodel(MetamodelFixtures.library().types(), Optional.of(manifest));
 		var generator = MogramDecoratorGenerator.from(metamodel);
 		assertThat(generator.modelClassName()).isEqualTo("VisoraModel");
@@ -761,14 +761,14 @@ class DecoratorGeneratorTest {
 
 	@Test
 	void generatedLoadsRequireTheDslAndVersionUsedForGeneration() throws Exception {
-		var manifest = new MetamodelManifest("id", "MONET.VISORA", "1.8.2", "", "quassar:metta:1.0.0", "");
+		var manifest = new MetamodelManifest("id", "MONET.VISORA", "1.8.2", "", List.of("quassar:metta:1.0.0"), "");
 		var metamodel = new Metamodel(MetamodelFixtures.library().types(), Optional.of(manifest));
 		Path release = Files.createDirectory(directory.resolve("m1"));
 		Files.writeString(release.resolve("books.tara"), "Book Atlas\n");
 		Path images = Files.createDirectories(release.resolve("resources/images"));
 		Files.write(images.resolve("icon.bin"), new byte[]{0, -1, 3});
 		Path metadata = release.resolve("manifest.json");
-		Files.writeString(metadata, "{\"dsl\":\"monet:visora:1.8.2\"}");
+		Files.writeString(metadata, "{\"views\":[\"monet:woven:1.0.0\",\"monet:visora:1.8.2\"]}");
 		try (GeneratedDecorators generated = compile(model("observations.tara"), metamodel)) {
 			var facade = generated.modelDecorator().getClass();
 			var load = facade.getMethod("load", Path.class);
@@ -792,7 +792,7 @@ class DecoratorGeneratorTest {
 			assertThat((List<?>) call(facade.getMethod("load", URL.class).invoke(null, zip.toUri().toURL()), "books")).hasSize(1);
 			assertThat((List<?>) call(facade.getMethod("load", URI.class).invoke(null, release.toUri()), "books")).hasSize(1);
 			for (String mismatch : List.of("monet:orfeo:1.8.2", "monet:visora:1.8.3")) {
-				Files.writeString(metadata, "{\"dsl\":\"" + mismatch + "\"}");
+				Files.writeString(metadata, "{\"views\":[\"" + mismatch + "\"]}");
 				assertThatThrownBy(() -> load.invoke(null, release))
 					.isInstanceOf(InvocationTargetException.class)
 					.cause().isInstanceOf(IOException.class).hasMessageContaining("monet:visora:1.8.2", mismatch);
