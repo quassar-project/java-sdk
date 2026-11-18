@@ -47,6 +47,14 @@ public abstract class Node extends FrameSource {
 		return model.support().as(type, mogram);
 	}
 
+	protected final boolean hasProperty(String name) {
+		return model.support().hasProperty(mogram, name);
+	}
+
+	protected final Value property(String name) {
+		return model.support().property(mogram, name);
+	}
+
 	@Override
 	protected final FrameView frameView() {
 		return model.support().frame(mogram);

@@ -1,0 +1,22 @@
+dsl metta
+
+Concept SubjectType
+	def string type
+
+Concept Viewer
+	def SubjectType subjectType
+	has View
+
+Concept View
+	def string title
+	facet Behavior
+		sub Container
+			def word:{Tabs Stack} composition = Stack
+			Concept Panel
+				def string label
+				def View view
+	facet Main
+		def integer priority
+
+Concept Header
+	def string label

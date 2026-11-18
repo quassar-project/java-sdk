@@ -1,0 +1,13 @@
+dsl visora
+
+SubjectType("Person") person
+
+Viewer(person) People
+	View("Details page") Details is Container(Tabs) Main(2)
+		Panel("Example", Details)
+
+Header("Select a person") Heading
+
+Viewer(subjectType=person) NamedPeople
+	View(title="Named page") NamedDetails is Container(composition=Stack) Main(priority=5)
+		Panel(label="Named panel", view=Details)

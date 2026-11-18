@@ -3,6 +3,7 @@ package io.quassar.reader.domain;
 import io.quassar.reader.model.Model;
 import io.quassar.reader.model.Mogram;
 import io.quassar.reader.model.Node;
+import io.quassar.reader.model.Property;
 import io.quassar.reader.model.NodeTypeHierarchy;
 import io.quassar.reader.model.Value;
 import io.quassar.templating.ports.FrameView;
@@ -56,10 +57,58 @@ public final class NodeSupport {
 	}
 
 	public record Type(String name, String parent, String scope, boolean facet,
-			List<String> children, Class<? extends Node> decorator) {
+			List<String> children, List<String> properties, Class<? extends Node> decorator) {
 		public Type {
 			children = List.copyOf(children);
+			properties = List.copyOf(properties);
 		}
+
+		public Type(String name, String parent, String scope, boolean facet, List<String> children, Class<? extends Node> decorator) {
+			this(name, parent, scope, facet, children, List.of(), decorator);
+		}
+	}
+
+	public boolean hasProperty(Mogram mogram, String name) {
+		return properties(mogram).stream().anyMatch(property -> name.equals(property.name()));
+	}
+
+	public Value property(Mogram mogram, String name) {
+		for (Property property : mogram.properties())
+			if (name.equals(property.name())) return property.value();
+		for (Property property : properties(mogram))
+			if (name.equals(property.name())) return property.value();
+		return new Value.Empty();
+	}
+
+	private List<Property> properties(Mogram mogram) {
+		List<Property> properties = new ArrayList<>();
+		Map<String, Integer> positions = new LinkedHashMap<>();
+		for (Property property : mogram.properties()) {
+			if (property.name() != null) {
+				properties.add(property);
+				continue;
+			}
+			String constructor = constructorType(mogram, property.constructorType());
+			int position = positions.merge(constructor, 1, Integer::sum) - 1;
+			List<String> names = propertyNames(constructor);
+			String name = position < names.size() ? names.get(position) : null;
+			properties.add(new Property(name, property.value(), property.origin(), property.constructorType()));
+		}
+		return List.copyOf(properties);
+	}
+
+	private String constructorType(Mogram mogram, String constructor) {
+		if (constructor.isEmpty() || constructor.equals(mogram.type())) return resolve(mogram);
+		for (String type : types(mogram))
+			if (type.equals(constructor) || type.endsWith("." + constructor)) return type;
+		return constructor;
+	}
+
+	private List<String> propertyNames(String name) {
+		Set<String> names = new LinkedHashSet<>();
+		for (Type type = declarations.get(name); type != null; type = declarations.get(type.parent()))
+			names.addAll(type.properties());
+		return List.copyOf(names);
 	}
 
 	public String resolve(Mogram mogram) {
@@ -232,7 +281,7 @@ public final class NodeSupport {
 			var properties = new LinkedHashMap<String, Slot>();
 			properties.put("identifier", new ValueSlot("identifier", mogram.identifier()));
 			int position = 0;
-			for (var property : mogram.properties()) {
+			for (var property : support.properties(mogram)) {
 				String name = property.name() == null ? "value" + ++position : property.name();
 				name = name.toLowerCase(Locale.ROOT);
 				properties.put(name, new ValueSlot(name, frameValues(property.value())));

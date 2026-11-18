@@ -68,7 +68,7 @@ public final class ModelReader {
 
 		MogramBuilder readMogram() {
 			String type = nextToken();
-			List<Property> properties = readProperties();
+			List<Property> properties = readProperties(type);
 			String identifier = readIdentifier();
 			List<String> facets = readFacets(properties);
 			return new MogramBuilder(type, identifier, properties, facets);
@@ -80,7 +80,7 @@ public final class ModelReader {
 				while (!currentToken().isEmpty() && !currentToken().equals(">")) {
 					String name = nextToken();
 					facets.add(name);
-					properties.addAll(readProperties());
+					properties.addAll(readProperties(name));
 				}
 			}
 			return facets;
@@ -91,7 +91,7 @@ public final class ModelReader {
 			return nextToken();
 		}
 
-		private List<Property> readProperties() {
+		private List<Property> readProperties(String type) {
 			List<Property> result = new ArrayList<>();
 			if (!take("(")) return result;
 			while (!take(")")) {
@@ -100,7 +100,7 @@ public final class ModelReader {
 					name = nextToken();
 					nextToken();
 				}
-				result.add(new Property(name, readValue()));
+				result.add(new Property(name, readValue(), Property.Origin.EXPLICIT, name == null ? type : ""));
 				take(",");
 			}
 			return result;

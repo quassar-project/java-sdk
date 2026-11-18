@@ -86,6 +86,34 @@ class DecoratorGeneratorTest {
     }
 
 	@Test
+	void bindsConstructorValuesToConceptAndFacetProperties() throws Exception {
+		var metamodel = Metamodels.load(Path.of(getClass().getResource("/metamodels/constructor-properties/").toURI()));
+		Model model = model("constructor-properties.tara");
+		try (GeneratedDecorators generated = compile(model, metamodel)) {
+			Object viewer = generated.wrap("Viewer", model.get("People"));
+			Object subject = call(viewer, "subjectType");
+			assertThat(call(subject, "identifier")).isEqualTo("person");
+			assertThat(call(subject, "type")).isEqualTo("Person");
+			Object view = ((List<?>) call(viewer, "views")).get(0);
+			Object container = call(view, "asContainer");
+			assertThat(call(view, "title")).isEqualTo("Details page");
+			assertThat(call(container, "composition").toString()).isEqualTo("Tabs");
+			assertThat(call(call(view, "asMain"), "priority")).isEqualTo(2);
+			Object panel = ((List<?>) call(container, "panels")).get(0);
+			assertThat(call(panel, "label")).isEqualTo("Example");
+			assertThat(Frames.from(panel).frames("label").next().value()).isEqualTo("Example");
+			assertThat(call(call(panel, "view"), "identifier")).isEqualTo("Details");
+			assertThat(call(generated.wrap("Header", model.get("Heading")), "label")).isEqualTo("Select a person");
+			Object named = generated.wrap("Viewer", model.get("NamedPeople"));
+			assertThat(call(call(named, "subjectType"), "identifier")).isEqualTo("person");
+			Object namedView = ((List<?>) call(named, "views")).get(0);
+			assertThat(call(namedView, "title")).isEqualTo("Named page");
+			assertThat(call(call(namedView, "asContainer"), "composition").toString()).isEqualTo("Stack");
+			assertThat(call(call(namedView, "asMain"), "priority")).isEqualTo(5);
+		}
+	}
+
+	@Test
 	void classChecksDistinguishGeneratedApisWithTheSameTypeNames() throws Exception {
 		var metamodel = MetamodelFixtures.library();
 		Model model = model("observations.tara");
@@ -584,7 +612,7 @@ class DecoratorGeneratorTest {
 		assertThat(MogramDecoratorGenerator.from(metamodel).inPackage("books").code())
 			.filteredOn(source -> source.className().equals("Mogram"))
 			.singleElement().extracting(JavaCode::content).satisfies(content -> assertThat(content)
-				.contains("io.quassar.reader.model.Mogram mogram", "mogram.property(\"java.math.BigDecimal\")")
+				.contains("io.quassar.reader.model.Mogram mogram", "property(\"java.math.BigDecimal\")")
 				.doesNotContain("import io.quassar.reader.model.Mogram;", "import java.math.BigDecimal;"));
 		try (GeneratedDecorators generated = compile(model, metamodel)) {
 			Object book = generated.wrap("Book", model.get("Named"));

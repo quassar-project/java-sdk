@@ -313,7 +313,9 @@ public final class DecoratorGenerator {
 					.map(this::literal).collect(Collectors.joining(", "));
 				return "\t\tnew io.quassar.reader.domain.NodeSupport.Type(" + literal(type.name()) + ", "
 					+ literal(type.parent()) + ", " + literal(type.scope()) + ", " + type.isFacet()
-					+ ", java.util.List.of(" + children + "), " + classes.get(type.name()) + ".class)";
+					+ ", java.util.List.of(" + children + "), java.util.List.of("
+					+ type.properties().stream().map(property -> literal(property.suggestedName())).collect(Collectors.joining(", "))
+					+ "), " + classes.get(type.name()) + ".class)";
 			}).collect(Collectors.joining(",\n", "\n", "\n\t"));
 		return new JavaCode(packageName, SCHEMA, templates.render("decorator", Map.of("hierarchy", hierarchy)));
 	}
@@ -321,7 +323,7 @@ public final class DecoratorGenerator {
     private String missingProperty(PropertyDefinition property) {
         return property.name() == null
                 ? "mogram.properties().stream().filter(property -> property.name() == null).count() <= " + property.position()
-                : "mogram.properties().stream().noneMatch(property -> java.util.Objects.equals(property.name(), " + literal(property.name()) + "))";
+                : "!hasProperty(" + literal(property.name()) + ")";
     }
 
 	private String propertyValue(PropertyDefinition property) {
@@ -329,7 +331,7 @@ public final class DecoratorGenerator {
 			? "mogram.properties().stream().filter(property -> property.name() == null)"
 				+ ".skip(" + property.position() + ").findFirst().map(io.quassar.reader.model.Property::value)"
 				+ ".orElse(new " + VALUE + ".Empty())"
-			: "mogram.property(" + literal(property.name()) + ")";
+			: "property(" + literal(property.name()) + ")";
 	}
 
 	private String expression(PropertyDefinition property, Map<String, String> classes) {
