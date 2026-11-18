@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -170,7 +171,7 @@ class MetamodelReaderTest {
 		assertThat(Metamodels.load(folder.toUri())).isEqualTo(model);
 		assertThat(Metamodels.load(zip.toUri())).isEqualTo(model);
 		assertThat(model.manifest()).hasValue(new MetamodelManifest(
-			"liCoJN5b", "Library", "1.0.0", "86bca6a8-0fe0-4e55-8a6a-2880e24d606a", "metta:2.9.4", "library@example.com"));
+			"liCoJN5b", "Library", "1.0.0", "86bca6a8-0fe0-4e55-8a6a-2880e24d606a", List.of("metta:2.9.4"), "library@example.com"));
 		assertThat(model.types()).extracting(MetamodelType::name).containsExactly("Book", "Author");
 		assertThat(property(model, "Book", "title").type().kind()).isEqualTo(Kind.STRING);
 		assertThat(property(model, "Author", "name").type().kind()).isEqualTo(Kind.STRING);

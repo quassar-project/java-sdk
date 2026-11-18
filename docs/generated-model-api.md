@@ -58,7 +58,7 @@ var fallbackActions = step.fallbackActions();
 
 `WorkflowsModel.load(...)` accepts `Path`, `URL` and `URI`, and declares `IOException`. It loads model instances using `model-reader`. The M2 metamodel supplies the declarations used to generate the Java API.
 
-When the M2 manifest supplies a name and version, the generated API stores its expected DSL coordinate. For example, `MONET.VISORA` version `1.8.2` produces `monet:visora:1.8.2`. The `load(...)` methods compare it with the `dsl` field in the M1 `manifest.json` or with the `dsl` header for a standalone Tara file. A missing or different coordinate raises `IOException`. To enable this check when generating from a local M2, include its manifest with the DSL name and version.
+When the M2 manifest supplies a name and version, the generated API stores its expected DSL coordinate. For example, `MONET.VISORA` version `1.8.2` produces `monet:visora:1.8.2`. The `load(...)` methods accept the coordinate when it matches an entry in the `views` array in the M1 `manifest.json`, such as `"views": ["monet:woven:1.0.0", "monet:visora:1.8.2"]`. Each entry is a complete DSL coordinate, without an alias, and its version must match exactly. For a standalone Tara file, the methods check the `dsl` header. A missing or unmatched coordinate raises `IOException`. To enable this check when generating from a local M2, include its manifest with the DSL name and version.
 
 Model collection methods return root mograms of the declared type. Child collection methods return direct children of the declared type. References resolve against the loaded model.
 

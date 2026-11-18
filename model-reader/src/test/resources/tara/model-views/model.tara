@@ -1,0 +1,5 @@
+dsl monet:woven:1.0.0
+
+Workflow OrderFulfillment
+	Step ValidateOrder
+		enabled = true
