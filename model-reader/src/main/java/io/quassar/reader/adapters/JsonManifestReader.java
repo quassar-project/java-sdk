@@ -16,10 +16,16 @@ public final class JsonManifestReader implements ManifestReader {
 		try {
 			var metadata = JsonParser.parseString(content);
 			if (!metadata.isJsonObject()) throw new IOException("Invalid model manifest.json. Expected a JSON object.");
-			var declarations = metadata.getAsJsonObject().getAsJsonArray("views");
+			var declarations = metadata.getAsJsonObject().get("views");
+			if (declarations != null && !declarations.isJsonArray())
+				throw new IOException("Invalid model manifest.json. Expected views to be an array of strings.");
 			List<String> views = new ArrayList<>();
 			if (declarations != null)
-				for (var declaration : declarations) views.add(declaration.getAsString());
+				for (var declaration : declarations.getAsJsonArray()) {
+					if (!declaration.isJsonPrimitive() || !declaration.getAsJsonPrimitive().isString())
+						throw new IOException("Invalid model manifest.json. Expected each view to be a string.");
+					views.add(declaration.getAsString());
+				}
 			return new ModelManifest(views);
 		} catch (JsonParseException exception) {
 			throw new IOException("Invalid model manifest.json", exception);
