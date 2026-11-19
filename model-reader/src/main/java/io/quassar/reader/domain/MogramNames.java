@@ -5,10 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 final class MogramNames {
-	private static final String CONSONANTS = "bcdfgklmnprstvz";
-	private static final String VOWELS = "aeiou";
-	private static final BigInteger BASE = BigInteger.valueOf(CONSONANTS.length() * VOWELS.length());
-	private static final int SYLLABLES = 6;
+	private static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+	private static final BigInteger BASE = BigInteger.valueOf(ALPHABET.length());
+	private static final int LENGTH = 12;
 	private final Set<String> assigned;
 
 	MogramNames(Set<String> explicitIdentifiers) {
@@ -18,7 +17,7 @@ final class MogramNames {
 	String identifier(String type, String fingerprint) {
 		StringBuilder name = new StringBuilder(type.substring(type.lastIndexOf('.') + 1)).append('-');
 		BigInteger remaining = new BigInteger(fingerprint, 16);
-		for (int syllable = 0; syllable < SYLLABLES; syllable++) remaining = append(name, remaining);
+		for (int index = 0; index < LENGTH; index++) remaining = append(name, remaining);
 		while (!assigned.add(name.toString())) remaining = append(name, remaining);
 		return name.toString();
 	}
@@ -26,7 +25,7 @@ final class MogramNames {
 	private BigInteger append(StringBuilder name, BigInteger remaining) {
 		BigInteger[] parts = remaining.divideAndRemainder(BASE);
 		int index = parts[1].intValueExact();
-		name.append(CONSONANTS.charAt(index / VOWELS.length())).append(VOWELS.charAt(index % VOWELS.length()));
+		name.append(ALPHABET.charAt(index));
 		return parts[0];
 	}
 }
