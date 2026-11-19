@@ -16,7 +16,7 @@ class MogramIdentityTest {
 	void assignsARepeatableHashIdToAnonymousMograms() throws Exception {
 		Mogram first = anonymous("base.tara");
 		Mogram second = anonymous("base.tara");
-		assertThat(first.identifier()).matches("Step[a-f0-9]{12,}");
+		assertThat(first.identifier()).matches("Step[0-9][a-f0-9]{11,}");
 		assertThat(second.identifier()).isEqualTo(first.identifier());
 		assertThat(Models.create("Step(label=\"Validate\")").mograms().get(0).identifier()).containsPattern("[0-9]");
 	}
@@ -107,10 +107,19 @@ class MogramIdentityTest {
 		var model = Models.create("Step " + candidate + "\n" + source);
 		assertThat(model.mograms().get(0).identifier()).isEqualTo(candidate);
 		assertThat(model.mograms()).extracting(Mogram::identifier).doesNotHaveDuplicates();
-		assertThat(model.mograms().get(1).identifier()).startsWith(candidate).matches("Step[a-f0-9]{13,}");
+		assertThat(model.mograms().get(1).identifier()).startsWith(candidate).matches("Step[0-9][a-f0-9]{12,}");
 		assertThat(Models.create("Step " + candidate + "\n" + source).mograms()).isEqualTo(model.mograms());
 		var explicitLast = Models.create(source + "\nStep " + candidate + "\n");
 		assertThat(explicitLast.mograms().subList(0, 2)).isEqualTo(model.mograms().subList(1, 3));
+	}
+
+	@Test
+	void alwaysStartsTheSuffixWithADigit() throws Exception {
+		String source = TestResources.text("identity/base.tara");
+		for (int sample = 0; sample < 32; sample++) {
+			var model = Models.create(source.replace("Validate", "Case" + sample));
+			assertThat(model.get("Pipeline").children().get(0).identifier()).matches("Step[0-9][a-f0-9]{11,}");
+		}
 	}
 
 	private Mogram anonymous(String file) throws Exception {

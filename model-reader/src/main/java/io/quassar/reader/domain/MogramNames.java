@@ -12,8 +12,9 @@ final class MogramNames {
 	}
 
 	String identifier(String type, String fingerprint) {
+		int first = Character.digit(fingerprint.charAt(0), 16) % 10;
 		StringBuilder name = new StringBuilder(type.substring(type.lastIndexOf('.') + 1))
-			.append(fingerprint, 0, LENGTH);
+			.append(first).append(fingerprint, 1, LENGTH);
 		int index = LENGTH;
 		while (!assigned.add(name.toString()))
 			name.append(index < fingerprint.length() ? fingerprint.charAt(index++) : '0');
