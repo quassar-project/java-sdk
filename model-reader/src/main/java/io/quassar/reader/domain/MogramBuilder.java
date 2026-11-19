@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 final class MogramBuilder {
 	private final String type;
@@ -31,7 +33,14 @@ final class MogramBuilder {
 	}
 
 	static List<Mogram> build(List<MogramBuilder> roots) {
-		return identify(roots.stream().map(MogramBuilder::buildTree).toList(), "m1:1");
+		Set<String> explicit = new HashSet<>();
+		for (MogramBuilder root : roots) root.collectIdentifiers(explicit);
+		return identify(roots.stream().map(MogramBuilder::buildTree).toList(), "m1:1", new MogramNames(explicit));
+	}
+
+	private void collectIdentifiers(Set<String> identifiers) {
+		if (!identifier.isEmpty()) identifiers.add(identifier);
+		for (MogramBuilder child : children) child.collectIdentifiers(identifiers);
 	}
 
 	private Built buildTree() {
@@ -42,7 +51,7 @@ final class MogramBuilder {
 		return new Built(type, identifier, List.copyOf(properties), facets, built, fingerprint);
 	}
 
-	private static List<Mogram> identify(List<Built> siblings, String parentContext) {
+	private static List<Mogram> identify(List<Built> siblings, String parentContext, MogramNames names) {
 		Map<MogramIdentity.Declaration, Integer> occurrences = new LinkedHashMap<>();
 		List<Mogram> mograms = new ArrayList<>();
 		for (Built child : siblings) {
@@ -50,8 +59,8 @@ final class MogramBuilder {
 			MogramIdentity.Declaration declaration = new MogramIdentity.Declaration(child.type(), child.identifier(), anonymous ? child.fingerprint() : "");
 			int occurrence = occurrences.merge(declaration, 1, Integer::sum) - 1;
 			String context = MogramIdentity.context(parentContext, declaration, occurrence);
-			String id = anonymous ? MogramIdentity.identifier(context) : child.identifier();
-			mograms.add(new Mogram(child.type(), id, child.properties(), child.facets(), identify(child.children(), context), anonymous));
+			String id = anonymous ? names.identifier(child.type(), context) : child.identifier();
+			mograms.add(new Mogram(child.type(), id, child.properties(), child.facets(), identify(child.children(), context, names), anonymous));
 		}
 		return List.copyOf(mograms);
 	}

@@ -10,7 +10,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.List;
-import java.util.UUID;
 
 final class MogramIdentity {
 	private final MessageDigest digest;
@@ -49,10 +48,6 @@ final class MogramIdentity {
 		identity.text(declaration.fingerprint());
 		identity.integer(occurrence);
 		return HexFormat.of().formatHex(identity.digest.digest());
-	}
-
-	static String identifier(String fingerprint) {
-		return UUID.nameUUIDFromBytes(HexFormat.of().parseHex(fingerprint)).toString();
 	}
 
 	private void property(Property property) {

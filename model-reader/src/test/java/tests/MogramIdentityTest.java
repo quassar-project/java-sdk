@@ -7,17 +7,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MogramIdentityTest {
 	@Test
-	void assignsARepeatableUuidToAnonymousMograms() throws Exception {
+	void assignsARepeatablePronounceableNameToAnonymousMograms() throws Exception {
 		Mogram first = anonymous("base.tara");
 		Mogram second = anonymous("base.tara");
-		assertThat(UUID.fromString(first.identifier()).toString()).isEqualTo(first.identifier());
+		assertThat(first.identifier()).matches("Step-(?:[bcdfgklmnprstvz][aeiou]){6,}");
 		assertThat(second.identifier()).isEqualTo(first.identifier());
 	}
 
@@ -98,6 +97,19 @@ class MogramIdentityTest {
 			new Change("weight = 1.5", "weight = 2"), new Change("action = External", "action = Another"),
 			new Change("\"one\" 2 false External empty", "2 \"one\" false External empty"),
 			new Change("amount > 0", "amount > 1"), new Change("emptyValue = empty", "emptyValue = \"\""));
+	}
+
+	@Test
+	void avoidsCollisionsWithExplicitIdentifiers() throws Exception {
+		String source = TestResources.text("identity/duplicates.tara");
+		String candidate = Models.create(source).mograms().get(0).identifier();
+		var model = Models.create("Step " + candidate + "\n" + source);
+		assertThat(model.mograms().get(0).identifier()).isEqualTo(candidate);
+		assertThat(model.mograms()).extracting(Mogram::identifier).doesNotHaveDuplicates();
+		assertThat(model.mograms().get(1).identifier()).startsWith(candidate).matches("Step-(?:[bcdfgklmnprstvz][aeiou]){7,}");
+		assertThat(Models.create("Step " + candidate + "\n" + source).mograms()).isEqualTo(model.mograms());
+		var explicitLast = Models.create(source + "\nStep " + candidate + "\n");
+		assertThat(explicitLast.mograms().subList(0, 2)).isEqualTo(model.mograms().subList(1, 3));
 	}
 
 	private Mogram anonymous(String file) throws Exception {
