@@ -78,8 +78,9 @@ public final class MogramQueryTest {
 		Model model = TestResources.model("model/anonymous-mograms.tara");
 		List<Mogram> notes = model.roots().children().list();
 		assertThat(notes).hasSize(2);
-		assertThat(notes.get(0).identifier()).isEmpty();
-		assertThat(notes.get(0)).isEqualTo(notes.get(1));
+		assertThat(notes.get(0).identifier()).isNotBlank();
+		assertThat(notes.get(0).properties()).isEqualTo(notes.get(1).properties());
+		assertThat(notes.get(0).identifier()).isNotEqualTo(notes.get(1).identifier());
 		assertThat(notes.get(0)).isNotSameAs(notes.get(1));
 		assertThat(model.parentOf(notes.get(0)).identifier()).isEqualTo("DonQuixote");
 		assertThat(model.parentOf(notes.get(1)).identifier()).isEqualTo("TheTrial");

@@ -29,7 +29,7 @@ public final class ModelTest {
 		Mogram root = model.get("CollectedWorks");
 		Mogram unnamed = root.children().get(0);
 		Mogram leaf = model.get("CollectedWorks.Appendix");
-		assertThat(unnamed.identifier()).isEmpty();
+		assertThat(unnamed.identifier()).isNotBlank();
 		assertThat(model.parentOf(leaf)).isSameAs(unnamed);
 		assertThat(model.parentOf(unnamed)).isSameAs(root);
 		assertThat(model.parentOf(root)).isSameAs(Mogram.NULL);

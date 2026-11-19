@@ -70,7 +70,7 @@ public final class EffectiveValueResolver {
 		}
 		List<Mogram> children = new ArrayList<>();
 		for (var child : mogram.children()) children.add(resolve(child, childType(child.type(), type, facets)));
-		return new Mogram(mogram.type(), mogram.identifier(), List.copyOf(values.values()), mogram.facets(), children);
+		return new Mogram(mogram.type(), mogram.identifier(), List.copyOf(values.values()), mogram.facets(), children, mogram.anonymous());
 	}
 
 	private static Value shape(Value value, PropertyDefinition definition) {

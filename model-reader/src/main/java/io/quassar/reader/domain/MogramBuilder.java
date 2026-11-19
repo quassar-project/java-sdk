@@ -5,6 +5,8 @@ import io.quassar.reader.model.Property;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 final class MogramBuilder {
 	private final String type;
@@ -28,9 +30,33 @@ final class MogramBuilder {
 		children.add(child);
 	}
 
-	Mogram build() {
+	static List<Mogram> build(List<MogramBuilder> roots) {
+		return identify(roots.stream().map(MogramBuilder::buildTree).toList(), "m1:1");
+	}
+
+	private Built buildTree() {
+		List<Built> built = children.stream().map(MogramBuilder::buildTree).toList();
+		List<MogramIdentity.Child> fingerprints = built.stream()
+			.map(child -> new MogramIdentity.Child(child.identifier(), child.fingerprint())).toList();
+		String fingerprint = MogramIdentity.fingerprint(type, properties, facets, fingerprints);
+		return new Built(type, identifier, List.copyOf(properties), facets, built, fingerprint);
+	}
+
+	private static List<Mogram> identify(List<Built> siblings, String parentContext) {
+		Map<MogramIdentity.Declaration, Integer> occurrences = new LinkedHashMap<>();
 		List<Mogram> mograms = new ArrayList<>();
-		for (MogramBuilder child : children) mograms.add(child.build());
-		return new Mogram(type, identifier, properties, facets, mograms);
+		for (Built child : siblings) {
+			boolean anonymous = child.identifier().isEmpty();
+			MogramIdentity.Declaration declaration = new MogramIdentity.Declaration(child.type(), child.identifier(), anonymous ? child.fingerprint() : "");
+			int occurrence = occurrences.merge(declaration, 1, Integer::sum) - 1;
+			String context = MogramIdentity.context(parentContext, declaration, occurrence);
+			String id = anonymous ? MogramIdentity.identifier(context) : child.identifier();
+			mograms.add(new Mogram(child.type(), id, child.properties(), child.facets(), identify(child.children(), context), anonymous));
+		}
+		return List.copyOf(mograms);
+	}
+
+	private record Built(String type, String identifier, List<Property> properties, List<String> facets,
+			List<Built> children, String fingerprint) {
 	}
 }

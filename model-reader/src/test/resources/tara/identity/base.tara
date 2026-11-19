@@ -1,0 +1,8 @@
+dsl workflows
+
+Workflow Pipeline
+	Step is Enabled
+		label = "Validate"
+		retries = 2
+		Action("approve") Primary
+			description = "Call service"

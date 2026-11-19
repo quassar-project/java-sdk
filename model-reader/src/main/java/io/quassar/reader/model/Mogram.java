@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 public record Mogram(String type, String identifier, List<Property> properties,
-					 List<String> facets, List<Mogram> children) {
+					 List<String> facets, List<Mogram> children, boolean anonymous) {
 	public static final Mogram NULL = new Mogram("", "", List.of(), List.of(), List.of());
 
 	public boolean isNull() {
@@ -16,6 +16,10 @@ public record Mogram(String type, String identifier, List<Property> properties,
 		properties = List.copyOf(properties);
 		facets = List.copyOf(facets);
 		children = List.copyOf(children);
+	}
+
+	public Mogram(String type, String identifier, List<Property> properties, List<String> facets, List<Mogram> children) {
+		this(type, identifier, properties, facets, children, identifier.isEmpty());
 	}
 
 	public Value property(String name) {

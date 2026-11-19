@@ -1,0 +1,10 @@
+dsl workflows
+
+Step
+	label = "Confirmación"
+	enabled = true
+	weight = 1.5
+	action = External
+	values = "one" 2 false External empty
+	expression = 'amount > 0'
+	emptyValue = empty

@@ -16,6 +16,8 @@ Concepts and facets declared inside another type generate static classes inside 
 
 If you generated the API with an earlier SDK, delete the previously generated `model` package from the output directory before regenerating it.
 
+Nodes without an explicit M1 identifier receive the same deterministic UUID as in the [Model Reader API](model-reader-api.md#anonymous-identifiers). The UUID includes declaration context, so identical anonymous nodes remain distinguishable. Access it through `node.identifier()`.
+
 ## Property types
 
 | Metamodel declaration | Java getter |

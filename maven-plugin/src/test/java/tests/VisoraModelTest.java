@@ -5,6 +5,7 @@ import io.quassar.metamodel.domain.MetamodelReader;
 import io.quassar.metamodel.domain.MetamodelResolver;
 import io.quassar.reader.Models;
 import io.quassar.reader.model.Model;
+import io.quassar.reader.model.Mogram;
 import io.quassar.templating.ports.FrameView;
 import io.quassar.reader.adapters.TextSource;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ class VisoraModelTest {
 		var concatenated = Models.read(new TextSource(List.copyOf(archive.sources().values())));
 		assertThat(model.mograms()).containsExactlyElementsOf(concatenated.mograms());
 		assertThat(model.allMograms()).hasSize(638);
+		assertThat(model.allMograms().stream().filter(Mogram::anonymous)
+			.map(Mogram::identifier).toList()).doesNotHaveDuplicates();
 		assertThat(model.mograms()).hasSize(77);
 		assertThat(model.resources()).hasSize(archive.resources().size());
 		for (var resource : archive.resources().entrySet())

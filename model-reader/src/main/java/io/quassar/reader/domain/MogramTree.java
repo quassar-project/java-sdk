@@ -2,7 +2,6 @@ package io.quassar.reader.domain;
 
 import io.quassar.reader.domain.ModelReader.LineReader;
 import io.quassar.reader.model.Model;
-import io.quassar.reader.model.Mogram;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -24,9 +23,7 @@ final class MogramTree {
 	}
 
 	Model build() {
-		List<Mogram> mograms = new ArrayList<>();
-		for (MogramBuilder root : roots) mograms.add(root.build());
-		return new Model(mograms);
+		return new Model(MogramBuilder.build(roots));
 	}
 
 	private MogramBuilder findParent(int indentation) {

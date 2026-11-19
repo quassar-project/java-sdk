@@ -46,7 +46,7 @@ class ModelReaderTest {
 	@Test
 	void readsUnnamedAndInlineMograms() throws Exception {
 		Model model = TestResources.model("library.tara");
-		assertThat(model.get("Subjects").children().get(0).identifier()).isEmpty();
+		assertThat(model.get("Subjects").children().get(0).identifier()).isNotBlank();
 		assertThat(model.get("Recommendations").children().get(1).children().get(0).type())
 			.isEqualTo("Transform");
 		assertThat(model.get("Recommendations").children().get(0).property("isbn"))

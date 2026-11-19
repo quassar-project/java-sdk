@@ -40,7 +40,7 @@ public final class CriticalEditionTest {
 			new Value.Number(new BigDecimal("19.95")),
 			new Value.Number(new BigDecimal("24.50")),
 			new Value.Number(new BigDecimal("49.00")));
-		assertThat(edition.children().get(0).identifier()).isEmpty();
+		assertThat(edition.children().get(0).identifier()).isNotBlank();
 	}
 
 	@Test

@@ -38,7 +38,7 @@ public final class MogramTest {
 			new Value.Reference("Classics.Introduction"),
 			new Value.Reference("Classics"));
 		Mogram unnamed = TestResources.model("library.tara").get("Subjects").children().get(0);
-		assertThat(unnamed.identifier()).isEqualTo("");
+		assertThat(unnamed.identifier()).isNotBlank();
 	}
 
 	@Test

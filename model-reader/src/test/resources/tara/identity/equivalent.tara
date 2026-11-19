@@ -1,0 +1,5 @@
+dsl workflows
+// Formatting and named-property order do not change content.
+Workflow Pipeline
+	Step(retries=2.00, label="Validate") is Enabled
+		Action("approve") Primary > description = "Call service"

@@ -1,0 +1,11 @@
+dsl workflows
+
+Workflow Pipeline
+	Stage(label="Same")
+		Step(label="Same")
+	Stage(label="Same")
+		Step(label="Same")
+
+Workflow Other
+	Stage(label="Same")
+		Step(label="Same")

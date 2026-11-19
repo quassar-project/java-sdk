@@ -39,6 +39,12 @@ public class WorkflowExample {
 
 This prints `OrderFulfillment` and `Send confirmation`. Passing `step` as context lets the reader resolve references relative to the step before looking from the root. Use `model.get(value)` when the reference is already rooted.
 
+## Anonymous identifiers
+
+When a mogram has no explicit identifier, the reader assigns a deterministic UUID from its content, children and declaration context. Reading the same model again produces the same IDs. Identical anonymous siblings get different IDs through their occurrence within that context. Within an unchanged parent context, inserting a sibling with different content does not change those IDs. An anonymous parent whose ID changes also changes the context of its descendants.
+
+Comments, formatting and named-property order do not affect the UUID. The fingerprint uses values written in M1 before applying M2 defaults. It preserves child order and reference paths without following reference targets. Explicit identifiers remain unchanged, and existing paths through anonymous parents continue to work. Use `mogram.anonymous()` to check whether the identifier was omitted in M1; `model.get(mogram.identifier())` can retrieve that mogram by its generated UUID. `Mogram.NULL` keeps an empty identifier.
+
 ## Find and navigate mograms
 
 Use an identifier path when you know the exact object. Use a query when you want to filter or navigate.

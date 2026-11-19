@@ -149,7 +149,9 @@ public final class Model {
 				List<Mogram> matches = findInScope(reference, scope);
 				if (!matches.isEmpty()) return matches;
 			}
-			return findPath(roots, reference);
+			List<Mogram> matches = findPath(roots, reference);
+			if (!matches.isEmpty()) return matches;
+			return find(reference).stream().filter(Mogram::anonymous).toList();
 		}
 
         private List<Mogram> findInScope(String reference, Mogram scope) {
@@ -182,12 +184,21 @@ public final class Model {
 			String path = pathOf(mogram, prefix);
 			mograms.add(mogram);
 			positions.put(mogram, new Index.Position(path, parent));
-			if (!mogram.identifier().isEmpty()) byPath.computeIfAbsent(path, key -> new ArrayList<>()).add(mogram);
+			if (!mogram.identifier().isEmpty()) {
+				String key = mogram.anonymous() ? identifiedPath(mogram, prefix) : path;
+				byPath.computeIfAbsent(key, ignored -> new ArrayList<>()).add(mogram);
+				if (mogram.anonymous() && !key.equals(mogram.identifier()))
+					byPath.computeIfAbsent(mogram.identifier(), ignored -> new ArrayList<>()).add(mogram);
+			}
 			for (Mogram child : mogram.children()) add(child, mogram, path);
 		}
 
 		private String pathOf(Mogram mogram, String prefix) {
-			if (mogram.identifier().isEmpty()) return prefix;
+			if (mogram.anonymous()) return prefix;
+			return identifiedPath(mogram, prefix);
+		}
+
+		private String identifiedPath(Mogram mogram, String prefix) {
 			if (prefix.isEmpty()) return mogram.identifier();
 			return prefix + "." + mogram.identifier();
 		}
