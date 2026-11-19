@@ -13,10 +13,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MogramIdentityTest {
 	@Test
-	void assignsARepeatableAlphanumericIdToAnonymousMograms() throws Exception {
+	void assignsARepeatableHashIdToAnonymousMograms() throws Exception {
 		Mogram first = anonymous("base.tara");
 		Mogram second = anonymous("base.tara");
-		assertThat(first.identifier()).matches("Step-[a-z0-9]{12,}");
+		assertThat(first.identifier()).matches("Step[a-f0-9]{12,}");
 		assertThat(second.identifier()).isEqualTo(first.identifier());
 		assertThat(Models.create("Step(label=\"Validate\")").mograms().get(0).identifier()).containsPattern("[0-9]");
 	}
@@ -107,7 +107,7 @@ class MogramIdentityTest {
 		var model = Models.create("Step " + candidate + "\n" + source);
 		assertThat(model.mograms().get(0).identifier()).isEqualTo(candidate);
 		assertThat(model.mograms()).extracting(Mogram::identifier).doesNotHaveDuplicates();
-		assertThat(model.mograms().get(1).identifier()).startsWith(candidate).matches("Step-[a-z0-9]{13,}");
+		assertThat(model.mograms().get(1).identifier()).startsWith(candidate).matches("Step[a-f0-9]{13,}");
 		assertThat(Models.create("Step " + candidate + "\n" + source).mograms()).isEqualTo(model.mograms());
 		var explicitLast = Models.create(source + "\nStep " + candidate + "\n");
 		assertThat(explicitLast.mograms().subList(0, 2)).isEqualTo(model.mograms().subList(1, 3));
